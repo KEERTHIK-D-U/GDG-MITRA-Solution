@@ -1,18 +1,12 @@
-// Important: Replace this with your Firebase project's configuration.
-// To get your config object:
-// 1. Go to the Firebase Console: https://console.firebase.google.com/
-// 2. Select your project.
-// 3. Click the gear icon (Project settings) in the top-left sidebar.
-// 4. In the "General" tab, scroll down to "Your apps".
-// 5. If you haven't created a web app, click the "</>" icon to create one.
-// 6. Find your web app and copy the `firebaseConfig` object.
+// Important: This file reads your Firebase configuration from environment variables.
+// Make sure to populate the .env.local file with your project's credentials.
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY", // <--- PASTE YOURS HERE
-  authDomain: "YOUR_PROJECT_ID.firebaseapp.com", // <--- PASTE YOURS HERE
-  projectId: "YOUR_PROJECT_ID", // <--- PASTE YOURS HERE
-  storageBucket: "YOUR_PROJECT_ID.appspot.com", // <--- PASTE YOURS HERE
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID", // <--- PASTE YOURS HERE
-  appId: "YOUR_APP_ID" // <--- PASTE YOURS HERE
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID
 };
 
 import { initializeApp, getApps, getApp } from "firebase/app";
@@ -20,7 +14,18 @@ import { getAuth } from "firebase/auth";
 import { getFirestore, doc, setDoc, getDoc } from "firebase/firestore";
 import type { User as FirebaseUser } from 'firebase/auth';
 
-const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+// Initialize Firebase
+let app;
+if (!getApps().length) {
+    if (!firebaseConfig.apiKey || firebaseConfig.apiKey === "YOUR_API_KEY") {
+        console.error("Firebase config is not set. Please update .env.local");
+        // You might want to throw an error or handle this case differently
+    }
+    app = initializeApp(firebaseConfig);
+} else {
+    app = getApp();
+}
+
 const auth = getAuth(app);
 const db = getFirestore(app);
 
