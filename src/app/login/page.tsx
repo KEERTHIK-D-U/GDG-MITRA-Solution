@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from "next/link";
@@ -95,11 +96,19 @@ export default function LoginPage() {
         });
         router.push(userProfile.role === 'host' ? "/dashboard" : "/discover");
     } catch (error: any) {
-        toast({
-            variant: "destructive",
-            title: "Google Sign-In Failed",
-            description: error.message,
-        });
+        if (error.code === 'auth/account-exists-with-different-credential') {
+             toast({
+                variant: "destructive",
+                title: "Account Exists",
+                description: "This email is registered with a password. Please log in with your email and password.",
+            });
+        } else {
+            toast({
+                variant: "destructive",
+                title: "Google Sign-In Failed",
+                description: error.message,
+            });
+        }
     } finally {
         setLoading(false);
     }

@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from "next/link";
@@ -14,7 +15,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
-import { auth, createUserProfile, UserRole } from "@/lib/firebase";
+import { auth, createUserProfile, getUserProfile, UserRole } from "@/lib/firebase";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -68,7 +69,20 @@ export default function SignupPage() {
     try {
         const result = await signInWithPopup(auth, provider);
         const user = result.user;
-        // You might want to check if user profile already exists
+        
+        // Check if user profile already exists
+        const existingProfile = await getUserProfile(user.uid);
+        if (existingProfile) {
+            // User already exists, so just log them in.
+            toast({
+              title: "Welcome Back!",
+              description: "You have been successfully logged in.",
+            });
+            router.push(existingProfile.role === 'host' ? "/dashboard" : "/discover");
+            return;
+        }
+        
+        // If no profile, create a new one
         await createUserProfile(user, user.displayName || "New User", role);
         toast({
           title: "Account Created!",
@@ -76,13 +90,21 @@ export default function SignupPage() {
         });
         router.push(role === 'host' ? "/dashboard" : "/discover");
     } catch (error: any) {
-        toast({
-            variant: "destructive",
-            title: "Google Sign-Up Failed",
-            description: error.message,
-        });
+         if (error.code === 'auth/account-exists-with-different-credential') {
+            toast({
+                variant: "destructive",
+                title: "Account Exists",
+                description: "An account with this email already exists. Please log in using your original method.",
+            });
+        } else {
+            toast({
+                variant: "destructive",
+                title: "Google Sign-Up Failed",
+                description: error.message,
+            });
+        }
     } finally {
-      setLoading(false);
+        setLoading(false);
     }
   }
 
