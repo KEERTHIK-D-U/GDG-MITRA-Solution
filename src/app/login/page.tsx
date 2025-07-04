@@ -14,7 +14,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
-import { auth, getUserProfile } from "@/lib/firebase";
+import { auth, getUserProfile, UserRole } from "@/lib/firebase";
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/context/auth-context";
@@ -39,10 +39,20 @@ export default function LoginPage() {
     },
   });
 
+  const handleRedirect = (role?: UserRole) => {
+    if (role === 'admin') {
+      router.push('/admin');
+    } else if (role === 'host') {
+      router.push('/dashboard');
+    } else {
+      router.push('/discover');
+    }
+  };
+
   useEffect(() => {
     // Redirect if user is already logged in
     if (!authLoading && user) {
-      router.push(user.role === 'host' ? "/dashboard" : "/discover");
+      handleRedirect(user.role);
     }
   }, [user, authLoading, router]);
 
@@ -60,7 +70,7 @@ export default function LoginPage() {
         title: "Login Successful!",
         description: "Welcome back.",
       });
-      router.push(userProfile?.role === 'host' ? "/dashboard" : "/discover");
+      handleRedirect(userProfile?.role);
     } catch (error: any) {
       toast({
         variant: "destructive",
@@ -94,7 +104,7 @@ export default function LoginPage() {
           title: "Login Successful!",
           description: "Welcome back.",
         });
-        router.push(userProfile.role === 'host' ? "/dashboard" : "/discover");
+        handleRedirect(userProfile.role);
     } catch (error: any) {
         if (error.code === 'auth/account-exists-with-different-credential') {
              toast({

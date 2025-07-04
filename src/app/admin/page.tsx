@@ -1,4 +1,3 @@
-
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -8,7 +7,7 @@ import { Users, CalendarCheck, GitPullRequest } from "lucide-react";
 export default function AdminPage() {
   useRequireAuth('admin'); // Protect this route for admins only
   
-  // Placeholder data
+  // Placeholder data - in a real app, this would be fetched from Firestore
   const totalUsers = 0;
   const eventRegistrations = 0;
   const projectContributions = 0;
