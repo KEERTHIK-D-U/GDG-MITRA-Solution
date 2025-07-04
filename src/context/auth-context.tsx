@@ -37,12 +37,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           setFirebaseUser(null);
           setUser(null);
         }
-      } catch (error) {
-        console.error("Failed to get user profile:", error);
+      } catch (error: any) {
+        console.error("Auth context error fetching profile:", error);
         toast({
           variant: "destructive",
-          title: "Database Connection Error",
-          description: "Could not fetch user profile. Please ensure Firestore is enabled in your Firebase project.",
+          title: "Profile Load Error",
+          description: error.message || "An unknown error occurred while fetching your profile.",
         });
         setUser(null);
       } finally {
