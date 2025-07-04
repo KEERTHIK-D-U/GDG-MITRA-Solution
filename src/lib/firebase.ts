@@ -17,9 +17,8 @@ import type { User as FirebaseUser } from 'firebase/auth';
 // Initialize Firebase
 let app;
 if (!getApps().length) {
-    if (!firebaseConfig.apiKey || firebaseConfig.apiKey === "YOUR_API_KEY") {
-        console.error("Firebase config is not set. Please update .env.local");
-        // You might want to throw an error or handle this case differently
+    if (!firebaseConfig.apiKey) {
+        console.error("Firebase config is not set. Please update .env.local and restart your server.");
     }
     app = initializeApp(firebaseConfig);
 } else {
