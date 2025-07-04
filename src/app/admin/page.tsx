@@ -25,7 +25,7 @@ export default function AdminPage() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <Card className="transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-[#00e97b] hover:shadow-[#00e97b]/30 hover:border-2">
+            <Card className="transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-2 hover:border-[#ced4ce] dark:hover:border-[#00e97b] hover:shadow-[#006a35]/30 dark:hover:shadow-[#00e97b]/30">
                 <CardHeader>
                     <CardTitle className="flex items-center justify-between">
                         <span>Total Users</span>
@@ -37,7 +37,7 @@ export default function AdminPage() {
                     <p className="text-sm text-muted-foreground">Registered users in the system</p>
                 </CardContent>
             </Card>
-            <Card className="transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-[#00e97b] hover:shadow-[#00e97b]/30 hover:border-2">
+            <Card className="transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-2 hover:border-[#ced4ce] dark:hover:border-[#00e97b] hover:shadow-[#006a35]/30 dark:hover:shadow-[#00e97b]/30">
                 <CardHeader>
                     <CardTitle className="flex items-center justify-between">
                         <span>Event Registrations</span>
@@ -49,7 +49,7 @@ export default function AdminPage() {
                     <p className="text-sm text-muted-foreground">Total event sign-ups</p>
                 </CardContent>
             </Card>
-            <Card className="transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-[#00e97b] hover:shadow-[#00e97b]/30 hover:border-2">
+            <Card className="transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-2 hover:border-[#ced4ce] dark:hover:border-[#00e97b] hover:shadow-[#006a35]/30 dark:hover:shadow-[#00e97b]/30">
                 <CardHeader>
                     <CardTitle className="flex items-center justify-between">
                         <span>Project Contributions</span>

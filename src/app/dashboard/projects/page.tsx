@@ -39,7 +39,7 @@ export default function ManageProjectsPage() {
         )}
 
         <div id="add-project-form" className="pt-16">
-            <Card className="max-w-3xl mx-auto transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-[#00e97b] hover:shadow-[#00e97b]/30 hover:border-2">
+            <Card className="max-w-3xl mx-auto transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-2 hover:border-[#ced4ce] dark:hover:border-[#00e97b] hover:shadow-[#006a35]/30 dark:hover:shadow-[#00e97b]/30">
                 <CardHeader>
                     <CardTitle>Create a New Project</CardTitle>
                     <CardDescription>Fill out the details below to list your open source project.</CardDescription>
