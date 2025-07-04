@@ -71,7 +71,7 @@ export function useRequireAuth(role: 'host' | 'volunteer' | 'admin' | null = nul
         }
         if (!loading && user && role && user.role !== role) {
             // if role is specified and doesn't match, redirect to a generic page or dashboard
-             router.push(user.role === 'host' ? '/dashboard' : '/');
+             router.push(user.role === 'host' ? '/dashboard' : '/discover');
         }
     }, [user, loading, router, redirectUrl, role]);
 

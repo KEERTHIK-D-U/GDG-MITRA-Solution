@@ -50,7 +50,7 @@ export default function SignupPage() {
         title: "Account Created!",
         description: "You have been successfully signed up.",
       });
-      router.push(data.role === 'host' ? "/dashboard" : "/");
+      router.push(data.role === 'host' ? "/dashboard" : "/discover");
     } catch (error: any) {
       toast({
         variant: "destructive",
@@ -74,7 +74,7 @@ export default function SignupPage() {
           title: "Account Created!",
           description: "You have been successfully signed up with Google.",
         });
-        router.push(role === 'host' ? "/dashboard" : "/");
+        router.push(role === 'host' ? "/dashboard" : "/discover");
     } catch (error: any) {
         toast({
             variant: "destructive",

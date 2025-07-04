@@ -1,9 +1,102 @@
-export const events: any[] = [];
+export const events = [
+    {
+      id: 1,
+      title: "Coastal Cleanup Drive",
+      date: "Oct 26, 2024",
+      location: "Panambur Beach",
+      imageUrl: "https://placehold.co/400x250.png",
+    },
+    {
+      id: 2,
+      title: "Tech for Good Workshop",
+      date: "Nov 5, 2024",
+      location: "Sahyadri College",
+      imageUrl: "https://placehold.co/400x250.png",
+    },
+    {
+      id: 3,
+      title: "Animal Shelter Volunteering",
+      date: "Nov 12, 2024",
+      location: "Bejai, Mangalore",
+      imageUrl: "https://placehold.co/400x250.png",
+    },
+    {
+        id: 4,
+        title: "Plantation Drive",
+        date: "Nov 19, 2024",
+        location: "Kadri Park",
+        imageUrl: "https://placehold.co/400x250.png",
+    },
+];
 
-export const hackathons: any[] = [];
+export const hackathons = [
+    {
+        id: 1,
+        title: "Innovate for Mangalore",
+        dates: "Dec 1-3, 2024",
+        description: "A 3-day hackathon to build solutions for local civic issues.",
+        imageUrl: "https://placehold.co/400x225.png"
+    },
+    {
+        id: 2,
+        title: "GreenTech Challenge",
+        dates: "Jan 10-12, 2025",
+        description: "Focus on sustainability and build projects for a greener future.",
+        imageUrl: "https://placehold.co/400x225.png"
+    }
+];
 
-export const projects: any[] = [];
+export const projects = [
+    {
+        id: 1,
+        title: "CommunityConnect App",
+        description: "An open-source platform to connect local communities. This very app!",
+        imageUrl: "https://placehold.co/400x225.png",
+        tags: ["Next.js", "React", "Firebase", "TypeScript"]
+    },
+    {
+        id: 2,
+        title: "Waste Management Dashboard",
+        description: "A data visualization tool to track and analyze city waste management data.",
+        imageUrl: "https://placehold.co/400x225.png",
+        tags: ["Python", "Flask", "React", "D3.js"]
+    }
+];
 
-export const userHistory: any[] = [];
+export const userHistory = [
+    {
+      id: 1,
+      title: "Coastal Cleanup Drive",
+      date: "Oct 26, 2024",
+      role: "Volunteer",
+      hours: 4,
+    },
+     {
+      id: 2,
+      title: "CommunityConnect App",
+      date: "Ongoing",
+      role: "Contributor",
+      hours: 15,
+    },
+];
 
-export const userBadges: any[] = [];
+export const userBadges = [
+    {
+        id: 1,
+        name: "First Contribution",
+        icon: "Sprout",
+        description: "Made your first contribution."
+    },
+    {
+        id: 2,
+        name: "Community Helper",
+        icon: "HeartHandshake",
+        description: "Volunteered for 10+ hours."
+    },
+     {
+        id: 3,
+        name: "Code Committer",
+        icon: "Code",
+        description: "Contributed to an open-source project."
+    }
+];

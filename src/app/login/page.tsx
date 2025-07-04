@@ -43,7 +43,7 @@ export default function LoginPage() {
   }
 
   if (user) {
-    router.push(user.role === 'host' ? "/dashboard" : "/");
+    router.push(user.role === 'host' ? "/dashboard" : "/discover");
     return null; // or a loading spinner
   }
 
@@ -57,7 +57,7 @@ export default function LoginPage() {
         title: "Login Successful!",
         description: "Welcome back.",
       });
-      router.push(userProfile?.role === 'host' ? "/dashboard" : "/");
+      router.push(userProfile?.role === 'host' ? "/dashboard" : "/discover");
     } catch (error: any) {
       toast({
         variant: "destructive",
@@ -91,7 +91,7 @@ export default function LoginPage() {
           title: "Login Successful!",
           description: "Welcome back.",
         });
-        router.push(userProfile.role === 'host' ? "/dashboard" : "/");
+        router.push(userProfile.role === 'host' ? "/dashboard" : "/discover");
     } catch (error: any) {
         toast({
             variant: "destructive",

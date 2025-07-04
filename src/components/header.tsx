@@ -11,15 +11,20 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { HandHeart, Menu, User, LogOut, LayoutDashboard } from "lucide-react";
+import { HandHeart, Menu, User, LogOut, LayoutDashboard, Compass } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { Sheet, SheetContent, SheetTrigger } from "./ui/sheet";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/context/auth-context";
 import { auth } from "@/lib/firebase";
 
-const navLinks = [
-  { href: "/", label: "Events" },
+const loggedOutLinks = [
+  { href: "/", label: "Home" },
+  { href: "/#how-it-works", label: "How It Works" },
+];
+
+const loggedInLinks = [
+  { href: "/discover", label: "Discover" },
   { href: "/hackathons", label: "Hackathons" },
   { href: "/projects", label: "Projects" },
 ];
@@ -27,6 +32,7 @@ const navLinks = [
 export function Header() {
   const pathname = usePathname();
   const { user, loading } = useAuth();
+  const navLinks = user ? loggedInLinks : loggedOutLinks;
 
   const handleLogout = async () => {
     await auth.signOut();
@@ -114,6 +120,12 @@ export function Header() {
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
+                   <DropdownMenuItem asChild>
+                    <Link href="/discover">
+                      <Compass className="mr-2 h-4 w-4" />
+                      <span>Discover</span>
+                    </Link>
+                  </DropdownMenuItem>
                   <DropdownMenuItem asChild>
                     <Link href="/profile">
                       <User className="mr-2 h-4 w-4" />
