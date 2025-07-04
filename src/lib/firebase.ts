@@ -11,11 +11,11 @@ const firebaseConfig = {
 
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
-import { getFirestore, doc, setDoc, getDoc } from "firebase/firestore";
+import { getFirestore, doc, setDoc, getDoc, collection, addDoc, serverTimestamp } from "firebase/firestore";
 import type { User as FirebaseUser } from 'firebase/auth';
 
 // For debugging: This will print the Project ID to your browser's developer console.
-console.log("Attempting to initialize Firebase with Project ID:", firebaseConfig.projectId);
+// console.log("Attempting to initialize Firebase with Project ID:", firebaseConfig.projectId);
 
 
 // Initialize Firebase
@@ -92,6 +92,26 @@ export const testFirestoreConnection = async (uid: string) => {
         throw error; // Re-throw the error to be caught by the caller
     }
 }
+
+
+// Function to register a user for an event
+export const registerForEvent = async (userId: string, userName: string, userEmail: string, eventId: number, eventTitle: string) => {
+    const registrationData = {
+        userId,
+        userName,
+        userEmail,
+        eventId: eventId.toString(),
+        eventTitle,
+        registeredAt: serverTimestamp(),
+    };
+    try {
+        const docRef = await addDoc(collection(db, "registrations"), registrationData);
+        return { success: true, registrationId: docRef.id };
+    } catch (error) {
+        console.error("Error adding registration document: ", error);
+        throw new Error("Failed to register for the event due to a database error.");
+    }
+};
 
 
 export { app, auth, db };

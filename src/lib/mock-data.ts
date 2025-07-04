@@ -1,29 +1,37 @@
-export const events = [
+export interface Event {
+  id: number;
+  title: string;
+  date: string;
+  location: string;
+  imageUrl: string;
+}
+
+export const events: Event[] = [
     {
       id: 1,
       title: "Coastal Cleanup Drive",
-      date: "Oct 26, 2024",
+      date: "Jul 15, 2025",
       location: "Panambur Beach",
       imageUrl: "https://placehold.co/400x250.png",
     },
     {
       id: 2,
       title: "Tech for Good Workshop",
-      date: "Nov 5, 2024",
+      date: "Jul 22, 2025",
       location: "Sahyadri College",
       imageUrl: "https://placehold.co/400x250.png",
     },
     {
       id: 3,
       title: "Animal Shelter Volunteering",
-      date: "Nov 12, 2024",
+      date: "Aug 1, 2025",
       location: "Bejai, Mangalore",
       imageUrl: "https://placehold.co/400x250.png",
     },
     {
         id: 4,
         title: "Plantation Drive",
-        date: "Nov 19, 2024",
+        date: "Aug 10, 2025",
         location: "Kadri Park",
         imageUrl: "https://placehold.co/400x250.png",
     },
@@ -33,14 +41,14 @@ export const hackathons = [
     {
         id: 1,
         title: "Innovate for Mangalore",
-        dates: "Dec 1-3, 2024",
+        dates: "Dec 1-3, 2025",
         description: "A 3-day hackathon to build solutions for local civic issues.",
         imageUrl: "https://placehold.co/400x225.png"
     },
     {
         id: 2,
         title: "GreenTech Challenge",
-        dates: "Jan 10-12, 2025",
+        dates: "Jan 10-12, 2026",
         description: "Focus on sustainability and build projects for a greener future.",
         imageUrl: "https://placehold.co/400x225.png"
     }
