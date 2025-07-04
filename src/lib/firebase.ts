@@ -1,13 +1,18 @@
-// Important: Replace with your Firebase project's configuration.
-// Go to your Firebase project's settings, and in the "General" tab,
-// find your web app and copy the configuration object.
+// Important: Replace this with your Firebase project's configuration.
+// To get your config object:
+// 1. Go to the Firebase Console: https://console.firebase.google.com/
+// 2. Select your project.
+// 3. Click the gear icon (Project settings) in the top-left sidebar.
+// 4. In the "General" tab, scroll down to "Your apps".
+// 5. If you haven't created a web app, click the "</>" icon to create one.
+// 6. Find your web app and copy the `firebaseConfig` object.
 const firebaseConfig = {
-  apiKey: "AIza....",
-  authDomain: "your-project-id.firebaseapp.com",
-  projectId: "your-project-id",
-  storageBucket: "your-project-id.appspot.com",
-  messagingSenderId: "1234567890",
-  appId: "1:1234567890:web:abcdef123456"
+  apiKey: "YOUR_API_KEY", // <--- PASTE YOURS HERE
+  authDomain: "YOUR_PROJECT_ID.firebaseapp.com", // <--- PASTE YOURS HERE
+  projectId: "YOUR_PROJECT_ID", // <--- PASTE YOURS HERE
+  storageBucket: "YOUR_PROJECT_ID.appspot.com", // <--- PASTE YOURS HERE
+  messagingSenderId: "YOUR_MESSAGING_SENDER_ID", // <--- PASTE YOURS HERE
+  appId: "YOUR_APP_ID" // <--- PASTE YOURS HERE
 };
 
 import { initializeApp, getApps, getApp } from "firebase/app";
