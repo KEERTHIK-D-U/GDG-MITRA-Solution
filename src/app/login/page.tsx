@@ -7,31 +7,55 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { GoogleIcon } from "@/components/google-icon";
 import { Separator } from "@/components/ui/separator";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 export default function LoginPage() {
   return (
-    <div className="flex items-center justify-center min-h-[calc(100vh-4rem)] bg-background p-4">
-      <Card className="mx-auto max-w-sm w-full">
+    <div className="flex items-center justify-center min-h-[calc(100vh-4rem)] bg-secondary/50 p-4">
+      <Card className="mx-auto max-w-sm w-full shadow-xl">
         <CardHeader>
-          <CardTitle className="text-2xl font-headline">Login to Mitra</CardTitle>
-          <CardDescription>Enter your email below to login to your account</CardDescription>
+          <CardTitle className="text-2xl font-headline">Welcome Back!</CardTitle>
+          <CardDescription>Select your role and log in to continue.</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid gap-4">
-            <Button variant="outline" className="w-full">
-              <GoogleIcon className="mr-2 h-4 w-4" />
-              Login with Google
-            </Button>
+          <div className="grid gap-6">
+            <RadioGroup defaultValue="volunteer" className="grid grid-cols-2 gap-4">
+              <div>
+                <RadioGroupItem value="volunteer" id="volunteer" className="peer sr-only" />
+                <Label
+                  htmlFor="volunteer"
+                  className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
+                >
+                  Volunteer
+                </Label>
+              </div>
+              <div>
+                <RadioGroupItem value="host" id="host" className="peer sr-only" />
+                <Label
+                  htmlFor="host"
+                  className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
+                >
+                  Host
+                </Label>
+              </div>
+            </RadioGroup>
+            
             <div className="relative">
                 <div className="absolute inset-0 flex items-center">
                     <Separator />
                 </div>
                 <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-background px-2 text-muted-foreground">
+                    <span className="bg-card px-2 text-muted-foreground">
                     Or continue with
                     </span>
                 </div>
             </div>
+
+            <Button variant="outline" className="w-full">
+              <GoogleIcon className="mr-2 h-4 w-4" />
+              Login with Google
+            </Button>
+            
             <div className="grid gap-2">
               <Label htmlFor="email">Email</Label>
               <Input id="email" type="email" placeholder="m@example.com" required />

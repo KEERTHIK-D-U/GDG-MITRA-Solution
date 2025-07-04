@@ -11,7 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { HandHeart, Menu, User, LogOut, Settings } from "lucide-react";
+import { HandHeart, Menu, User, LogOut, LayoutDashboard } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { Sheet, SheetContent, SheetTrigger } from "./ui/sheet";
 import { cn } from "@/lib/utils";
@@ -21,6 +21,16 @@ const navLinks = [
   { href: "/hackathons", label: "Hackathons" },
   { href: "/projects", label: "Projects" },
 ];
+
+// This is a placeholder for real auth state
+const user = {
+    isLoggedIn: true,
+    role: "host", // can be 'volunteer' or 'host' or 'guest'
+    name: "Admin Host",
+    email: "host@example.com"
+};
+// const user = { isLoggedIn: false, role: "guest" };
+
 
 export function Header() {
   const pathname = usePathname();
@@ -83,9 +93,10 @@ export function Header() {
         </nav>
 
         <div className="flex flex-1 items-center justify-end space-x-4">
+        {user.isLoggedIn ? (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+              <Button variant="ghost" className="relative h-9 w-9 rounded-full">
                 <Avatar className="h-9 w-9">
                   <AvatarImage src="https://placehold.co/100x100.png" alt="User profile" />
                   <AvatarFallback>
@@ -97,9 +108,9 @@ export function Header() {
             <DropdownMenuContent className="w-56" align="end" forceMount>
               <DropdownMenuLabel className="font-normal">
                 <div className="flex flex-col space-y-1">
-                  <p className="text-sm font-medium leading-none">Guest User</p>
+                  <p className="text-sm font-medium leading-none">{user.name}</p>
                   <p className="text-xs leading-none text-muted-foreground">
-                    guest@example.com
+                    {user.email}
                   </p>
                 </div>
               </DropdownMenuLabel>
@@ -110,21 +121,33 @@ export function Header() {
                   <span>Profile</span>
                 </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link href="/profile">
-                  <Settings className="mr-2 h-4 w-4" />
-                  <span>Settings</span>
-                </Link>
-              </DropdownMenuItem>
+              {user.role === 'host' && (
+                  <DropdownMenuItem asChild>
+                      <Link href="/dashboard">
+                          <LayoutDashboard className="mr-2 h-4 w-4" />
+                          <span>Dashboard</span>
+                      </Link>
+                  </DropdownMenuItem>
+              )}
               <DropdownMenuSeparator />
               <DropdownMenuItem asChild>
                 <Link href="/login">
                   <LogOut className="mr-2 h-4 w-4" />
-                  <span>Log in</span>
+                  <span>Log out</span>
                 </Link>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
+        ) : (
+            <div className="flex items-center gap-2">
+                <Button variant="ghost" asChild>
+                    <Link href="/login">Log In</Link>
+                </Button>
+                <Button asChild>
+                    <Link href="/signup">Create Account</Link>
+                </Button>
+            </div>
+        )}
         </div>
       </div>
     </header>

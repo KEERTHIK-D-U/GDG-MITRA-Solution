@@ -2,7 +2,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
-import { Search, MapPin, Calendar } from "lucide-react";
+import { Search, MapPin, Calendar, Inbox } from "lucide-react";
 import { events } from "@/lib/mock-data";
 import Link from "next/link";
 
@@ -23,47 +23,57 @@ export default function Home() {
               <Input
                 type="search"
                 placeholder="Search for events, hackathons, or projects..."
-                className="w-full pl-10 pr-4 py-2 text-base"
+                className="w-full pl-10 pr-4 py-3 text-base rounded-full"
               />
             </div>
           </div>
         </div>
 
         <h2 className="text-3xl font-bold tracking-tight mb-8 font-headline">Upcoming Events</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {events.map((event) => (
-            <Card key={event.id} className="overflow-hidden flex flex-col hover:shadow-lg transition-shadow duration-300">
-              <CardHeader className="p-0">
-                <Image
-                  src={event.imageUrl}
-                  alt={event.title}
-                  width={400}
-                  height={250}
-                  className="w-full h-48 object-cover"
-                  data-ai-hint="event community"
-                />
-              </CardHeader>
-              <CardContent className="p-4 flex-grow">
-                <CardTitle className="text-xl mb-2 font-headline">{event.title}</CardTitle>
-                <div className="text-muted-foreground space-y-2">
-                  <div className="flex items-center">
-                    <Calendar className="w-4 h-4 mr-2" />
-                    <span>{event.date}</span>
+        {events.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {events.map((event) => (
+              <Card key={event.id} className="overflow-hidden flex flex-col hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
+                <CardHeader className="p-0">
+                  <Image
+                    src={event.imageUrl}
+                    alt={event.title}
+                    width={400}
+                    height={250}
+                    className="w-full h-48 object-cover"
+                    data-ai-hint="event community"
+                  />
+                </CardHeader>
+                <CardContent className="p-4 flex-grow">
+                  <CardTitle className="text-xl mb-2 font-headline">{event.title}</CardTitle>
+                  <div className="text-muted-foreground space-y-2">
+                    <div className="flex items-center">
+                      <Calendar className="w-4 h-4 mr-2" />
+                      <span>{event.date}</span>
+                    </div>
+                    <div className="flex items-center">
+                      <MapPin className="w-4 h-4 mr-2" />
+                      <span>{event.location}</span>
+                    </div>
                   </div>
-                  <div className="flex items-center">
-                    <MapPin className="w-4 h-4 mr-2" />
-                    <span>{event.location}</span>
-                  </div>
-                </div>
-              </CardContent>
-              <CardFooter className="p-4">
-                <Button asChild className="w-full" variant="outline">
-                  <Link href="#">View & Register</Link>
-                </Button>
-              </CardFooter>
-            </Card>
-          ))}
-        </div>
+                </CardContent>
+                <CardFooter className="p-4 bg-secondary/30">
+                  <Button asChild className="w-full" variant="outline">
+                    <Link href="#">View & Register</Link>
+                  </Button>
+                </CardFooter>
+              </Card>
+            ))}
+          </div>
+        ) : (
+          <div className="flex flex-col items-center justify-center text-center py-16 px-4 border-2 border-dashed rounded-lg">
+            <Inbox className="w-16 h-16 text-muted-foreground" />
+            <h3 className="mt-4 text-xl font-semibold">No Events Found</h3>
+            <p className="mt-2 text-muted-foreground">
+              There are no upcoming events at the moment. Check back later or create a new one!
+            </p>
+          </div>
+        )}
       </section>
     </div>
   );
