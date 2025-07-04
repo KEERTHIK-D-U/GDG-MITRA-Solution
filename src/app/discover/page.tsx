@@ -46,7 +46,7 @@ export default function DiscoverPage() {
           {events.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {events.map((event) => (
-                <Card key={event.id} className="overflow-hidden flex flex-col hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
+                <Card key={event.id} className="overflow-hidden flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-[#CFFFDC] hover:shadow-[#CFFFDC]/30">
                   <CardHeader className="p-0">
                     <Image
                       src={event.imageUrl}

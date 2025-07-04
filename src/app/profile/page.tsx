@@ -86,7 +86,7 @@ export default function ProfilePage() {
                 </TabsList>
 
                 <TabsContent value="history">
-                    <Card>
+                    <Card className="transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-[#CFFFDC] hover:shadow-[#CFFFDC]/30">
                         <CardHeader>
                             <CardTitle>Volunteer History</CardTitle>
                             <CardDescription>A record of your contributions and impact.</CardDescription>
@@ -109,7 +109,7 @@ export default function ProfilePage() {
                 </TabsContent>
 
                 <TabsContent value="rewards">
-                    <Card>
+                    <Card className="transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-[#CFFFDC] hover:shadow-[#CFFFDC]/30">
                         <CardHeader>
                             <CardTitle>Badges & Rewards</CardTitle>
                             <CardDescription>Celebrating your milestones and achievements.</CardDescription>
@@ -118,7 +118,7 @@ export default function ProfilePage() {
                             {userBadges.map((badge) => {
                                 const Icon = iconMap[badge.icon] || Hand;
                                 return (
-                                <div key={badge.id} className="flex flex-col items-center text-center gap-2 p-4 border rounded-lg hover:shadow-md transition-shadow">
+                                <div key={badge.id} className="flex flex-col items-center text-center gap-2 p-4 border rounded-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-[#CFFFDC] hover:shadow-[#CFFFDC]/30">
                                     <div className="p-4 rounded-full bg-accent/20 text-accent">
                                         <Icon className="w-8 h-8"/>
                                     </div>
@@ -132,7 +132,7 @@ export default function ProfilePage() {
                 </TabsContent>
                 
                 <TabsContent value="profile">
-                    <Card>
+                    <Card className="transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-[#CFFFDC] hover:shadow-[#CFFFDC]/30">
                         <CardHeader>
                             <CardTitle>Profile Details</CardTitle>
                             <CardDescription>Update your personal information.</CardDescription>
