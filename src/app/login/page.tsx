@@ -49,16 +49,14 @@ export default function LoginPage() {
     }
   }, [router]);
 
+  // Effect to redirect users who are already logged in when they visit the page
   useEffect(() => {
-    // This effect handles redirection for logged-in users.
-    // It runs when the component mounts and whenever the user's auth state changes.
     if (!authLoading && user) {
       handleRedirect(user.role);
     }
   }, [user, authLoading, handleRedirect]);
 
-  // If we are checking auth or the user is logged in, show a loading screen.
-  // This prevents the login form from flashing on the screen for users who are already authenticated.
+  // Show a loading screen to prevent the login form from flashing for already-authenticated users.
   if (authLoading || user) {
     return (
         <div className="flex items-center justify-center min-h-screen">
@@ -70,15 +68,18 @@ export default function LoginPage() {
   const onSubmit: SubmitHandler<FormValues> = async (data) => {
     setLoading(true);
     try {
-      // We only need to authenticate. The `onAuthStateChanged` listener
-      // in AuthContext will detect the new user, fetch their profile,
-      // and the useEffect on this page will handle the redirect.
-      await signInWithEmailAndPassword(auth, data.email, data.password);
+      const userCredential = await signInWithEmailAndPassword(auth, data.email, data.password);
+      // Fetch profile immediately to determine where to redirect
+      const userProfile = await getUserProfile(userCredential.user.uid);
       
       toast({
         title: "Login Successful!",
         description: "Welcome back. Redirecting...",
       });
+      
+      // Redirect based on role
+      handleRedirect(userProfile?.role);
+
     } catch (error: any) {
       toast({
         variant: "destructive",
@@ -87,8 +88,6 @@ export default function LoginPage() {
       });
       setLoading(false); // Only set loading to false on failure
     }
-    // No finally block, because on success we want the loading spinner to persist
-    // until the page redirects.
   };
   
   const handleGoogleLogin = async () => {
@@ -98,7 +97,6 @@ export default function LoginPage() {
         const result = await signInWithPopup(auth, provider);
         const userProfile = await getUserProfile(result.user.uid);
 
-        // A user might sign in with Google but not have a profile if they abandoned the signup process.
         if (!userProfile) {
              await auth.signOut();
              toast({
@@ -115,7 +113,9 @@ export default function LoginPage() {
           title: "Login Successful!",
           description: "Welcome back. Redirecting...",
         });
-        // The useEffect will handle the redirect after AuthContext updates.
+
+        handleRedirect(userProfile.role);
+
     } catch (error: any) {
         if (error.code === 'auth/account-exists-with-different-credential') {
              toast({
@@ -130,10 +130,9 @@ export default function LoginPage() {
                 description: error.message,
             });
         }
-        setLoading(false); // Only set loading to false on failure
+        setLoading(false);
     }
   }
-
 
   return (
     <div className="flex items-center justify-center min-h-[calc(100vh-4rem)] bg-secondary/50 p-4">
