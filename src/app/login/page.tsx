@@ -14,7 +14,7 @@ import * as z from "zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 import { auth, getUserProfile } from "@/lib/firebase";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/context/auth-context";
 
@@ -38,13 +38,15 @@ export default function LoginPage() {
     },
   });
 
-  if (authLoading) {
-      return <div>Loading...</div>; // Or a skeleton loader
-  }
+  useEffect(() => {
+    // Redirect if user is already logged in
+    if (!authLoading && user) {
+      router.push(user.role === 'host' ? "/dashboard" : "/discover");
+    }
+  }, [user, authLoading, router]);
 
-  if (user) {
-    router.push(user.role === 'host' ? "/dashboard" : "/discover");
-    return null; // or a loading spinner
+  if (authLoading || user) {
+    return <div>Loading...</div>; // Show loader while checking auth or redirecting
   }
 
   const onSubmit: SubmitHandler<FormValues> = async (data) => {
