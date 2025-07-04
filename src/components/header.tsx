@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { HandHeart, Menu, User, LogOut, LayoutDashboard, Compass } from "lucide-react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Sheet, SheetContent, SheetTrigger } from "./ui/sheet";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/context/auth-context";
@@ -20,7 +20,6 @@ import { auth } from "@/lib/firebase";
 
 const loggedOutLinks = [
   { href: "/", label: "Home" },
-  { href: "/#how-it-works", label: "How It Works" },
 ];
 
 const loggedInLinks = [
@@ -31,11 +30,13 @@ const loggedInLinks = [
 
 export function Header() {
   const pathname = usePathname();
+  const router = useRouter();
   const { user, loading } = useAuth();
   const navLinks = user ? loggedInLinks : loggedOutLinks;
 
   const handleLogout = async () => {
     await auth.signOut();
+    router.push('/');
   };
 
   return (
@@ -105,7 +106,7 @@ export function Header() {
                     <Avatar className="h-9 w-9">
                       <AvatarImage src="https://placehold.co/100x100.png" alt={user.name} />
                       <AvatarFallback>
-                        {user.name.charAt(0).toUpperCase()}
+                        {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
                       </AvatarFallback>
                     </Avatar>
                   </Button>

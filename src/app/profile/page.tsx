@@ -8,7 +8,6 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { userHistory, userBadges } from "@/lib/mock-data";
-import { cn } from "@/lib/utils";
 import { Award, Code, Edit, GitPullRequest, Hand, HeartHandshake, Sprout, User as UserIcon, Users } from "lucide-react";
 import * as React from "react";
 import { useAuth, useRequireAuth } from "@/context/auth-context";
@@ -24,10 +23,10 @@ const iconMap: { [key: string]: React.ElementType } = {
 
 export default function ProfilePage() {
     useRequireAuth(); // Protect this route for any logged in user
-    const { user } = useAuth();
+    const { user, loading } = useAuth();
     
-    if (!user) {
-        return null; // or a loading skeleton
+    if (loading || !user) {
+        return <div>Loading...</div>; // or a loading skeleton
     }
 
     return (

@@ -4,7 +4,6 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
 import { auth, getUserProfile, UserProfile } from '@/lib/firebase';
 import { useRouter } from 'next/navigation';
-import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 
 interface AuthContextType {
@@ -52,18 +51,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [toast]);
 
+  // When loading, we can't show the children because they might try to access
+  // auth state, so we render null or a loading indicator.
   if (loading) {
-    return (
-        <div className="flex flex-col space-y-3 p-8">
-          <Skeleton className="h-[125px] w-full rounded-xl" />
-          <div className="space-y-2">
-            <Skeleton className="h-4 w-[250px]" />
-            <Skeleton className="h-4 w-[200px]" />
-          </div>
-        </div>
-    );
+    return null; 
   }
 
   return (
@@ -79,12 +72,17 @@ export function useRequireAuth(role: 'host' | 'volunteer' | 'admin' | null = nul
     const router = useRouter();
 
     useEffect(() => {
-        if (!loading && !user) {
+        if (loading) return; // Don't do anything while loading
+
+        if (!user) {
             router.push(redirectUrl);
+            return;
         }
-        if (!loading && user && role && user.role !== role) {
-            // if role is specified and doesn't match, redirect to a generic page or dashboard
-             router.push(user.role === 'host' ? '/dashboard' : '/discover');
+        
+        if (role && user.role !== role) {
+            // If a specific role is required and the user doesn't have it, redirect.
+            // A simple redirect to a default page based on their actual role.
+            router.push(user.role === 'host' ? '/dashboard' : '/discover');
         }
     }, [user, loading, router, redirectUrl, role]);
 

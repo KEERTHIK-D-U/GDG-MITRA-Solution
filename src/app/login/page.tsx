@@ -115,6 +115,11 @@ export default function LoginPage() {
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-6">
 
+              <Button variant="outline" className="w-full" type="button" onClick={handleGoogleLogin} disabled={loading}>
+                <GoogleIcon className="mr-2 h-4 w-4" />
+                Login with Google
+              </Button>
+              
               <div className="relative">
                   <div className="absolute inset-0 flex items-center">
                       <Separator />
@@ -125,11 +130,6 @@ export default function LoginPage() {
                       </span>
                   </div>
               </div>
-
-              <Button variant="outline" className="w-full" type="button" onClick={handleGoogleLogin} disabled={loading}>
-                <GoogleIcon className="mr-2 h-4 w-4" />
-                Login with Google
-              </Button>
               
               <FormField
                 control={form.control}
