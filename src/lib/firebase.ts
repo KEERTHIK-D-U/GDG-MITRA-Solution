@@ -113,5 +113,24 @@ export const registerForEvent = async (userId: string, userName: string, userEma
     }
 };
 
+// Function to register a user for a hackathon
+export const registerForHackathon = async (userId: string, userName: string, userEmail: string, hackathonId: number, hackathonTitle: string) => {
+    const registrationData = {
+        userId,
+        userName,
+        userEmail,
+        hackathonId: hackathonId.toString(),
+        hackathonTitle,
+        registeredAt: serverTimestamp(),
+    };
+    try {
+        const docRef = await addDoc(collection(db, "hackathonRegistrations"), registrationData);
+        return { success: true, registrationId: docRef.id };
+    } catch (error) {
+        console.error("Error adding hackathon registration document: ", error);
+        throw new Error("Failed to register for the hackathon due to a database error.");
+    }
+};
+
 
 export { app, auth, db };

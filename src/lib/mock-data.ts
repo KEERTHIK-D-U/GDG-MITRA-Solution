@@ -6,6 +6,14 @@ export interface Event {
   imageUrl: string;
 }
 
+export interface Hackathon {
+    id: number;
+    title: string;
+    dates: string;
+    description: string;
+    imageUrl: string;
+}
+
 export const events: Event[] = [
     {
       id: 1,
@@ -37,7 +45,7 @@ export const events: Event[] = [
     },
 ];
 
-export const hackathons = [
+export const hackathons: Hackathon[] = [
     {
         id: 1,
         title: "Innovate for Mangalore",
