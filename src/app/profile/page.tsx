@@ -1,3 +1,5 @@
+"use client";
+
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,6 +11,7 @@ import { userHistory, userBadges } from "@/lib/mock-data";
 import { cn } from "@/lib/utils";
 import { Award, Code, Edit, GitPullRequest, Hand, HeartHandshake, Sprout, User as UserIcon, Users } from "lucide-react";
 import * as React from "react";
+import { useAuth, useRequireAuth } from "@/context/auth-context";
 
 const iconMap: { [key: string]: React.ElementType } = {
     Award,
@@ -20,12 +23,19 @@ const iconMap: { [key: string]: React.ElementType } = {
 };
 
 export default function ProfilePage() {
+    useRequireAuth(); // Protect this route for any logged in user
+    const { user } = useAuth();
+    
+    if (!user) {
+        return null; // or a loading skeleton
+    }
+
     return (
         <div className="container mx-auto px-4 md:px-6 py-12">
             <div className="flex flex-col md:flex-row items-center md:items-start gap-8 mb-12">
                 <div className="relative">
                     <Avatar className="w-32 h-32 border-4 border-background shadow-md">
-                        <AvatarImage src="https://placehold.co/128x128.png" alt="User Name" />
+                        <AvatarImage src="https://placehold.co/128x128.png" alt={user.name} />
                         <AvatarFallback><UserIcon className="w-16 h-16" /></AvatarFallback>
                     </Avatar>
                     <Button variant="outline" size="icon" className="absolute bottom-1 right-1 h-8 w-8 rounded-full bg-background">
@@ -34,8 +44,8 @@ export default function ProfilePage() {
                     </Button>
                 </div>
                 <div className="text-center md:text-left">
-                    <h1 className="text-4xl font-bold font-headline">Mangalore Techie</h1>
-                    <p className="text-muted-foreground">m@example.com</p>
+                    <h1 className="text-4xl font-bold font-headline">{user.name}</h1>
+                    <p className="text-muted-foreground">{user.email}</p>
                     <p className="mt-2 max-w-xl text-foreground">
                         Passionate about leveraging technology for community good. Full-stack developer with a love for open source and volunteering.
                     </p>
@@ -67,6 +77,7 @@ export default function ProfilePage() {
                                     </div>
                                 </div>
                             ))}
+                            {userHistory.length === 0 && <p className="text-muted-foreground text-center">No history yet. Start volunteering!</p>}
                         </CardContent>
                     </Card>
                 </TabsContent>
@@ -89,6 +100,7 @@ export default function ProfilePage() {
                                     <p className="text-xs text-muted-foreground">{badge.description}</p>
                                 </div>
                             )})}
+                             {userBadges.length === 0 && <p className="text-muted-foreground text-center col-span-full">No badges earned yet.</p>}
                         </CardContent>
                     </Card>
                 </TabsContent>
@@ -102,7 +114,7 @@ export default function ProfilePage() {
                         <CardContent className="space-y-4">
                             <div className="space-y-2">
                                 <Label htmlFor="name">Full Name</Label>
-                                <Input id="name" defaultValue="Mangalore Techie" />
+                                <Input id="name" defaultValue={user.name} />
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="bio">Bio</Label>

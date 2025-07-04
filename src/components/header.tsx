@@ -15,6 +15,8 @@ import { HandHeart, Menu, User, LogOut, LayoutDashboard } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { Sheet, SheetContent, SheetTrigger } from "./ui/sheet";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/context/auth-context";
+import { auth } from "@/lib/firebase";
 
 const navLinks = [
   { href: "/", label: "Events" },
@@ -22,18 +24,13 @@ const navLinks = [
   { href: "/projects", label: "Projects" },
 ];
 
-// This is a placeholder for real auth state
-const user = {
-    isLoggedIn: true,
-    role: "host", // can be 'volunteer' or 'host' or 'guest'
-    name: "Admin Host",
-    email: "host@example.com"
-};
-// const user = { isLoggedIn: false, role: "guest" };
-
-
 export function Header() {
   const pathname = usePathname();
+  const { user, loading } = useAuth();
+
+  const handleLogout = async () => {
+    await auth.signOut();
+  };
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -93,60 +90,62 @@ export function Header() {
         </nav>
 
         <div className="flex flex-1 items-center justify-end space-x-4">
-        {user.isLoggedIn ? (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="relative h-9 w-9 rounded-full">
-                <Avatar className="h-9 w-9">
-                  <AvatarImage src="https://placehold.co/100x100.png" alt="User profile" />
-                  <AvatarFallback>
-                    <User />
-                  </AvatarFallback>
-                </Avatar>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56" align="end" forceMount>
-              <DropdownMenuLabel className="font-normal">
-                <div className="flex flex-col space-y-1">
-                  <p className="text-sm font-medium leading-none">{user.name}</p>
-                  <p className="text-xs leading-none text-muted-foreground">
-                    {user.email}
-                  </p>
-                </div>
-              </DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem asChild>
-                <Link href="/profile">
-                  <User className="mr-2 h-4 w-4" />
-                  <span>Profile</span>
-                </Link>
-              </DropdownMenuItem>
-              {user.role === 'host' && (
+        {!loading && (
+          <>
+            {user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="relative h-9 w-9 rounded-full">
+                    <Avatar className="h-9 w-9">
+                      <AvatarImage src="https://placehold.co/100x100.png" alt={user.name} />
+                      <AvatarFallback>
+                        {user.name.charAt(0).toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56" align="end" forceMount>
+                  <DropdownMenuLabel className="font-normal">
+                    <div className="flex flex-col space-y-1">
+                      <p className="text-sm font-medium leading-none">{user.name}</p>
+                      <p className="text-xs leading-none text-muted-foreground">
+                        {user.email}
+                      </p>
+                    </div>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
-                      <Link href="/dashboard">
-                          <LayoutDashboard className="mr-2 h-4 w-4" />
-                          <span>Dashboard</span>
-                      </Link>
+                    <Link href="/profile">
+                      <User className="mr-2 h-4 w-4" />
+                      <span>Profile</span>
+                    </Link>
                   </DropdownMenuItem>
-              )}
-              <DropdownMenuSeparator />
-              <DropdownMenuItem asChild>
-                <Link href="/login">
-                  <LogOut className="mr-2 h-4 w-4" />
-                  <span>Log out</span>
-                </Link>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        ) : (
-            <div className="flex items-center gap-2">
-                <Button variant="ghost" asChild>
-                    <Link href="/login">Log In</Link>
-                </Button>
-                <Button asChild>
-                    <Link href="/signup">Create Account</Link>
-                </Button>
-            </div>
+                  {user.role === 'host' && (
+                      <DropdownMenuItem asChild>
+                          <Link href="/dashboard">
+                              <LayoutDashboard className="mr-2 h-4 w-4" />
+                              <span>Dashboard</span>
+                          </Link>
+                      </DropdownMenuItem>
+                  )}
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleLogout} className="cursor-pointer">
+                      <LogOut className="mr-2 h-4 w-4" />
+                      <span>Log out</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+                <div className="flex items-center gap-2">
+                    <Button variant="ghost" asChild>
+                        <Link href="/login">Log In</Link>
+                    </Button>
+                    <Button asChild>
+                        <Link href="/signup">Create Account</Link>
+                    </Button>
+                </div>
+            )}
+          </>
         )}
         </div>
       </div>

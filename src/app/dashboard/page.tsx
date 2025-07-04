@@ -1,9 +1,13 @@
+"use client";
+
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { PlusCircle, Calendar, GitBranch } from "lucide-react";
 import Link from "next/link";
+import { useRequireAuth } from "@/context/auth-context";
 
 export default function DashboardPage() {
+  useRequireAuth('host'); // Protect this route for hosts
   // Placeholder data - in a real app, this would come from a database
   const hostedEventsCount = 0;
   const hostedProjectsCount = 0;
