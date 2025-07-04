@@ -14,10 +14,14 @@ import { getAuth } from "firebase/auth";
 import { getFirestore, doc, setDoc, getDoc } from "firebase/firestore";
 import type { User as FirebaseUser } from 'firebase/auth';
 
+// For debugging: This will print the Project ID to your browser's developer console.
+console.log("Attempting to initialize Firebase with Project ID:", firebaseConfig.projectId);
+
+
 // Initialize Firebase
 let app;
 if (!getApps().length) {
-    if (!firebaseConfig.apiKey) {
+    if (!firebaseConfig.apiKey || !firebaseConfig.projectId) {
         console.error("Firebase config is not set. Please update .env.local and restart your server.");
     }
     app = initializeApp(firebaseConfig);
