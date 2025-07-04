@@ -50,8 +50,16 @@ export const createUserProfile = async (user: FirebaseUser, name: string, role: 
         name,
         role,
     };
-    await setDoc(userRef, userProfile);
-    return userProfile;
+    try {
+        await setDoc(userRef, userProfile);
+        return userProfile;
+    } catch (error: any) {
+        console.error("Error creating user profile: ", error);
+        if (error.code === 'permission-denied') {
+             throw new Error("Firestore permission denied. Please check your security rules to allow creating documents in the 'users' collection.");
+        }
+        throw new Error("Failed to create user profile due to a database error.");
+    }
 };
 
 // Function to get user profile from Firestore
