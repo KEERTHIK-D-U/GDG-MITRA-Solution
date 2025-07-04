@@ -5,6 +5,7 @@ import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
 import { auth, getUserProfile, UserProfile } from '@/lib/firebase';
 import { useRouter } from 'next/navigation';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useToast } from '@/hooks/use-toast';
 
 interface AuthContextType {
   user: UserProfile | null;
@@ -24,18 +25,30 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<UserProfile | null>(null);
   const [firebaseUser, setFirebaseUser] = useState<FirebaseUser | null>(null);
   const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (fbUser) => {
-      if (fbUser) {
-        setFirebaseUser(fbUser);
-        const userProfile = await getUserProfile(fbUser.uid);
-        setUser(userProfile);
-      } else {
-        setFirebaseUser(null);
+      try {
+        if (fbUser) {
+          setFirebaseUser(fbUser);
+          const userProfile = await getUserProfile(fbUser.uid);
+          setUser(userProfile);
+        } else {
+          setFirebaseUser(null);
+          setUser(null);
+        }
+      } catch (error) {
+        console.error("Failed to get user profile:", error);
+        toast({
+          variant: "destructive",
+          title: "Database Connection Error",
+          description: "Could not fetch user profile. Please ensure Firestore is enabled in your Firebase project.",
+        });
         setUser(null);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     });
 
     return () => unsubscribe();
