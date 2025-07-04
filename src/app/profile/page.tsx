@@ -29,11 +29,19 @@ export default function ProfilePage() {
     const { toast } = useToast();
 
     const handleTestConnection = async () => {
+        if (!user) {
+            toast({
+                variant: "destructive",
+                title: "Not Logged In",
+                description: "You must be logged in to test the connection.",
+            });
+            return;
+        }
         try {
-            const data = await testFirestoreConnection();
+            const result = await testFirestoreConnection(user.uid);
             toast({
                 title: "Firestore Connection Successful!",
-                description: `Successfully wrote and read document for: ${data.name}`,
+                description: `Successfully updated document for user: ${result.uid}`,
             });
         } catch (error: any) {
             toast({
@@ -143,7 +151,7 @@ export default function ProfilePage() {
                              <div className="pt-6 mt-6 border-t">
                                 <h3 className="text-lg font-medium">Developer Tools</h3>
                                 <p className="text-sm text-muted-foreground mb-4">
-                                    Use this button to verify that the application can successfully write to and read from your Firestore database.
+                                    Use this button to verify that the application can successfully write to your user document in Firestore.
                                 </p>
                                 <Button variant="outline" onClick={handleTestConnection}>Test Firestore Connection</Button>
                             </div>

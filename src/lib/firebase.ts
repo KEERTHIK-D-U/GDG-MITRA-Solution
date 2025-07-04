@@ -72,33 +72,21 @@ export const getUserProfile = async (uid: string): Promise<UserProfile | null> =
 
 /**
  * A test function to verify Firestore connectivity.
- * Writes a document to the 'users' collection and reads it back.
- * Throws an error if any step fails.
+ * Writes a 'lastTested' timestamp to the currently logged-in user's document.
+ * Throws an error if the write fails.
  */
-export const testFirestoreConnection = async () => {
-    const testDocId = 'test-user-for-connectivity';
-    const userRef = doc(db, "users", testDocId);
+export const testFirestoreConnection = async (uid: string) => {
+    if (!uid) {
+        throw new Error("No user ID provided for Firestore test.");
+    }
+    const userRef = doc(db, "users", uid);
     
     try {
-        console.log("Attempting to write to Firestore...");
-        const testData = {
-            uid: testDocId,
-            email: 'test@example.com',
-            name: 'Firestore Test User',
-            role: 'volunteer' as UserRole
-        };
-        await setDoc(userRef, testData);
-        console.log("Write successful! Document ID:", testDocId);
-
-        console.log("Attempting to read from Firestore...");
-        const docSnap = await getDoc(userRef);
-
-        if (docSnap.exists()) {
-            console.log("Read successful! Document data:", docSnap.data());
-            return docSnap.data();
-        } else {
-            throw new Error("Test document was written but could not be read back.");
-        }
+        console.log(`Attempting to update document for UID: ${uid}...`);
+        // Use setDoc with merge: true to update a field without overwriting the whole document.
+        await setDoc(userRef, { lastTested: new Date() }, { merge: true });
+        console.log("Firestore update successful!");
+        return { success: true, uid: uid };
     } catch (error) {
         console.error("Firestore connectivity test failed:", error);
         throw error; // Re-throw the error to be caught by the caller
