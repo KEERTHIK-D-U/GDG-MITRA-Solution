@@ -56,7 +56,7 @@ export const createUserProfile = async (user: FirebaseUser, name: string, role: 
     } catch (error: any) {
         console.error("Error creating user profile: ", error);
         if (error.code === 'permission-denied') {
-             throw new Error("Firestore permission denied. Please check your security rules to allow creating documents in the 'users' collection.");
+             throw new Error("Firestore permission denied. Check your security rules to allow creating documents in the 'users' collection.");
         }
         throw new Error("Failed to create user profile due to a database error.");
     }
@@ -71,9 +71,11 @@ export const getUserProfile = async (uid: string): Promise<UserProfile | null> =
             return userSnap.data() as UserProfile;
         }
         return null;
-    } catch (error) {
+    } catch (error: any) {
         console.error("Error fetching user profile:", error);
-        // This is a good place to handle specific errors, e.g., permissions
+         if (error.code === 'permission-denied') {
+             throw new Error("Firestore permission denied. Please check your security rules to allow reading from the 'users' collection.");
+        }
         throw error;
     }
 }
@@ -91,13 +93,15 @@ export const testFirestoreConnection = async (uid: string) => {
     
     try {
         console.log(`Attempting to update document for UID: ${uid}...`);
-        // Use setDoc with merge: true to update a field without overwriting the whole document.
         await setDoc(userRef, { lastTested: new Date() }, { merge: true });
         console.log("Firestore update successful!");
         return { success: true, uid: uid };
-    } catch (error) {
+    } catch (error: any) {
         console.error("Firestore connectivity test failed:", error);
-        throw error; // Re-throw the error to be caught by the caller
+        if (error.code === 'permission-denied') {
+             throw new Error("Firestore permission denied. Please check your security rules to allow writes to the 'users' collection for your user.");
+        }
+        throw error; 
     }
 }
 

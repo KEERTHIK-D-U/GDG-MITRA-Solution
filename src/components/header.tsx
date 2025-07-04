@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from "next/link";
@@ -11,7 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { HandHeart, Menu, User, LogOut, LayoutDashboard, Compass } from "lucide-react";
+import { HandHeart, Menu, User, LogOut, LayoutDashboard, Compass, ShieldCheck } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { Sheet, SheetContent, SheetTrigger } from "./ui/sheet";
 import { cn } from "@/lib/utils";
@@ -138,6 +139,14 @@ export function Header() {
                           <Link href="/dashboard">
                               <LayoutDashboard className="mr-2 h-4 w-4" />
                               <span>Dashboard</span>
+                          </Link>
+                      </DropdownMenuItem>
+                  )}
+                  {user.role === 'admin' && (
+                      <DropdownMenuItem asChild>
+                          <Link href="/admin">
+                              <ShieldCheck className="mr-2 h-4 w-4" />
+                              <span>Admin</span>
                           </Link>
                       </DropdownMenuItem>
                   )}
