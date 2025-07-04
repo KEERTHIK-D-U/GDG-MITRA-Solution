@@ -57,11 +57,52 @@ export const createUserProfile = async (user: FirebaseUser, name: string, role: 
 // Function to get user profile from Firestore
 export const getUserProfile = async (uid: string): Promise<UserProfile | null> => {
     const userRef = doc(db, "users", uid);
-    const userSnap = await getDoc(userRef);
-    if (userSnap.exists()) {
-        return userSnap.data() as UserProfile;
+    try {
+        const userSnap = await getDoc(userRef);
+        if (userSnap.exists()) {
+            return userSnap.data() as UserProfile;
+        }
+        return null;
+    } catch (error) {
+        console.error("Error fetching user profile:", error);
+        // This is a good place to handle specific errors, e.g., permissions
+        throw error;
     }
-    return null;
+}
+
+/**
+ * A test function to verify Firestore connectivity.
+ * Writes a document to the 'users' collection and reads it back.
+ * Throws an error if any step fails.
+ */
+export const testFirestoreConnection = async () => {
+    const testDocId = 'test-user-for-connectivity';
+    const userRef = doc(db, "users", testDocId);
+    
+    try {
+        console.log("Attempting to write to Firestore...");
+        const testData = {
+            uid: testDocId,
+            email: 'test@example.com',
+            name: 'Firestore Test User',
+            role: 'volunteer' as UserRole
+        };
+        await setDoc(userRef, testData);
+        console.log("Write successful! Document ID:", testDocId);
+
+        console.log("Attempting to read from Firestore...");
+        const docSnap = await getDoc(userRef);
+
+        if (docSnap.exists()) {
+            console.log("Read successful! Document data:", docSnap.data());
+            return docSnap.data();
+        } else {
+            throw new Error("Test document was written but could not be read back.");
+        }
+    } catch (error) {
+        console.error("Firestore connectivity test failed:", error);
+        throw error; // Re-throw the error to be caught by the caller
+    }
 }
 
 

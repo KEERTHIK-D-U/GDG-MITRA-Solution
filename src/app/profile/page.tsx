@@ -11,6 +11,8 @@ import { userHistory, userBadges } from "@/lib/mock-data";
 import { Award, Code, Edit, GitPullRequest, Hand, HeartHandshake, Sprout, User as UserIcon, Users } from "lucide-react";
 import * as React from "react";
 import { useAuth, useRequireAuth } from "@/context/auth-context";
+import { useToast } from "@/hooks/use-toast";
+import { testFirestoreConnection } from "@/lib/firebase";
 
 const iconMap: { [key: string]: React.ElementType } = {
     Award,
@@ -24,6 +26,23 @@ const iconMap: { [key: string]: React.ElementType } = {
 export default function ProfilePage() {
     useRequireAuth(); // Protect this route for any logged in user
     const { user, loading } = useAuth();
+    const { toast } = useToast();
+
+    const handleTestConnection = async () => {
+        try {
+            const data = await testFirestoreConnection();
+            toast({
+                title: "Firestore Connection Successful!",
+                description: `Successfully wrote and read document for: ${data.name}`,
+            });
+        } catch (error: any) {
+            toast({
+                variant: "destructive",
+                title: "Firestore Connection Failed",
+                description: error.message,
+            });
+        }
+    };
     
     if (loading || !user) {
         return <div>Loading...</div>; // or a loading skeleton
@@ -120,6 +139,14 @@ export default function ProfilePage() {
                                 <Textarea id="bio" placeholder="Tell us a little bit about yourself" defaultValue="Passionate about leveraging technology for community good. Full-stack developer with a love for open source and volunteering."/>
                             </div>
                             <Button>Save Changes</Button>
+
+                             <div className="pt-6 mt-6 border-t">
+                                <h3 className="text-lg font-medium">Developer Tools</h3>
+                                <p className="text-sm text-muted-foreground mb-4">
+                                    Use this button to verify that the application can successfully write to and read from your Firestore database.
+                                </p>
+                                <Button variant="outline" onClick={handleTestConnection}>Test Firestore Connection</Button>
+                            </div>
                         </CardContent>
                     </Card>
                 </TabsContent>
