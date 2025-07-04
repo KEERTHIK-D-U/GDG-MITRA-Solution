@@ -86,7 +86,7 @@ export default function ProfilePage() {
                 </TabsList>
 
                 <TabsContent value="history">
-                    <Card className="transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-[#00e97b] hover:shadow-[#00e97b]/30">
+                    <Card className="transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-[#00e97b] hover:shadow-[#00e97b]/30 hover:border-2">
                         <CardHeader>
                             <CardTitle>Volunteer History</CardTitle>
                             <CardDescription>A record of your contributions and impact.</CardDescription>
@@ -109,7 +109,7 @@ export default function ProfilePage() {
                 </TabsContent>
 
                 <TabsContent value="rewards">
-                    <Card className="transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-[#00e97b] hover:shadow-[#00e97b]/30">
+                    <Card className="transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-[#00e97b] hover:shadow-[#00e97b]/30 hover:border-2">
                         <CardHeader>
                             <CardTitle>Badges & Rewards</CardTitle>
                             <CardDescription>Celebrating your milestones and achievements.</CardDescription>
@@ -118,7 +118,7 @@ export default function ProfilePage() {
                             {userBadges.map((badge) => {
                                 const Icon = iconMap[badge.icon] || Hand;
                                 return (
-                                <div key={badge.id} className="flex flex-col items-center text-center gap-2 p-4 border rounded-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-[#00e97b] hover:shadow-[#00e97b]/30">
+                                <div key={badge.id} className="flex flex-col items-center text-center gap-2 p-4 border rounded-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-[#00e97b] hover:shadow-[#00e97b]/30 hover:border-2">
                                     <div className="p-4 rounded-full bg-accent/20 text-accent">
                                         <Icon className="w-8 h-8"/>
                                     </div>
@@ -132,7 +132,7 @@ export default function ProfilePage() {
                 </TabsContent>
                 
                 <TabsContent value="profile">
-                    <Card className="transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-[#00e97b] hover:shadow-[#00e97b]/30">
+                    <Card className="transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-[#00e97b] hover:shadow-[#00e97b]/30 hover:border-2">
                         <CardHeader>
                             <CardTitle>Profile Details</CardTitle>
                             <CardDescription>Update your personal information.</CardDescription>

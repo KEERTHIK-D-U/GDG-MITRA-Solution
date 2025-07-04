@@ -39,7 +39,7 @@ export default function DashboardPage() {
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <Card className="transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-[#00e97b] hover:shadow-[#00e97b]/30">
+            <Card className="transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-[#00e97b] hover:shadow-[#00e97b]/30 hover:border-2">
                 <CardHeader>
                     <CardTitle className="flex items-center justify-between">
                         <span>My Events</span>
@@ -51,7 +51,7 @@ export default function DashboardPage() {
                     <p className="text-sm text-muted-foreground">Total events hosted</p>
                 </CardContent>
             </Card>
-            <Card className="transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-[#00e97b] hover:shadow-[#00e97b]/30">
+            <Card className="transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-[#00e97b] hover:shadow-[#00e97b]/30 hover:border-2">
                 <CardHeader>
                     <CardTitle className="flex items-center justify-between">
                         <span>My Projects</span>
