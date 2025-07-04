@@ -107,8 +107,11 @@ export const registerForEvent = async (userId: string, userName: string, userEma
     try {
         const docRef = await addDoc(collection(db, "registrations"), registrationData);
         return { success: true, registrationId: docRef.id };
-    } catch (error) {
+    } catch (error: any) {
         console.error("Error adding registration document: ", error);
+        if (error.code === 'permission-denied') {
+             throw new Error("Firestore permission denied. Please check your security rules to allow writes to the 'registrations' collection.");
+        }
         throw new Error("Failed to register for the event due to a database error.");
     }
 };
@@ -126,8 +129,11 @@ export const registerForHackathon = async (userId: string, userName: string, use
     try {
         const docRef = await addDoc(collection(db, "hackathonRegistrations"), registrationData);
         return { success: true, registrationId: docRef.id };
-    } catch (error) {
+    } catch (error: any) {
         console.error("Error adding hackathon registration document: ", error);
+        if (error.code === 'permission-denied') {
+             throw new Error("Firestore permission denied. Please check your security rules to allow writes to the 'hackathonRegistrations' collection.");
+        }
         throw new Error("Failed to register for the hackathon due to a database error.");
     }
 };
