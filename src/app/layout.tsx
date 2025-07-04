@@ -3,6 +3,8 @@ import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import { Header } from "@/components/header";
 import { AuthProvider } from "@/context/auth-context";
+import { ThemeProvider } from "@/components/theme-provider";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export const metadata: Metadata = {
   title: "Mitra - Community Volunteering",
@@ -25,13 +27,23 @@ export default function RootLayout({
         ></link>
       </head>
       <body className="font-body antialiased bg-background min-h-screen flex flex-col">
-        <AuthProvider>
-          <Header />
-          <main className="flex-grow">
-            {children}
-          </main>
-          <Toaster />
-        </AuthProvider>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="green"
+          enableSystem={false}
+          themes={['light', 'dark', 'green']}
+        >
+          <AuthProvider>
+            <Header />
+            <main className="flex-grow">
+              {children}
+            </main>
+            <Toaster />
+            <div className="fixed bottom-4 right-4 z-50">
+              <ThemeToggle />
+            </div>
+          </AuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
