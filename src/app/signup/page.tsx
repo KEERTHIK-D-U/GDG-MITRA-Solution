@@ -124,7 +124,7 @@ export default function SignupPage() {
                         <Card 
                             key={role} 
                             onClick={() => handleRoleSelect(role)}
-                            className="text-center p-6 cursor-pointer hover:bg-accent hover:border-primary transition-all"
+                            className="text-center p-6 cursor-pointer border hover:bg-accent hover:border-primary transition-all"
                         >
                             <div className="flex justify-center mb-4">
                                 <RoleIcon className="w-10 h-10 text-primary" />
@@ -196,7 +196,7 @@ export default function SignupPage() {
                     <FormItem>
                       <FormLabel>College</FormLabel>
                       <FormControl>
-                        <Input placeholder="e.g., Institute of Technology" {...field} />
+                        <Input placeholder="Srinivas Institute of Technology" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
