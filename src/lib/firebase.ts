@@ -42,6 +42,7 @@ export interface UserProfile {
     role: UserRole;
     linkedinUrl?: string;
     techStacks?: string;
+    bio?: string;
 }
 
 export interface EventRegistration {
@@ -76,6 +77,7 @@ export const createUserProfile = async (user: FirebaseUser, name: string, role: 
         role,
         linkedinUrl: additionalData.linkedinUrl || "",
         techStacks: "",
+        bio: "Passionate community member and tech enthusiast.",
     };
     try {
         await setDoc(userRef, userProfile);
@@ -171,11 +173,11 @@ export const getUserProjectContributions = async (userId: string): Promise<Proje
 }
 
 
-// Function to get all users from Firestore, excluding the current user
+// Function to get all users from Firestore, excluding admins and the current user
 export const getAllUsers = async (currentUserId: string): Promise<UserProfile[]> => {
     const usersRef = collection(db, "users");
     // Exclude the current user from the list
-    const q = query(usersRef, where("uid", "!=", currentUserId));
+    const q = query(usersRef, where("uid", "!=", currentUserId), where("role", "!=", "admin"));
     try {
         const querySnapshot = await getDocs(q);
         const users: UserProfile[] = [];
@@ -233,7 +235,7 @@ export const testFirestoreConnection = async (uid: string) => {
 
 
 // Function to register a user for an event
-export const registerForEvent = async (userId: string, userName: string, userEmail: string, eventId: number, eventTitle: string) => {
+export const registerForEvent = async (userId: string, userName: string | null, userEmail: string | null, eventId: number, eventTitle: string) => {
     const registrationData = {
         userId,
         userName,
@@ -255,7 +257,7 @@ export const registerForEvent = async (userId: string, userName: string, userEma
 };
 
 // Function to register a user for a hackathon
-export const registerForHackathon = async (userId: string, userName: string, userEmail: string, hackathonId: number, hackathonTitle: string) => {
+export const registerForHackathon = async (userId: string, userName: string | null, userEmail: string | null, hackathonId: number, hackathonTitle: string) => {
     const registrationData = {
         userId,
         userName,
@@ -277,7 +279,7 @@ export const registerForHackathon = async (userId: string, userName: string, use
 };
 
 // Function to log a project contribution
-export const contributeToProject = async (userId: string, userName: string, userEmail: string, projectId: number, projectTitle: string) => {
+export const contributeToProject = async (userId: string, userName: string | null, userEmail: string | null, projectId: number, projectTitle: string) => {
     const contributionsRef = collection(db, "projectContributions");
     const q = query(contributionsRef, where("userId", "==", userId), where("projectId", "==", projectId.toString()));
     const existingContribution = await getDocs(q);

@@ -18,6 +18,7 @@ import { updateUserProfile, getUserRegistrations, type EventRegistration, getUse
 import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Textarea } from "@/components/ui/textarea";
 
 const iconMap: { [key: string]: React.ElementType } = {
     Award,
@@ -44,6 +45,7 @@ export default function ProfilePage() {
     const [name, setName] = useState('');
     const [linkedinUrl, setLinkedinUrl] = useState('');
     const [techStacks, setTechStacks] = useState('');
+    const [bio, setBio] = useState('');
     const [isSaving, setIsSaving] = useState(false);
 
     // History state
@@ -56,6 +58,7 @@ export default function ProfilePage() {
             setName(user.name || '');
             setLinkedinUrl(user.linkedinUrl || '');
             setTechStacks(user.techStacks || '');
+            setBio(user.bio || '');
         }
     }, [user]);
 
@@ -117,12 +120,11 @@ export default function ProfilePage() {
         if (!user) return;
         setIsSaving(true);
         try {
-            await updateUserProfile(user.uid, { name, linkedinUrl, techStacks });
+            await updateUserProfile(user.uid, { name, linkedinUrl, techStacks, bio });
             toast({
                 title: "Profile Updated",
                 description: "Your profile has been successfully saved."
             });
-            // Note: The main user display will update on the next page load/login.
         } catch (error: any) {
             toast({
                 variant: "destructive",
@@ -165,9 +167,11 @@ export default function ProfilePage() {
                             </Button>
                         </div>
                     )}
-                    <p className="mt-2 max-w-xl text-foreground/80">
-                       View and edit your profile details, check your volunteer history, and see your rewards.
-                    </p>
+                     {user.bio && (
+                        <blockquote className="mt-4 text-muted-foreground italic border-l-2 pl-4">
+                           {user.bio}
+                        </blockquote>
+                    )}
                     {user.techStacks && (
                         <div className="mt-4">
                             <h3 className="font-semibold mb-2 text-lg">Tech Stacks</h3>
@@ -267,6 +271,10 @@ export default function ProfilePage() {
                              <div className="space-y-2">
                                 <Label htmlFor="linkedin">LinkedIn Profile URL</Label>
                                 <Input id="linkedin" placeholder="https://linkedin.com/in/your-profile" value={linkedinUrl} onChange={(e) => setLinkedinUrl(e.target.value)} />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="bio">Your Bio</Label>
+                                <Textarea id="bio" placeholder="Tell the community a little about yourself..." value={bio} onChange={(e) => setBio(e.target.value)} />
                             </div>
                              <div className="space-y-2">
                                 <Label htmlFor="tech-stacks">Tech Stacks</Label>
