@@ -22,6 +22,7 @@ const formSchema = z.object({
   email: z.string().email({ message: "Invalid email address." }),
   password: z.string().min(6, { message: "Password must be at least 6 characters." }),
   role: z.enum(["volunteer", "host"], { required_error: "You must select a role." }),
+  college: z.string().optional(),
   linkedinUrl: z.string().url({ message: "Please enter a valid URL." }).optional().or(z.literal('')),
 });
 
@@ -38,6 +39,7 @@ export default function SignupPage() {
       email: "",
       password: "",
       role: "volunteer",
+      college: "",
       linkedinUrl: "",
     },
   });
@@ -46,7 +48,10 @@ export default function SignupPage() {
     setLoading(true);
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, data.email, data.password);
-      await createUserProfile(userCredential.user, data.fullName, data.role as UserRole, { linkedinUrl: data.linkedinUrl });
+      await createUserProfile(userCredential.user, data.fullName, data.role as UserRole, { 
+        linkedinUrl: data.linkedinUrl,
+        college: data.college,
+      });
       toast({
         title: "Account Created!",
         description: "You have been successfully signed up.",
@@ -147,6 +152,19 @@ export default function SignupPage() {
                     <FormLabel>Password</FormLabel>
                     <FormControl>
                       <Input type="password" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="college"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>College (Optional)</FormLabel>
+                    <FormControl>
+                      <Input placeholder="e.g., Sahyadri College" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

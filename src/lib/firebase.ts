@@ -43,6 +43,7 @@ export interface UserProfile {
     name: string;
     role: UserRole;
     linkedinUrl?: string;
+    college?: string;
     techStacks?: string;
     bio?: string;
     hasCompletedTutorial?: boolean;
@@ -105,7 +106,7 @@ export interface Hackathon {
 
 
 // Function to create user profile in Firestore
-export const createUserProfile = async (user: FirebaseUser, name: string, role: UserRole, additionalData: { linkedinUrl?: string } = {}) => {
+export const createUserProfile = async (user: FirebaseUser, name: string, role: UserRole, additionalData: { linkedinUrl?: string; college?: string; } = {}) => {
     const userRef = doc(db, "users", user.uid);
     const userProfile: UserProfile = {
         uid: user.uid,
@@ -113,6 +114,7 @@ export const createUserProfile = async (user: FirebaseUser, name: string, role: 
         name,
         role,
         linkedinUrl: additionalData.linkedinUrl || "",
+        college: additionalData.college || "",
         techStacks: "",
         bio: "Passionate community member and tech enthusiast.",
         hasCompletedTutorial: false,

@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { userBadges } from "@/lib/mock-data";
-import { Award, Code, GitBranch, Hand, HeartHandshake, Linkedin, Sprout, User as UserIcon, Users } from "lucide-react";
+import { Award, Code, GitBranch, Hand, HeartHandshake, Linkedin, Sprout, User as UserIcon, Users, School } from "lucide-react";
 import * as React from "react";
 import { useAuth, useRequireAuth } from "@/context/auth-context";
 import { useToast } from "@/hooks/use-toast";
@@ -44,6 +44,7 @@ export default function ProfilePage() {
     // Form state
     const [name, setName] = useState('');
     const [linkedinUrl, setLinkedinUrl] = useState('');
+    const [college, setCollege] = useState('');
     const [techStacks, setTechStacks] = useState('');
     const [bio, setBio] = useState('');
     const [isSaving, setIsSaving] = useState(false);
@@ -57,6 +58,7 @@ export default function ProfilePage() {
         if (user) {
             setName(user.name || '');
             setLinkedinUrl(user.linkedinUrl || '');
+            setCollege(user.college || '');
             setTechStacks(user.techStacks || '');
             setBio(user.bio || '');
         }
@@ -120,7 +122,7 @@ export default function ProfilePage() {
         if (!user) return;
         setIsSaving(true);
         try {
-            await updateUserProfile(user.uid, { name, linkedinUrl, techStacks, bio });
+            await updateUserProfile(user.uid, { name, linkedinUrl, college, techStacks, bio });
             toast({
                 title: "Profile Updated",
                 description: "Your profile has been successfully saved."
@@ -152,6 +154,12 @@ export default function ProfilePage() {
                 <div className="text-center md:text-left flex-1">
                     <h1 className="text-4xl font-bold font-headline">{user.name}</h1>
                     <p className="text-muted-foreground">{user.email}</p>
+                     {user.college && (
+                        <p className="text-muted-foreground mt-1 flex items-center justify-center md:justify-start">
+                            <School className="w-4 h-4 mr-1.5"/>
+                            {user.college}
+                        </p>
+                     )}
                      {user.linkedinUrl && (
                         <div className="mt-2">
                              <Button variant="link" asChild className="p-0 h-auto">
@@ -170,7 +178,7 @@ export default function ProfilePage() {
                     {user.techStacks && (
                         <div className="mt-4">
                             <h3 className="font-semibold mb-2 text-lg">Tech Stacks</h3>
-                            <div className="flex flex-wrap gap-2">
+                            <div className="flex flex-wrap gap-2 justify-center md:justify-start">
                                 {user.techStacks.split(',').map((stack, index) => (
                                     <Badge key={`${stack.trim()}-${index}`} variant="secondary">{stack.trim()}</Badge>
                                 ))}
@@ -214,7 +222,7 @@ export default function ProfilePage() {
                                                 {format(item.date, "PPP")}
                                             </p>
                                         </div>
-                                        <Badge variant="outline" className="capitalize">
+                                        <Badge variant="outline" className="capitalize mt-2 sm:mt-0">
                                             {item.type === 'event' && <Hand className="mr-2 h-4 w-4 text-green-500" />}
                                             {item.type === 'hackathon' && <Code className="mr-2 h-4 w-4 text-blue-500" />}
                                             {item.type === 'project' && <GitBranch className="mr-2 h-4 w-4 text-purple-500" />}
@@ -262,6 +270,10 @@ export default function ProfilePage() {
                             <div className="space-y-2">
                                 <Label htmlFor="name">Full Name</Label>
                                 <Input id="name" value={name} onChange={(e) => setName(e.target.value)} />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="college">College</Label>
+                                <Input id="college" placeholder="e.g., Sahyadri College of Engineering & Management" value={college} onChange={(e) => setCollege(e.target.value)} />
                             </div>
                              <div className="space-y-2">
                                 <Label htmlFor="linkedin">LinkedIn Profile URL</Label>

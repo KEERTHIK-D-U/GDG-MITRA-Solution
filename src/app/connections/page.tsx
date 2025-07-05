@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth, useRequireAuth } from "@/context/auth-context";
 import { type UserProfile, db } from "@/lib/firebase";
-import { Linkedin, Users, User as UserIcon } from "lucide-react";
+import { Linkedin, Users, User as UserIcon, School } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
@@ -19,11 +19,13 @@ const UserCardSkeleton = () => (
             <Skeleton className="h-12 w-12 rounded-full" />
             <div className="flex-1 space-y-2">
                 <Skeleton className="h-4 w-3/4" />
+                <Skeleton className="h-4 w-1/4" />
                 <Skeleton className="h-4 w-1/2" />
             </div>
         </CardHeader>
-        <CardContent className="flex-grow flex items-end justify-end">
+        <CardContent className="mt-auto flex flex-col items-end gap-2">
             <Skeleton className="h-10 w-28" />
+            <Skeleton className="h-3 w-24" />
         </CardContent>
     </Card>
 )
@@ -88,6 +90,12 @@ export default function ConnectionsPage() {
                                 <div>
                                     <CardTitle className="text-lg">{user.name || 'Community Member'}</CardTitle>
                                     <Badge variant="secondary" className="capitalize mt-1">{user.role}</Badge>
+                                    {user.college && (
+                                        <p className="text-sm text-muted-foreground mt-2 flex items-center">
+                                            <School className="w-4 h-4 mr-1.5"/>
+                                            {user.college}
+                                        </p>
+                                    )}
                                 </div>
                             </CardHeader>
                             <CardContent className="mt-auto flex flex-col items-end gap-2">
