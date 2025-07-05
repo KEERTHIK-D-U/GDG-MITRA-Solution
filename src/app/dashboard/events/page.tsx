@@ -58,7 +58,12 @@ export default function ManageEventsPage() {
         if (!user) return;
         setLoading(true);
         const unsubscribe = getEventsByHost(user.uid, (hostedEvents) => {
-            setEvents(hostedEvents);
+            const sortedEvents = hostedEvents.sort((a, b) => {
+                const timeA = a.createdAt?.seconds || 0;
+                const timeB = b.createdAt?.seconds || 0;
+                return timeB - timeA;
+            });
+            setEvents(sortedEvents);
             setLoading(false);
         });
         return () => unsubscribe();

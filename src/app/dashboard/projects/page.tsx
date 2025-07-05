@@ -57,7 +57,12 @@ export default function ManageProjectsPage() {
         if (!user) return;
         setLoading(true);
         const unsubscribe = getProjectsByHost(user.uid, (hostedProjects) => {
-            setProjects(hostedProjects);
+            const sortedProjects = hostedProjects.sort((a, b) => {
+                const timeA = a.createdAt?.seconds || 0;
+                const timeB = b.createdAt?.seconds || 0;
+                return timeB - timeA;
+            });
+            setProjects(sortedProjects);
             setLoading(false);
         });
         return () => unsubscribe();

@@ -427,7 +427,7 @@ export const getHackathons = (callback: (hackathons: Hackathon[]) => void) => {
 
 // Functions to get host-specific items (for dashboard)
 export const getEventsByHost = (hostId: string, callback: (events: Event[]) => void) => {
-    const q = query(collection(db, "events"), where("hostId", "==", hostId), orderBy("createdAt", "desc"));
+    const q = query(collection(db, "events"), where("hostId", "==", hostId));
     return onSnapshot(q, (snapshot) => {
         const events = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Event));
         callback(events);
@@ -435,7 +435,7 @@ export const getEventsByHost = (hostId: string, callback: (events: Event[]) => v
 };
 
 export const getProjectsByHost = (hostId: string, callback: (projects: Project[]) => void) => {
-    const q = query(collection(db, "projects"), where("hostId", "==", hostId), orderBy("createdAt", "desc"));
+    const q = query(collection(db, "projects"), where("hostId", "==", hostId));
     return onSnapshot(q, (snapshot) => {
         const projects = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Project));
         callback(projects);
