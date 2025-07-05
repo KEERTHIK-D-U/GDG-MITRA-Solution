@@ -8,13 +8,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { userBadges } from "@/lib/mock-data";
-import { Award, Code, Edit, GitPullRequest, Hand, HeartHandshake, Linkedin, Sprout, User as UserIcon, Users } from "lucide-react";
+import { Award, Code, Edit, GitBranch, Hand, HeartHandshake, Linkedin, Sprout, User as UserIcon, Users } from "lucide-react";
 import * as React from "react";
 import { useAuth, useRequireAuth } from "@/context/auth-context";
 import { useToast } from "@/hooks/use-toast";
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { getUserRegistrations, updateUserProfile, type EventRegistration } from "@/lib/firebase";
+import { updateUserProfile, getUserRegistrations, type EventRegistration, getUserHackathonRegistrations, type HackathonRegistration, getUserProjectContributions, type ProjectContribution } from "@/lib/firebase";
 import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -25,7 +25,14 @@ const iconMap: { [key: string]: React.ElementType } = {
     Sprout,
     Users,
     Code,
-    GitPullRequest,
+    GitPullRequest: GitBranch, // Using GitBranch for project contributions
+};
+
+type HistoryItem = {
+    id: string;
+    title: string;
+    date: Date;
+    type: 'event' | 'hackathon' | 'project';
 };
 
 export default function ProfilePage() {
@@ -40,7 +47,7 @@ export default function ProfilePage() {
     const [isSaving, setIsSaving] = useState(false);
 
     // History state
-    const [history, setHistory] = useState<EventRegistration[]>([]);
+    const [combinedHistory, setCombinedHistory] = useState<HistoryItem[]>([]);
     const [historyLoading, setHistoryLoading] = useState(true);
 
     // Effect to populate form when user data loads
@@ -52,20 +59,57 @@ export default function ProfilePage() {
         }
     }, [user]);
 
-     // Effect to fetch volunteer history
+     // Effect to fetch all histories
     useEffect(() => {
         if (user?.uid) {
             setHistoryLoading(true);
-            getUserRegistrations(user.uid)
-                .then(setHistory)
-                .catch(err => {
+
+            const fetchAllHistory = async () => {
+                try {
+                    const [eventRegs, hackathonRegs, projectConts] = await Promise.all([
+                        getUserRegistrations(user.uid),
+                        getUserHackathonRegistrations(user.uid),
+                        getUserProjectContributions(user.uid),
+                    ]);
+
+                    const events: HistoryItem[] = eventRegs.map(r => ({
+                        id: r.id,
+                        title: r.eventTitle,
+                        date: r.registeredAt.toDate(),
+                        type: 'event'
+                    }));
+
+                    const hackathons: HistoryItem[] = hackathonRegs.map(r => ({
+                        id: r.id,
+                        title: r.hackathonTitle,
+                        date: r.registeredAt.toDate(),
+                        type: 'hackathon'
+                    }));
+                    
+                    const projects: HistoryItem[] = projectConts.map(r => ({
+                        id: r.id,
+                        title: r.projectTitle,
+                        date: r.contributedAt.toDate(),
+                        type: 'project'
+                    }));
+                    
+                    const allHistory = [...events, ...hackathons, ...projects];
+                    allHistory.sort((a, b) => b.date.getTime() - a.date.getTime()); // Sort descending by date
+                    
+                    setCombinedHistory(allHistory);
+
+                } catch (err: any) {
                     toast({
                         variant: "destructive",
                         title: "Failed to load history",
                         description: err.message
                     });
-                })
-                .finally(() => setHistoryLoading(false));
+                } finally {
+                    setHistoryLoading(false);
+                }
+            };
+            
+            fetchAllHistory();
         }
     }, [user?.uid, toast]);
 
@@ -139,7 +183,7 @@ export default function ProfilePage() {
 
             <Tabs defaultValue="history" className="w-full">
                 <TabsList className="grid w-full grid-cols-3 md:w-auto md:inline-grid md:grid-cols-3">
-                    <TabsTrigger value="history">Volunteer History</TabsTrigger>
+                    <TabsTrigger value="history">Contribution History</TabsTrigger>
                     <TabsTrigger value="rewards">Rewards</TabsTrigger>
                     <TabsTrigger value="profile">Edit Profile</TabsTrigger>
                 </TabsList>
@@ -147,34 +191,40 @@ export default function ProfilePage() {
                 <TabsContent value="history">
                     <Card className="transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-2 hover:border-[#ced4ce] dark:hover:border-[#00e97b] hover:shadow-[#006a35]/30 dark:hover:shadow-[#00e97b]/30">
                         <CardHeader>
-                            <CardTitle>Volunteer History</CardTitle>
-                            <CardDescription>A record of your event registrations.</CardDescription>
+                            <CardTitle>Contribution History</CardTitle>
+                            <CardDescription>A record of your event registrations, hackathon sign-ups, and project contributions.</CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-4">
                             {historyLoading ? (
-                                Array.from({ length: 2 }).map((_, i) => (
+                                Array.from({ length: 3 }).map((_, i) => (
                                     <div key={i} className="p-4 rounded-lg border flex justify-between items-center gap-2">
                                         <div className="space-y-2">
                                             <Skeleton className="h-4 w-48" />
                                             <Skeleton className="h-4 w-32" />
                                         </div>
-                                        <Skeleton className="h-4 w-24" />
+                                        <Skeleton className="h-8 w-32" />
                                     </div>
                                 ))
-                            ) : history.length > 0 ? (
-                                history.map((item) => (
+                            ) : combinedHistory.length > 0 ? (
+                                combinedHistory.map((item) => (
                                     <div key={item.id} className="p-4 rounded-lg border flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
                                         <div>
-                                            <h3 className="font-semibold">{item.eventTitle}</h3>
+                                            <h3 className="font-semibold">{item.title}</h3>
                                             <p className="text-sm text-muted-foreground">
-                                                Registered on: {item.registeredAt ? format(item.registeredAt.toDate(), "PPP") : "Date unavailable"}
+                                                {item.type === 'project' ? 'Contribution recorded on: ' : 'Registered on: '}
+                                                {format(item.date, "PPP")}
                                             </p>
                                         </div>
-                                        <Badge variant="outline">Event Registration</Badge>
+                                        <Badge variant="outline" className="capitalize">
+                                            {item.type === 'event' && <Hand className="mr-2 h-4 w-4 text-green-500" />}
+                                            {item.type === 'hackathon' && <Code className="mr-2 h-4 w-4 text-blue-500" />}
+                                            {item.type === 'project' && <GitBranch className="mr-2 h-4 w-4 text-purple-500" />}
+                                            {item.type} Contribution
+                                        </Badge>
                                     </div>
                                 ))
                             ) : (
-                                <p className="text-muted-foreground text-center py-8">No history yet. Register for an event to get started!</p>
+                                <p className="text-muted-foreground text-center py-8">No history yet. Register for an event or contribute to a project to get started!</p>
                             )}
                         </CardContent>
                     </Card>

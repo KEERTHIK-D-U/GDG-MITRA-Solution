@@ -1,12 +1,60 @@
+
+"use client";
+
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import Image from "next/image";
 import Link from "next/link";
-import { projects } from "@/lib/mock-data";
+import { projects, type Project } from "@/lib/mock-data";
 import { GitBranch, Inbox } from "lucide-react";
+import { useAuth, useRequireAuth } from "@/context/auth-context";
+import { useToast } from "@/hooks/use-toast";
+import { contributeToProject } from "@/lib/firebase";
+import { useState } from "react";
+
 
 export default function ProjectsPage() {
+  useRequireAuth();
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const [contributing, setContributing] = useState<number | null>(null);
+
+  const handleContribute = async (project: Project) => {
+    if (!user) {
+      toast({
+        variant: "destructive",
+        title: "Authentication Error",
+        description: "You must be logged in to contribute.",
+      });
+      return;
+    }
+    
+    setContributing(project.id);
+    try {
+      const result = await contributeToProject(user.uid, user.name, user.email, project.id, project.title);
+       if (result.message === "Already contributed.") {
+         toast({
+            title: "Contribution Already Recorded",
+            description: `Your interest in "${project.title}" is already noted.`,
+        });
+      } else {
+        toast({
+            title: "Contribution Recorded!",
+            description: `Thank you for your interest in "${project.title}".`,
+        });
+      }
+    } catch (error: any) {
+       toast({
+        variant: "destructive",
+        title: "Contribution Failed",
+        description: error.message,
+      });
+    } finally {
+      setContributing(null);
+    }
+  }
+
   return (
     <div className="bg-background">
       <div className="container mx-auto px-4 md:px-6 py-12">
@@ -43,12 +91,15 @@ export default function ProjectsPage() {
                   </div>
                 </CardContent>
                 <CardFooter className="p-6 bg-secondary/30">
-                  <Button asChild className="w-full" variant="outline">
-                    <Link href="#">
+                   <Button 
+                      className="w-full" 
+                      variant="outline"
+                      onClick={() => handleContribute(project)}
+                      disabled={contributing === project.id}
+                    >
                       <GitBranch className="mr-2 h-4 w-4" />
-                      Contribute
-                    </Link>
-                  </Button>
+                      {contributing === project.id ? "Recording..." : "Contribute"}
+                    </Button>
                 </CardFooter>
               </Card>
             ))}

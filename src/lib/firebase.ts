@@ -51,6 +51,20 @@ export interface EventRegistration {
     registeredAt: any;
 }
 
+export interface HackathonRegistration {
+    id: string;
+    userId: string;
+    hackathonTitle: string;
+    registeredAt: any; // Firestore Timestamp
+}
+
+export interface ProjectContribution {
+    id: string;
+    userId: string;
+    projectTitle: string;
+    contributedAt: any; // Firestore Timestamp
+}
+
 
 // Function to create user profile in Firestore
 export const createUserProfile = async (user: FirebaseUser, name: string, role: UserRole, additionalData: { linkedinUrl?: string } = {}) => {
@@ -121,6 +135,38 @@ export const getUserRegistrations = async (userId: string): Promise<EventRegistr
             throw new Error("Firestore permission denied. Check your security rules to allow reading from the 'registrations' collection.");
         }
         throw new Error("Failed to fetch event history due to a database error.");
+    }
+}
+
+// Function to get a user's hackathon registrations
+export const getUserHackathonRegistrations = async (userId: string): Promise<HackathonRegistration[]> => {
+    const registrationsRef = collection(db, "hackathonRegistrations");
+    const q = query(registrationsRef, where("userId", "==", userId));
+    try {
+        const querySnapshot = await getDocs(q);
+        return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as HackathonRegistration));
+    } catch (error: any) {
+        console.error("Error fetching hackathon registrations:", error);
+        if (error.code === 'permission-denied') {
+            throw new Error("Firestore permission denied. Check your security rules to allow reading from the 'hackathonRegistrations' collection.");
+        }
+        throw new Error("Failed to fetch hackathon history due to a database error.");
+    }
+}
+
+// Function to get a user's project contributions
+export const getUserProjectContributions = async (userId: string): Promise<ProjectContribution[]> => {
+    const contributionsRef = collection(db, "projectContributions");
+    const q = query(contributionsRef, where("userId", "==", userId));
+    try {
+        const querySnapshot = await getDocs(q);
+        return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as ProjectContribution));
+    } catch (error: any) {
+        console.error("Error fetching project contributions:", error);
+        if (error.code === 'permission-denied') {
+            throw new Error("Firestore permission denied. Check your security rules to allow reading from the 'projectContributions' collection.");
+        }
+        throw new Error("Failed to fetch project contributions due to a database error.");
     }
 }
 
@@ -229,6 +275,36 @@ export const registerForHackathon = async (userId: string, userName: string, use
         throw new Error("Failed to register for the hackathon due to a database error.");
     }
 };
+
+// Function to log a project contribution
+export const contributeToProject = async (userId: string, userName: string, userEmail: string, projectId: number, projectTitle: string) => {
+    const contributionsRef = collection(db, "projectContributions");
+    const q = query(contributionsRef, where("userId", "==", userId), where("projectId", "==", projectId.toString()));
+    const existingContribution = await getDocs(q);
+    if (!existingContribution.empty) {
+        return { success: true, message: "Already contributed." };
+    }
+
+    const contributionData = {
+        userId,
+        userName,
+        userEmail,
+        projectId: projectId.toString(),
+        projectTitle,
+        contributedAt: serverTimestamp(),
+    };
+    try {
+        const docRef = await addDoc(contributionsRef, contributionData);
+        return { success: true, contributionId: docRef.id };
+    } catch (error: any) {
+        console.error("Error adding project contribution document: ", error);
+        if (error.code === 'permission-denied') {
+            throw new Error("Firestore permission denied. Check your security rules to allow writes to the 'projectContributions' collection.");
+        }
+        throw new Error("Failed to log project contribution due to a database error.");
+    }
+};
+
 
 
 export { app, auth, db };

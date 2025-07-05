@@ -15,6 +15,14 @@ export interface Hackathon {
     imageUrl: string;
 }
 
+export interface Project {
+    id: number;
+    title: string;
+    description: string;
+    imageUrl: string;
+    tags: string[];
+}
+
 export const events: Event[] = [
     {
       id: 1,
@@ -63,7 +71,7 @@ export const hackathons: Hackathon[] = [
     }
 ];
 
-export const projects = [
+export const projects: Project[] = [
     {
         id: 1,
         title: "CommunityConnect App",
