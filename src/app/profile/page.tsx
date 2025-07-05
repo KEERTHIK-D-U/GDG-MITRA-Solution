@@ -1,33 +1,23 @@
 
 "use client";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { userBadges } from "@/lib/mock-data";
-import { Award, Code, GitBranch, Hand, HeartHandshake, Linkedin, Sprout, User as UserIcon, Users, School } from "lucide-react";
+import { Code, GitBranch, Hand, Linkedin, User as UserIcon, School } from "lucide-react";
 import * as React from "react";
 import { useAuth, useRequireAuth } from "@/context/auth-context";
 import { useToast } from "@/hooks/use-toast";
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { updateUserProfile, getUserRegistrations, type EventRegistration, getUserHackathonRegistrations, type HackathonRegistration, getUserProjectContributions, type ProjectContribution } from "@/lib/firebase";
+import { updateUserProfile, getUserRegistrations, getUserHackathonRegistrations, getUserProjectContributions } from "@/lib/firebase";
 import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
-
-const iconMap: { [key: string]: React.ElementType } = {
-    Award,
-    HeartHandshake,
-    Sprout,
-    Users,
-    Code,
-    GitPullRequest: GitBranch, // Using GitBranch for project contributions
-};
 
 type HistoryItem = {
     id: string;
@@ -189,9 +179,8 @@ export default function ProfilePage() {
             </div>
 
             <Tabs defaultValue="history" className="w-full">
-                <TabsList className="grid w-full grid-cols-3 md:w-auto md:inline-grid md:grid-cols-3">
+                <TabsList className="grid w-full grid-cols-2 md:w-auto md:inline-grid md:grid-cols-2">
                     <TabsTrigger value="history">Contribution History</TabsTrigger>
-                    <TabsTrigger value="rewards">Rewards</TabsTrigger>
                     <TabsTrigger value="profile">Edit Profile</TabsTrigger>
                 </TabsList>
 
@@ -233,29 +222,6 @@ export default function ProfilePage() {
                             ) : (
                                 <p className="text-muted-foreground text-center py-8">No history yet. Register for an event or contribute to a project to get started!</p>
                             )}
-                        </CardContent>
-                    </Card>
-                </TabsContent>
-
-                <TabsContent value="rewards">
-                    <Card className="transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-2 hover:border-[#222222] hover:shadow-[#02006c]/40 dark:hover:border-[#00e97b] dark:hover:shadow-[#00e97b]/30">
-                        <CardHeader>
-                            <CardTitle>Badges & Rewards</CardTitle>
-                            <CardDescription>Celebrating your milestones and achievements.</CardDescription>
-                        </CardHeader>
-                        <CardContent className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
-                            {userBadges.map((badge) => {
-                                const Icon = iconMap[badge.icon] || Hand;
-                                return (
-                                <div key={badge.id} className="flex flex-col items-center text-center gap-2 p-4 border rounded-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-2 hover:border-[#222222] hover:shadow-[#02006c]/40 dark:hover:border-[#00e97b] dark:hover:shadow-[#00e97b]/30">
-                                    <div className="p-4 rounded-full bg-accent/20 text-accent">
-                                        <Icon className="w-8 h-8"/>
-                                    </div>
-                                    <h3 className="font-semibold text-sm">{badge.name}</h3>
-                                    <p className="text-xs text-muted-foreground">{badge.description}</p>
-                                </div>
-                            )})}
-                             {userBadges.length === 0 && <p className="text-muted-foreground text-center col-span-full">No badges earned yet.</p>}
                         </CardContent>
                     </Card>
                 </TabsContent>
