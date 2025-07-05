@@ -41,7 +41,16 @@ export interface UserProfile {
     name: string;
     role: UserRole;
     linkedinUrl?: string;
+    techStacks?: string;
 }
+
+export interface EventRegistration {
+    id: string;
+    userId: string;
+    eventTitle: string;
+    registeredAt: any;
+}
+
 
 // Function to create user profile in Firestore
 export const createUserProfile = async (user: FirebaseUser, name: string, role: UserRole, additionalData: { linkedinUrl?: string } = {}) => {
@@ -52,6 +61,7 @@ export const createUserProfile = async (user: FirebaseUser, name: string, role: 
         name,
         role,
         linkedinUrl: additionalData.linkedinUrl || "",
+        techStacks: "",
     };
     try {
         await setDoc(userRef, userProfile);
@@ -82,6 +92,35 @@ export const getUserProfile = async (uid: string): Promise<UserProfile | null> =
         throw error;
     }
 }
+
+// Function to update a user's profile
+export const updateUserProfile = async (uid: string, data: Partial<UserProfile>) => {
+    const userRef = doc(db, "users", uid);
+    try {
+        await setDoc(userRef, data, { merge: true });
+    } catch (error: any) {
+        console.error("Error updating user profile:", error);
+        if (error.code === 'permission-denied') {
+            throw new Error("Firestore permission denied. Check your security rules to allow updating documents in the 'users' collection.");
+        }
+        throw new Error("Failed to update user profile due to a database error.");
+    }
+};
+
+// Function to get a user's event registrations
+export const getUserRegistrations = async (userId: string): Promise<EventRegistration[]> => {
+    const registrationsRef = collection(db, "registrations");
+    const q = query(registrationsRef, where("userId", "==", userId));
+    try {
+        const querySnapshot = await getDocs(q);
+        const registrations = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as EventRegistration));
+        return registrations;
+    } catch (error: any) {
+        console.error("Error fetching user registrations:", error);
+        throw new Error("Failed to fetch event history.");
+    }
+}
+
 
 // Function to get all users from Firestore, excluding the current user
 export const getAllUsers = async (currentUserId: string): Promise<UserProfile[]> => {

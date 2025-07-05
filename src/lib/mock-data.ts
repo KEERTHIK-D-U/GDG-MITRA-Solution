@@ -1,3 +1,4 @@
+
 export interface Event {
   id: number;
   title: string;
@@ -77,23 +78,6 @@ export const projects = [
         imageUrl: "https://placehold.co/400x225.png",
         tags: ["Python", "Flask", "React", "D3.js"]
     }
-];
-
-export const userHistory = [
-    {
-      id: 1,
-      title: "Coastal Cleanup Drive",
-      date: "Oct 26, 2024",
-      role: "Volunteer",
-      hours: 4,
-    },
-     {
-      id: 2,
-      title: "CommunityConnect App",
-      date: "Ongoing",
-      role: "Contributor",
-      hours: 15,
-    },
 ];
 
 export const userBadges = [

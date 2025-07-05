@@ -7,14 +7,17 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Textarea } from "@/components/ui/textarea";
-import { userHistory, userBadges } from "@/lib/mock-data";
+import { userBadges } from "@/lib/mock-data";
 import { Award, Code, Edit, GitPullRequest, Hand, HeartHandshake, Linkedin, Sprout, User as UserIcon, Users } from "lucide-react";
 import * as React from "react";
 import { useAuth, useRequireAuth } from "@/context/auth-context";
 import { useToast } from "@/hooks/use-toast";
-import { testFirestoreConnection } from "@/lib/firebase";
 import Link from "next/link";
+import { useState, useEffect } from "react";
+import { getUserRegistrations, updateUserProfile, type EventRegistration } from "@/lib/firebase";
+import { format } from "date-fns";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const iconMap: { [key: string]: React.ElementType } = {
     Award,
@@ -30,32 +33,66 @@ export default function ProfilePage() {
     const { user, loading } = useAuth();
     const { toast } = useToast();
 
-    const handleTestConnection = async () => {
-        if (!user) {
-            toast({
-                variant: "destructive",
-                title: "Not Logged In",
-                description: "You must be logged in to test the connection.",
-            });
-            return;
+    // Form state
+    const [name, setName] = useState('');
+    const [linkedinUrl, setLinkedinUrl] = useState('');
+    const [techStacks, setTechStacks] = useState('');
+    const [isSaving, setIsSaving] = useState(false);
+
+    // History state
+    const [history, setHistory] = useState<EventRegistration[]>([]);
+    const [historyLoading, setHistoryLoading] = useState(true);
+
+    // Effect to populate form when user data loads
+    useEffect(() => {
+        if (user) {
+            setName(user.name || '');
+            setLinkedinUrl(user.linkedinUrl || '');
+            setTechStacks(user.techStacks || '');
         }
+    }, [user]);
+
+     // Effect to fetch volunteer history
+    useEffect(() => {
+        if (user?.uid) {
+            setHistoryLoading(true);
+            getUserRegistrations(user.uid)
+                .then(setHistory)
+                .catch(err => {
+                    toast({
+                        variant: "destructive",
+                        title: "Failed to load history",
+                        description: err.message
+                    });
+                })
+                .finally(() => setHistoryLoading(false));
+        }
+    }, [user?.uid, toast]);
+
+    const handleSaveChanges = async () => {
+        if (!user) return;
+        setIsSaving(true);
         try {
-            const result = await testFirestoreConnection(user.uid);
+            await updateUserProfile(user.uid, { name, linkedinUrl, techStacks });
             toast({
-                title: "Firestore Connection Successful!",
-                description: `Successfully updated document for user: ${result.uid}`,
+                title: "Profile Updated",
+                description: "Your profile has been successfully saved."
             });
+            // Note: The main user display will update on the next page load/login.
         } catch (error: any) {
             toast({
                 variant: "destructive",
-                title: "Firestore Connection Failed",
-                description: error.message,
+                title: "Update Failed",
+                description: error.message
             });
+        } finally {
+            setIsSaving(false);
         }
     };
     
     if (loading || !user) {
-        return <div>Loading...</div>; // or a loading skeleton
+        // You can add a more sophisticated skeleton loader here
+        return <div>Loading...</div>; 
     }
 
     return (
@@ -71,7 +108,7 @@ export default function ProfilePage() {
                         <span className="sr-only">Edit Profile Picture</span>
                     </Button>
                 </div>
-                <div className="text-center md:text-left">
+                <div className="text-center md:text-left flex-1">
                     <h1 className="text-4xl font-bold font-headline">{user.name}</h1>
                     <p className="text-muted-foreground">{user.email}</p>
                      {user.linkedinUrl && (
@@ -84,9 +121,19 @@ export default function ProfilePage() {
                             </Button>
                         </div>
                     )}
-                    <p className="mt-2 max-w-xl text-foreground">
-                        Passionate about leveraging technology for community good. Full-stack developer with a love for open source and volunteering.
+                    <p className="mt-2 max-w-xl text-foreground/80">
+                       View and edit your profile details, check your volunteer history, and see your rewards.
                     </p>
+                    {user.techStacks && (
+                        <div className="mt-4">
+                            <h3 className="font-semibold mb-2 text-lg">Tech Stacks</h3>
+                            <div className="flex flex-wrap gap-2">
+                                {user.techStacks.split(',').map((stack, index) => (
+                                    <Badge key={`${stack.trim()}-${index}`} variant="secondary">{stack.trim()}</Badge>
+                                ))}
+                            </div>
+                        </div>
+                    )}
                 </div>
             </div>
 
@@ -101,21 +148,34 @@ export default function ProfilePage() {
                     <Card className="transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-2 hover:border-[#ced4ce] dark:hover:border-[#00e97b] hover:shadow-[#006a35]/30 dark:hover:shadow-[#00e97b]/30">
                         <CardHeader>
                             <CardTitle>Volunteer History</CardTitle>
-                            <CardDescription>A record of your contributions and impact.</CardDescription>
+                            <CardDescription>A record of your event registrations.</CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-4">
-                            {userHistory.map((item) => (
-                                <div key={item.id} className="p-4 rounded-lg border flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-                                    <div>
-                                        <h3 className="font-semibold">{item.title}</h3>
-                                        <p className="text-sm text-muted-foreground">{item.date} | {item.role}</p>
+                            {historyLoading ? (
+                                Array.from({ length: 2 }).map((_, i) => (
+                                    <div key={i} className="p-4 rounded-lg border flex justify-between items-center gap-2">
+                                        <div className="space-y-2">
+                                            <Skeleton className="h-4 w-48" />
+                                            <Skeleton className="h-4 w-32" />
+                                        </div>
+                                        <Skeleton className="h-4 w-24" />
                                     </div>
-                                    <div className="text-sm font-medium text-primary shrink-0">
-                                        {item.hours} hours contributed
+                                ))
+                            ) : history.length > 0 ? (
+                                history.map((item) => (
+                                    <div key={item.id} className="p-4 rounded-lg border flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                                        <div>
+                                            <h3 className="font-semibold">{item.eventTitle}</h3>
+                                            <p className="text-sm text-muted-foreground">
+                                                Registered on: {item.registeredAt ? format(item.registeredAt.toDate(), "PPP") : "Date unavailable"}
+                                            </p>
+                                        </div>
+                                        <Badge variant="outline">Event Registration</Badge>
                                     </div>
-                                </div>
-                            ))}
-                            {userHistory.length === 0 && <p className="text-muted-foreground text-center">No history yet. Start volunteering!</p>}
+                                ))
+                            ) : (
+                                <p className="text-muted-foreground text-center py-8">No history yet. Register for an event to get started!</p>
+                            )}
                         </CardContent>
                     </Card>
                 </TabsContent>
@@ -152,25 +212,20 @@ export default function ProfilePage() {
                         <CardContent className="space-y-4">
                             <div className="space-y-2">
                                 <Label htmlFor="name">Full Name</Label>
-                                <Input id="name" defaultValue={user.name} />
+                                <Input id="name" value={name} onChange={(e) => setName(e.target.value)} />
                             </div>
                              <div className="space-y-2">
                                 <Label htmlFor="linkedin">LinkedIn Profile URL</Label>
-                                <Input id="linkedin" placeholder="https://linkedin.com/in/your-profile" defaultValue={user.linkedinUrl} />
+                                <Input id="linkedin" placeholder="https://linkedin.com/in/your-profile" value={linkedinUrl} onChange={(e) => setLinkedinUrl(e.target.value)} />
                             </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="bio">Bio</Label>
-                                <Textarea id="bio" placeholder="Tell us a little bit about yourself" defaultValue="Passionate about leveraging technology for community good. Full-stack developer with a love for open source and volunteering."/>
+                             <div className="space-y-2">
+                                <Label htmlFor="tech-stacks">Tech Stacks</Label>
+                                <Input id="tech-stacks" placeholder="e.g., React, Next.js, Firebase" value={techStacks} onChange={(e) => setTechStacks(e.target.value)} />
+                                <p className="text-sm text-muted-foreground">Comma-separated list of your technical skills.</p>
                             </div>
-                            <Button>Save Changes</Button>
-
-                             <div className="pt-6 mt-6 border-t">
-                                <h3 className="text-lg font-medium">Developer Tools</h3>
-                                <p className="text-sm text-muted-foreground mb-4">
-                                    Use this button to verify that the application can successfully write to your user document in Firestore.
-                                </p>
-                                <Button variant="outline" onClick={handleTestConnection}>Test Firestore Connection</Button>
-                            </div>
+                            <Button onClick={handleSaveChanges} disabled={isSaving}>
+                                {isSaving ? "Saving..." : "Save Changes"}
+                            </Button>
                         </CardContent>
                     </Card>
                 </TabsContent>
