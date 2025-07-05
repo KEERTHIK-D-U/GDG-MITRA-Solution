@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth, useRequireAuth } from "@/context/auth-context";
 import { type UserProfile, db } from "@/lib/firebase";
-import { Linkedin, Users, User as UserIcon, School } from "lucide-react";
+import { Linkedin, Users, User as UserIcon, School, Mail } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
@@ -110,7 +110,10 @@ export default function ConnectionsPage() {
                                         <Linkedin className="mr-2 h-4 w-4" /> Not Available
                                     </Button>
                                 )}
-                                <p className="text-xs text-muted-foreground">{user.email}</p>
+                                <a href={`mailto:${user.email}`} className="text-xs text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5">
+                                    <Mail className="h-3 w-3" />
+                                    <span>{user.email}</span>
+                                </a>
                             </CardContent>
                         </Card>
                     ))}
