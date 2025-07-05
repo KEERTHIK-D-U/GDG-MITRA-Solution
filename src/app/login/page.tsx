@@ -51,6 +51,7 @@ export default function LoginPage() {
 
   // Effect to redirect users who are already logged in when they visit the page
   useEffect(() => {
+    // If auth is no longer loading and we have a user object, redirect them.
     if (!authLoading && user) {
       handleRedirect(user.role);
     }
@@ -68,18 +69,16 @@ export default function LoginPage() {
   const onSubmit: SubmitHandler<FormValues> = async (data) => {
     setLoading(true);
     try {
-      const userCredential = await signInWithEmailAndPassword(auth, data.email, data.password);
-      // Fetch profile immediately to determine where to redirect
-      const userProfile = await getUserProfile(userCredential.user.uid);
+      // We only need to trigger the sign-in. The AuthProvider will detect
+      // the change and update the global state. The useEffect hook above will
+      // then handle the redirect once the user object is available.
+      await signInWithEmailAndPassword(auth, data.email, data.password);
       
       toast({
         title: "Login Successful!",
         description: "Welcome back. Redirecting...",
       });
-      
-      // Redirect based on role
-      handleRedirect(userProfile?.role);
-
+      // No redirect here. Let the AuthProvider and useEffect do their job.
     } catch (error: any) {
       toast({
         variant: "destructive",
@@ -97,6 +96,8 @@ export default function LoginPage() {
         const result = await signInWithPopup(auth, provider);
         const userProfile = await getUserProfile(result.user.uid);
 
+        // For Google sign-in, we must check if a profile exists.
+        // If not, the user needs to go through the signup flow to choose a role.
         if (!userProfile) {
              await auth.signOut();
              toast({
@@ -109,12 +110,11 @@ export default function LoginPage() {
             return;
         }
 
+        // If the profile exists, the AuthProvider and useEffect will handle redirection.
         toast({
           title: "Login Successful!",
           description: "Welcome back. Redirecting...",
         });
-
-        handleRedirect(userProfile.role);
 
     } catch (error: any) {
         if (error.code === 'auth/account-exists-with-different-credential') {
