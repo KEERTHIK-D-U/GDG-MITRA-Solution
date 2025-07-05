@@ -27,7 +27,7 @@ export default function RootLayout({
       <body className="font-body antialiased bg-background min-h-screen flex flex-col">
         <ThemeProvider
           attribute="class"
-          defaultTheme="light"
+          defaultTheme="dark"
           enableSystem={false}
           themes={['light', 'dark']}
         >
