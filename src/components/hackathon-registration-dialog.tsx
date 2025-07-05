@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from 'react';
@@ -13,8 +14,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { useAuth } from '@/context/auth-context';
 import { useToast } from '@/hooks/use-toast';
-import { registerForHackathon } from '@/lib/firebase';
-import type { Hackathon } from '@/lib/mock-data';
+import { registerForHackathon, type Hackathon } from '@/lib/firebase';
 import { Calendar, Info } from 'lucide-react';
 
 interface HackathonRegistrationDialogProps {

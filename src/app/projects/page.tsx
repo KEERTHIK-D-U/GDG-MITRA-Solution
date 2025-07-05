@@ -1,24 +1,33 @@
 
 "use client";
 
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import Image from "next/image";
-import Link from "next/link";
-import { projects, type Project } from "@/lib/mock-data";
+import { getProjects, type Project, contributeToProject } from "@/lib/firebase";
 import { GitBranch, Inbox } from "lucide-react";
 import { useAuth, useRequireAuth } from "@/context/auth-context";
 import { useToast } from "@/hooks/use-toast";
-import { contributeToProject } from "@/lib/firebase";
-import { useState } from "react";
-
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function ProjectsPage() {
   useRequireAuth();
   const { user } = useAuth();
   const { toast } = useToast();
-  const [contributing, setContributing] = useState<number | null>(null);
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [contributing, setContributing] = useState<string | null>(null);
+
+  useEffect(() => {
+    setLoading(true);
+    const unsubscribe = getProjects((fetchedProjects) => {
+      setProjects(fetchedProjects);
+      setLoading(false);
+    });
+    return () => unsubscribe();
+  }, []);
 
   const handleContribute = async (project: Project) => {
     if (!user) {
@@ -67,7 +76,11 @@ export default function ProjectsPage() {
           </p>
         </div>
 
-        {projects.length > 0 ? (
+        {loading ? (
+           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-96 w-full" />)}
+           </div>
+        ) : projects.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {projects.map((project) => (
               <Card key={project.id} className="flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-2 hover:border-[#ced4ce] dark:hover:border-[#00e97b] hover:shadow-[#006a35]/30 dark:hover:shadow-[#00e97b]/30">
@@ -98,7 +111,7 @@ export default function ProjectsPage() {
                       disabled={contributing === project.id}
                     >
                       <GitBranch className="mr-2 h-4 w-4" />
-                      {contributing === project.id ? "Recording..." : "Contribute"}
+                      {contributing === project.id ? "Recording..." : "I'm Interested"}
                     </Button>
                 </CardFooter>
               </Card>
@@ -109,7 +122,7 @@ export default function ProjectsPage() {
             <Inbox className="w-16 h-16 text-muted-foreground" />
             <h3 className="mt-4 text-xl font-semibold">No Projects Found</h3>
             <p className="mt-2 text-muted-foreground">
-              There are no open source projects listed right now. Feel free to start one!
+              There are no open source projects listed right now. Ask a host to create one!
             </p>
           </div>
         )}

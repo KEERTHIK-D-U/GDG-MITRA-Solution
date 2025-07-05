@@ -1,17 +1,30 @@
+
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
-import { hackathons, type Hackathon } from "@/lib/mock-data";
+import { getHackathons, type Hackathon } from "@/lib/firebase";
 import { ArrowRight, Calendar, Inbox } from "lucide-react";
 import { useRequireAuth } from "@/context/auth-context";
 import { HackathonRegistrationDialog } from "@/components/hackathon-registration-dialog";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function HackathonsPage() {
   useRequireAuth();
+  const [hackathons, setHackathons] = useState<Hackathon[]>([]);
+  const [loading, setLoading] = useState(true);
   const [selectedHackathon, setSelectedHackathon] = useState<Hackathon | null>(null);
+
+  useEffect(() => {
+    setLoading(true);
+    const unsubscribe = getHackathons((fetchedHackathons) => {
+      setHackathons(fetchedHackathons);
+      setLoading(false);
+    });
+    return () => unsubscribe();
+  }, []);
 
   const handleRegisterClick = (hackathon: Hackathon) => {
     setSelectedHackathon(hackathon);
@@ -30,7 +43,11 @@ export default function HackathonsPage() {
             </p>
           </div>
 
-          {hackathons.length > 0 ? (
+          {loading ? (
+             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+               {Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-96 w-full" />)}
+            </div>
+          ) : hackathons.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {hackathons.map((hackathon) => (
                 <Card key={hackathon.id} className="flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-2 hover:border-[#ced4ce] dark:hover:border-[#00e97b] hover:shadow-[#006a35]/30 dark:hover:shadow-[#00e97b]/30">

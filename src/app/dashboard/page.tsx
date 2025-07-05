@@ -1,16 +1,37 @@
+
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { PlusCircle, Calendar, GitBranch } from "lucide-react";
 import Link from "next/link";
-import { useRequireAuth } from "@/context/auth-context";
+import { useAuth, useRequireAuth } from "@/context/auth-context";
+import { useEffect, useState } from "react";
+import { getEventsByHost, getProjectsByHost } from "@/lib/firebase";
 
 export default function DashboardPage() {
   useRequireAuth('host'); // Protect this route for hosts
-  // Placeholder data - in a real app, this would come from a database
-  const hostedEventsCount = 0;
-  const hostedProjectsCount = 0;
+  const { user } = useAuth();
+  
+  const [hostedEventsCount, setHostedEventsCount] = useState(0);
+  const [hostedProjectsCount, setHostedProjectsCount] = useState(0);
+
+  useEffect(() => {
+    if (!user) return;
+
+    const unsubscribeEvents = getEventsByHost(user.uid, (events) => {
+      setHostedEventsCount(events.length);
+    });
+
+    const unsubscribeProjects = getProjectsByHost(user.uid, (projects) => {
+      setHostedProjectsCount(projects.length);
+    });
+
+    return () => {
+      unsubscribeEvents();
+      unsubscribeProjects();
+    };
+  }, [user]);
 
   return (
     <div className="bg-secondary/50 min-h-[calc(100vh-4rem)]">
@@ -26,12 +47,12 @@ export default function DashboardPage() {
           </div>
           <div className="flex gap-2">
              <Button asChild>
-                <Link href="/dashboard/events">
+                <Link href="/dashboard/events#add-event-form">
                     <PlusCircle className="mr-2 h-4 w-4" /> Add Event
                 </Link>
              </Button>
               <Button asChild variant="outline">
-                <Link href="/dashboard/projects">
+                <Link href="/dashboard/projects#add-project-form">
                     <PlusCircle className="mr-2 h-4 w-4" /> Add Project
                 </Link>
              </Button>

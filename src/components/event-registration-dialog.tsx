@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from 'react';
@@ -13,8 +14,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { useAuth } from '@/context/auth-context';
 import { useToast } from '@/hooks/use-toast';
-import { registerForEvent } from '@/lib/firebase';
-import type { Event } from '@/lib/mock-data';
+import { registerForEvent, type Event } from '@/lib/firebase';
 import { Calendar, MapPin } from 'lucide-react';
 
 interface EventRegistrationDialogProps {
@@ -64,12 +64,15 @@ export function EventRegistrationDialog({ event, isOpen, onOpenChange }: EventRe
         <div className="grid gap-4 py-4">
           <div className="flex items-center">
             <Calendar className="w-4 h-4 mr-2 text-muted-foreground" />
-            <span className="text-sm">{event.date}</span>
+            <span className="text-sm">{new Date(event.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
           </div>
           <div className="flex items-center">
             <MapPin className="w-4 h-4 mr-2 text-muted-foreground" />
             <span className="text-sm">{event.location}</span>
           </div>
+           <div className="prose prose-sm text-muted-foreground mt-2">
+            <p>{event.description}</p>
+           </div>
           <div className="p-4 bg-secondary/50 rounded-md mt-2">
             <p className="text-sm font-medium">You are registering as:</p>
             <p className="text-sm text-muted-foreground">{user?.name} ({user?.email})</p>

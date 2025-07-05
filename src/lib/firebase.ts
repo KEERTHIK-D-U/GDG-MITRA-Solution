@@ -12,7 +12,7 @@ const firebaseConfig = {
 
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
-import { getFirestore, doc, setDoc, getDoc, collection, addDoc, serverTimestamp, getDocs, query, where, deleteDoc } from "firebase/firestore";
+import { getFirestore, doc, setDoc, getDoc, collection, addDoc, serverTimestamp, getDocs, query, where, deleteDoc, onSnapshot, orderBy } from "firebase/firestore";
 import type { User as FirebaseUser } from 'firebase/auth';
 
 // For debugging: This will print the Project ID to your browser's developer console.
@@ -64,6 +64,40 @@ export interface ProjectContribution {
     userId: string;
     projectTitle: string;
     contributedAt: any; // Firestore Timestamp
+}
+
+export interface Event {
+    id: string; // Firestore document ID
+    title: string;
+    date: string;
+    location: string;
+    description: string;
+    imageUrl: string;
+    hostId: string;
+    hostName: string;
+    createdAt: any; // Firestore Timestamp
+}
+
+export interface Project {
+    id: string; // Firestore document ID
+    title: string;
+    description: string;
+    imageUrl: string;
+    tags: string[];
+    hostId: string;
+    hostName: string;
+    createdAt: any; // Firestore Timestamp
+}
+
+export interface Hackathon {
+    id: string; // Firestore document ID
+    title: string;
+    dates: string;
+    description: string;
+    imageUrl: string;
+    hostId: string;
+    hostName: string;
+    createdAt: any; // Firestore Timestamp
 }
 
 
@@ -235,12 +269,12 @@ export const testFirestoreConnection = async (uid: string) => {
 
 
 // Function to register a user for an event
-export const registerForEvent = async (userId: string, userName: string | null, userEmail: string | null, eventId: number, eventTitle: string) => {
+export const registerForEvent = async (userId: string, userName: string | null, userEmail: string | null, eventId: string, eventTitle: string) => {
     const registrationData = {
         userId,
         userName,
         userEmail,
-        eventId: eventId.toString(),
+        eventId: eventId,
         eventTitle,
         registeredAt: serverTimestamp(),
     };
@@ -257,12 +291,12 @@ export const registerForEvent = async (userId: string, userName: string | null, 
 };
 
 // Function to register a user for a hackathon
-export const registerForHackathon = async (userId: string, userName: string | null, userEmail: string | null, hackathonId: number, hackathonTitle: string) => {
+export const registerForHackathon = async (userId: string, userName: string | null, userEmail: string | null, hackathonId: string, hackathonTitle: string) => {
     const registrationData = {
         userId,
         userName,
         userEmail,
-        hackathonId: hackathonId.toString(),
+        hackathonId: hackathonId,
         hackathonTitle,
         registeredAt: serverTimestamp(),
     };
@@ -279,9 +313,9 @@ export const registerForHackathon = async (userId: string, userName: string | nu
 };
 
 // Function to log a project contribution
-export const contributeToProject = async (userId: string, userName: string | null, userEmail: string | null, projectId: number, projectTitle: string) => {
+export const contributeToProject = async (userId: string, userName: string | null, userEmail: string | null, projectId: string, projectTitle: string) => {
     const contributionsRef = collection(db, "projectContributions");
-    const q = query(contributionsRef, where("userId", "==", userId), where("projectId", "==", projectId.toString()));
+    const q = query(contributionsRef, where("userId", "==", userId), where("projectId", "==", projectId));
     const existingContribution = await getDocs(q);
     if (!existingContribution.empty) {
         return { success: true, message: "Already contributed." };
@@ -291,7 +325,7 @@ export const contributeToProject = async (userId: string, userName: string | nul
         userId,
         userName,
         userEmail,
-        projectId: projectId.toString(),
+        projectId: projectId,
         projectTitle,
         contributedAt: serverTimestamp(),
     };
@@ -307,6 +341,75 @@ export const contributeToProject = async (userId: string, userName: string | nul
     }
 };
 
+
+// Functions to create items
+export const createEvent = async (eventData: Omit<Event, 'id' | 'createdAt'>) => {
+    try {
+        const docRef = await addDoc(collection(db, "events"), {
+            ...eventData,
+            createdAt: serverTimestamp(),
+        });
+        return { success: true, id: docRef.id };
+    } catch (error: any) {
+        console.error("Error creating event:", error);
+        throw new Error("Failed to create event.");
+    }
+};
+
+export const createProject = async (projectData: Omit<Project, 'id' | 'createdAt'>) => {
+    try {
+        const docRef = await addDoc(collection(db, "projects"), {
+            ...projectData,
+            createdAt: serverTimestamp(),
+        });
+        return { success: true, id: docRef.id };
+    } catch (error: any) {
+        console.error("Error creating project:", error);
+        throw new Error("Failed to create project.");
+    }
+};
+
+// Functions to get all items (for public pages)
+export const getEvents = (callback: (events: Event[]) => void) => {
+    const q = query(collection(db, "events"), orderBy("date", "desc"));
+    return onSnapshot(q, (snapshot) => {
+        const events = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Event));
+        callback(events);
+    });
+};
+
+export const getProjects = (callback: (projects: Project[]) => void) => {
+    const q = query(collection(db, "projects"), orderBy("createdAt", "desc"));
+    return onSnapshot(q, (snapshot) => {
+        const projects = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Project));
+        callback(projects);
+    });
+};
+
+export const getHackathons = (callback: (hackathons: Hackathon[]) => void) => {
+    const q = query(collection(db, "hackathons"), orderBy("createdAt", "desc"));
+    return onSnapshot(q, (snapshot) => {
+        const hackathons = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Hackathon));
+        callback(hackathons);
+    });
+};
+
+// Functions to get host-specific items (for dashboard)
+export const getEventsByHost = (hostId: string, callback: (events: Event[]) => void) => {
+    const q = query(collection(db, "events"), where("hostId", "==", hostId), orderBy("createdAt", "desc"));
+    return onSnapshot(q, (snapshot) => {
+        const events = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Event));
+        callback(events);
+    });
+};
+
+export const getProjectsByHost = (hostId: string, callback: (projects: Project[]) => void) => {
+    const q = query(collection(db, "projects"), where("hostId", "==", hostId), orderBy("createdAt", "desc"));
+    return onSnapshot(q, (snapshot) => {
+        const projects = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Project));
+        callback(projects);
+    });
+};
 
 
 export { app, auth, db };

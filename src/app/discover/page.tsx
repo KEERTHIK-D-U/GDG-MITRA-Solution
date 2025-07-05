@@ -1,19 +1,33 @@
+
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { Search, MapPin, Calendar, Inbox } from "lucide-react";
-import { events, type Event } from "@/lib/mock-data";
+import { getEvents, type Event } from "@/lib/firebase";
 import { useRequireAuth } from "@/context/auth-context";
 import { EventRegistrationDialog } from "@/components/event-registration-dialog";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function DiscoverPage() {
   useRequireAuth(); // Protect this route for any logged-in user
 
+  const [events, setEvents] = useState<Event[]>([]);
+  const [loading, setLoading] = useState(true);
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+
+  useEffect(() => {
+    setLoading(true);
+    const unsubscribe = getEvents((fetchedEvents) => {
+      setEvents(fetchedEvents);
+      setLoading(false);
+    });
+    // Cleanup subscription on unmount
+    return () => unsubscribe();
+  }, []);
 
   const handleRegisterClick = (event: Event) => {
     setSelectedEvent(event);
@@ -43,7 +57,11 @@ export default function DiscoverPage() {
           </div>
 
           <h2 className="text-3xl font-bold tracking-tight mb-8 font-headline">Upcoming Events</h2>
-          {events.length > 0 ? (
+          {loading ? (
+             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-80 w-full" />)}
+             </div>
+          ) : events.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {events.map((event) => (
                 <Card key={event.id} className="overflow-hidden flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-2 hover:border-[#ced4ce] dark:hover:border-[#00e97b] hover:shadow-[#006a35]/30 dark:hover:shadow-[#00e97b]/30">
@@ -62,7 +80,7 @@ export default function DiscoverPage() {
                     <div className="text-muted-foreground space-y-2">
                       <div className="flex items-center">
                         <Calendar className="w-4 h-4 mr-2" />
-                        <span>{event.date}</span>
+                        <span>{new Date(event.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
                       </div>
                       <div className="flex items-center">
                         <MapPin className="w-4 h-4 mr-2" />
@@ -87,7 +105,7 @@ export default function DiscoverPage() {
               <Inbox className="w-16 h-16 text-muted-foreground" />
               <h3 className="mt-4 text-xl font-semibold">No Events Found</h3>
               <p className="mt-2 text-muted-foreground">
-                There are no upcoming events at the moment. Check back later or create a new one!
+                There are no upcoming events at the moment. Check back later or ask a host to create one!
               </p>
             </div>
           )}
