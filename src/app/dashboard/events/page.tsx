@@ -187,7 +187,7 @@ export default function ManageEventsPage() {
                                     <FormItem><FormLabel>Date</FormLabel><FormControl><Input type="date" {...field} /></FormControl><FormMessage /></FormItem>
                                 )} />
                                 <FormField control={form.control} name="location" render={({ field }) => (
-                                    <FormItem><FormLabel>Location</FormLabel><FormControl><Input placeholder="e.g., Panambur Beach" {...field} /></FormControl><FormMessage /></FormItem>
+                                    <FormItem><FormLabel>Location</FormLabel><FormControl><Input placeholder="e.g., Downtown Community Center" {...field} /></FormControl><FormMessage /></FormItem>
                                 )} />
                             </div>
                             <FormField control={form.control} name="description" render={({ field }) => (

@@ -179,7 +179,7 @@ export default function ProfilePage() {
             </div>
 
             <Tabs defaultValue="history" className="w-full">
-                <TabsList className="grid w-full grid-cols-2 md:w-auto md:inline-grid md:grid-cols-2">
+                <TabsList className="grid w-full grid-cols-2">
                     <TabsTrigger value="history">Contribution History</TabsTrigger>
                     <TabsTrigger value="profile">Edit Profile</TabsTrigger>
                 </TabsList>
@@ -239,7 +239,7 @@ export default function ProfilePage() {
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="college">College</Label>
-                                <Input id="college" placeholder="e.g., Sahyadri College of Engineering & Management" value={college} onChange={(e) => setCollege(e.target.value)} />
+                                <Input id="college" placeholder="e.g., Institute of Technology" value={college} onChange={(e) => setCollege(e.target.value)} />
                             </div>
                              <div className="space-y-2">
                                 <Label htmlFor="linkedin">LinkedIn Profile URL</Label>
@@ -264,5 +264,3 @@ export default function ProfilePage() {
         </div>
     );
 }
-
-    

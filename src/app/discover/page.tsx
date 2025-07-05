@@ -76,7 +76,7 @@ export default function DiscoverPage() {
               Discover Opportunities
             </h1>
             <p className="max-w-2xl text-lg text-muted-foreground font-subheading">
-              Find volunteering events and open-source projects happening around Mangalore.
+              Find volunteering events and open-source projects happening in your community.
             </p>
             <div className="w-full max-w-lg">
               <div className="relative">

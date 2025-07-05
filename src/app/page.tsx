@@ -23,7 +23,7 @@ export default function Home() {
               Connect, Collaborate, Contribute.
             </h1>
             <p className="max-w-3xl text-lg md:text-xl text-primary-foreground/90 font-subheading">
-              Mitra is the bridge between passionate volunteers and impactful opportunities in Mangalore. Discover local events, contribute to open-source projects, and be the change your community needs.
+              Mitra is the bridge between passionate volunteers and impactful opportunities. Discover local events, contribute to open-source projects, and be the change your community needs.
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
               <Button asChild size="lg">
@@ -71,7 +71,7 @@ export default function Home() {
                 <div className="p-6 rounded-lg flex flex-col items-center">
                     <h3 className="text-5xl font-bold text-primary font-headline mb-4">A</h3>
                     <h4 className="text-xl font-semibold mb-2 font-headline">Activate Community</h4>
-                    <p className="text-muted-foreground">Be an active part of Mangalore's tech and social impact scene.</p>
+                    <p className="text-muted-foreground">Be an active part of the tech and social impact scene.</p>
                 </div>
             </div>
         </div>

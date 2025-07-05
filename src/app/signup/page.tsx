@@ -132,7 +132,7 @@ export default function SignupPage() {
                   <FormItem>
                     <FormLabel>Full name</FormLabel>
                     <FormControl>
-                      <Input placeholder="Mangalore Techie" {...field} />
+                      <Input placeholder="Community Techie" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -183,7 +183,7 @@ export default function SignupPage() {
                   <FormItem>
                     <FormLabel>College</FormLabel>
                     <FormControl>
-                      <Input placeholder="Srinivas Institute of Technology" {...field} />
+                      <Input placeholder="Your College Name" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
