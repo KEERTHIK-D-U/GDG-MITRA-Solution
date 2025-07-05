@@ -95,7 +95,7 @@ export default function AdminPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-            <Card className="transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-2 dark:hover:border-[#00e97b] hover:border-[#ced4ce] hover:shadow-[#006a35]/30 dark:hover:shadow-[#00e97b]/30">
+            <Card className="transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-2 hover:border-[#222222] hover:shadow-[#090088]/30 dark:hover:border-[#00e97b] dark:hover:shadow-[#00e97b]/30">
               <CardHeader>
                 <CardTitle className="flex items-center justify-between">
                   <span>Total Users</span>

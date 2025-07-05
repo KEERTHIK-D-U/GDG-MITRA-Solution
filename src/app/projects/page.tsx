@@ -92,7 +92,7 @@ export default function ProjectsPage() {
         ) : projects.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {projects.map((project) => (
-              <Card key={project.id} className="flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-2 hover:border-[#ced4ce] dark:hover:border-[#00e97b] hover:shadow-[#006a35]/30 dark:hover:shadow-[#00e97b]/30">
+              <Card key={project.id} className="flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-2 hover:border-[#222222] hover:shadow-[#090088]/30 dark:hover:border-[#00e97b] dark:hover:shadow-[#00e97b]/30">
                 <CardHeader className="p-0">
                   <Image
                     src={project.imageUrl}

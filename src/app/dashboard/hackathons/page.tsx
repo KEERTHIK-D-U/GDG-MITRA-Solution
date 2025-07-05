@@ -161,7 +161,7 @@ export default function ManageHackathonsPage() {
         )}
 
         <div id="add-hackathon-form" className="pt-16">
-            <Card className="max-w-3xl mx-auto transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-2 hover:border-[#ced4ce] dark:hover:border-[#00e97b] hover:shadow-[#006a35]/30 dark:hover:shadow-[#00e97b]/30">
+            <Card className="max-w-3xl mx-auto transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-2 hover:border-[#222222] hover:shadow-[#090088]/30 dark:hover:border-[#00e97b] dark:hover:shadow-[#00e97b]/30">
                 <CardHeader>
                     <CardTitle>Create a New Hackathon</CardTitle>
                     <CardDescription>Fill out the details below to list your hackathon.</CardDescription>
