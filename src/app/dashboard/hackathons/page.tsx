@@ -85,7 +85,9 @@ export default function ManageHackathonsPage() {
             }
 
             await createHackathon({
-                ...data,
+                title: data.title,
+                description: data.description,
+                dates: data.dates,
                 imageUrl: imageUrl,
                 hostId: user.uid,
                 hostName: user.name || "Anonymous Host",
@@ -130,7 +132,7 @@ export default function ManageHackathonsPage() {
         ) : hackathons.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {hackathons.map((hackathon) => (
-                    <Card key={hackathon.id} className="overflow-hidden flex flex-col">
+                    <Card key={hackathon.id} className="overflow-hidden flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-2 hover:border-[#222222] hover:shadow-[#02006c]/40 dark:hover:border-[#00e97b] dark:hover:shadow-[#00e97b]/30">
                         <CardHeader className="p-0">
                             <Image src={hackathon.imageUrl} alt={hackathon.title} width={400} height={225} className="w-full h-40 object-cover" data-ai-hint="hackathon code" />
                         </CardHeader>
