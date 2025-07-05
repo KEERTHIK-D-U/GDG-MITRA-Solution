@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect, useState } from "react";
@@ -6,11 +5,12 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth, useRequireAuth } from "@/context/auth-context";
-import { getAllUsers, UserProfile } from "@/lib/firebase";
-import { Linkedin, User, Users } from "lucide-react";
+import { type UserProfile, db } from "@/lib/firebase";
+import { Linkedin, Users } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
+import { collection, onSnapshot, query, where } from "firebase/firestore";
 
 const UserCardSkeleton = () => (
     <Card className="flex flex-col">
@@ -34,12 +34,27 @@ export default function ConnectionsPage() {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        if (currentUser) {
-            getAllUsers(currentUser.uid)
-                .then(setUsers)
-                .catch(console.error)
-                .finally(() => setLoading(false));
+        if (!currentUser) {
+            setUsers([]);
+            setLoading(false);
+            return;
         }
+
+        const usersRef = collection(db, "users");
+        // Query all users except the current one
+        const q = query(usersRef, where("uid", "!=", currentUser.uid));
+
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+            const usersData = snapshot.docs.map(doc => doc.data() as UserProfile);
+            setUsers(usersData);
+            setLoading(false);
+        }, (error) => {
+            console.error("Failed to subscribe to user updates:", error);
+            setLoading(false);
+        });
+
+        // Cleanup subscription on unmount or when currentUser changes
+        return () => unsubscribe();
     }, [currentUser]);
 
     return (
