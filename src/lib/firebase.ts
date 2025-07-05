@@ -42,9 +42,11 @@ export interface UserProfile {
     email: string;
     name: string;
     role: UserRole;
+    photoURL?: string;
     linkedinUrl?: string;
     techStacks?: string;
     bio?: string;
+    hasCompletedTutorial?: boolean;
 }
 
 export interface EventRegistration {
@@ -111,9 +113,11 @@ export const createUserProfile = async (user: FirebaseUser, name: string, role: 
         email: user.email!,
         name,
         role,
+        photoURL: user.photoURL || "",
         linkedinUrl: additionalData.linkedinUrl || "",
         techStacks: "",
         bio: "Passionate community member and tech enthusiast.",
+        hasCompletedTutorial: false,
     };
     try {
         await setDoc(userRef, userProfile);
