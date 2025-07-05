@@ -63,11 +63,11 @@ export default function ConnectionsPage() {
                         <Card key={user.uid} className="transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-2 hover:border-[#ced4ce] dark:hover:border-[#00e97b] hover:shadow-[#006a35]/30 dark:hover:shadow-[#00e97b]/30">
                             <CardHeader className="flex flex-row items-center gap-4">
                                 <Avatar className="h-12 w-12">
-                                    <AvatarImage src={`https://placehold.co/128x128.png`} alt={user.name} />
-                                    <AvatarFallback>{user.name.charAt(0).toUpperCase()}</AvatarFallback>
+                                    <AvatarImage src={`https://placehold.co/128x128.png`} alt={user.name || 'User Avatar'} />
+                                    <AvatarFallback>{user.name ? user.name.charAt(0).toUpperCase() : 'U'}</AvatarFallback>
                                 </Avatar>
                                 <div>
-                                    <CardTitle className="text-lg">{user.name}</CardTitle>
+                                    <CardTitle className="text-lg">{user.name || 'Community Member'}</CardTitle>
                                     <Badge variant="secondary" className="capitalize mt-1">{user.role}</Badge>
                                 </div>
                             </CardHeader>
