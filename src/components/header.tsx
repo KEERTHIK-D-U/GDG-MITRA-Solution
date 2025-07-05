@@ -12,7 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { HandHeart, Menu, User, LogOut, LayoutDashboard, Compass, ShieldCheck } from "lucide-react";
+import { HandHeart, Menu, User, LogOut, LayoutDashboard, Compass, ShieldCheck, UserPlus, LogInIcon } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { Sheet, SheetContent, SheetTrigger } from "./ui/sheet";
 import { cn } from "@/lib/utils";
@@ -40,13 +40,27 @@ export function Header() {
     router.push('/');
   };
 
+  const NavLink = ({ href, children }: { href: string; children: React.ReactNode }) => (
+    <Link
+      href={href}
+      className={cn(
+        "px-4 py-2 rounded-full text-sm font-medium transition-colors",
+        pathname === href
+          ? "bg-primary text-primary-foreground"
+          : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+      )}
+    >
+      {children}
+    </Link>
+  );
+
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-sm">
       <div className="container flex h-16 items-center">
-        <div className="mr-4 hidden md:flex">
+        <div className="mr-6 hidden md:flex">
           <Link href="/" className="flex items-center space-x-2">
             <HandHeart className="h-6 w-6 text-primary" />
-            <span className="font-bold font-headline text-lg">Mitra</span>
+            <span className="font-bold font-headline text-xl">Mitra</span>
           </Link>
         </div>
 
@@ -60,51 +74,37 @@ export function Header() {
               </Button>
             </SheetTrigger>
             <SheetContent side="left">
-              <div className="flex flex-col space-y-4 p-4">
-              <Link href="/" className="flex items-center space-x-2 mb-4">
-                  <HandHeart className="h-6 w-6 text-primary" />
-                  <span className="font-bold font-headline text-lg">Mitra</span>
+              <div className="flex flex-col space-y-2 p-4">
+                <Link href="/" className="flex items-center space-x-2 mb-4">
+                    <HandHeart className="h-6 w-6 text-primary" />
+                    <span className="font-bold font-headline text-lg">Mitra</span>
                 </Link>
                 {navLinks.map((link) => (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    className={cn(
-                      "text-lg font-medium",
-                      pathname === link.href ? "text-primary" : "text-muted-foreground hover:text-foreground"
-                    )}
-                  >
+                  <NavLink key={link.href} href={link.href}>
                     {link.label}
-                  </Link>
+                  </NavLink>
                 ))}
               </div>
             </SheetContent>
           </Sheet>
         </div>
 
-        <nav className="hidden md:flex items-center space-x-6 text-sm font-medium ml-6">
+        <nav className="hidden md:flex items-center space-x-2 text-sm font-medium">
           {navLinks.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className={cn(
-                "transition-colors hover:text-primary",
-                pathname === link.href ? "text-primary font-semibold" : "text-muted-foreground"
-              )}
-            >
+            <NavLink key={link.href} href={link.href}>
               {link.label}
-            </Link>
+            </NavLink>
           ))}
         </nav>
 
-        <div className="flex flex-1 items-center justify-end space-x-4">
+        <div className="flex flex-1 items-center justify-end space-x-2">
         {!loading && (
           <>
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="relative h-9 w-9 rounded-full">
-                    <Avatar className="h-9 w-9">
+                  <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+                    <Avatar className="h-10 w-10">
                       <AvatarImage src="https://placehold.co/100x100.png" alt={user.name} />
                       <AvatarFallback>
                         {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
@@ -158,12 +158,18 @@ export function Header() {
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-                <div className="flex items-center gap-2">
+                <div className="hidden sm:flex items-center gap-2">
                     <Button variant="ghost" asChild>
-                        <Link href="/login">Log In</Link>
+                        <Link href="/login">
+                          <LogInIcon className="mr-2 h-4 w-4" />
+                          Log In
+                        </Link>
                     </Button>
                     <Button asChild>
-                        <Link href="/signup">Create Account</Link>
+                        <Link href="/signup">
+                          <UserPlus className="mr-2 h-4 w-4" />
+                          Create Account
+                        </Link>
                     </Button>
                 </div>
             )}
