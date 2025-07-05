@@ -2,7 +2,6 @@
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
 
 export default function Home() {
   return (
@@ -27,8 +26,8 @@ export default function Home() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
               <Button asChild size="lg">
-                <Link href="/discover">
-                  Find Opportunities <ArrowRight className="ml-2" />
+                <Link href="/signup">
+                  Become a Volunteer
                 </Link>
               </Button>
               <Button asChild size="lg" variant="secondary">
