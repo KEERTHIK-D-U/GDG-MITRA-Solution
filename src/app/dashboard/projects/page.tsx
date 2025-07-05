@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import Image from "next/image";
-import { PlusCircle, Inbox, GitBranch } from "lucide-react";
+import { PlusCircle, Inbox, GitBranch, Trash2 } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -17,8 +17,18 @@ import { Badge } from "@/components/ui/badge";
 import { useAuth, useRequireAuth } from "@/context/auth-context";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
-import { createProject, getProjectsByHost, type Project } from "@/lib/firebase";
+import { createProject, getProjectsByHost, type Project, deleteProject } from "@/lib/firebase";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 const formSchema = z.object({
   title: z.string().min(5, "Title must be at least 5 characters long."),
@@ -36,6 +46,7 @@ export default function ManageProjectsPage() {
     const [projects, setProjects] = useState<Project[]>([]);
     const [loading, setLoading] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [projectToDelete, setProjectToDelete] = useState<Project | null>(null);
 
     const form = useForm<FormValues>({
         resolver: zodResolver(formSchema),
@@ -75,7 +86,20 @@ export default function ManageProjectsPage() {
         }
     };
 
+    const handleDeleteProject = async () => {
+        if (!projectToDelete) return;
+        try {
+            await deleteProject(projectToDelete.id);
+            toast({ title: "Project Removed", description: `"${projectToDelete.title}" has been successfully removed.` });
+        } catch (error: any) {
+            toast({ variant: "destructive", title: "Failed to Remove Project", description: error.message });
+        } finally {
+            setProjectToDelete(null);
+        }
+    };
+
   return (
+    <>
     <div className="container mx-auto px-4 md:px-6 py-12">
         <div className="flex items-center justify-between mb-8">
             <h1 className="text-3xl font-bold font-headline">Manage Your Projects</h1>
@@ -106,8 +130,12 @@ export default function ManageProjectsPage() {
                                 ))}
                             </div>
                         </CardContent>
-                         <CardFooter className="p-4 bg-secondary/30">
+                         <CardFooter className="p-4 bg-secondary/30 flex items-center justify-between">
                             <p className="text-xs text-muted-foreground">Hosted by: {project.hostName}</p>
+                            <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:bg-destructive/10" onClick={() => setProjectToDelete(project)}>
+                                <Trash2 className="h-4 w-4" />
+                                <span className="sr-only">Delete project</span>
+                            </Button>
                         </CardFooter>
                     </Card>
                 ))}
@@ -150,5 +178,22 @@ export default function ManageProjectsPage() {
             </Card>
         </div>
     </div>
+     <AlertDialog open={!!projectToDelete} onOpenChange={(open) => !open && setProjectToDelete(null)}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+          <AlertDialogDescription>
+            This action cannot be undone. This will permanently delete this project from our servers.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel onClick={() => setProjectToDelete(null)}>Cancel</AlertDialogCancel>
+          <AlertDialogAction onClick={handleDeleteProject} className="bg-destructive hover:bg-destructive/90">
+            Yes, delete project
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+    </>
   );
 }

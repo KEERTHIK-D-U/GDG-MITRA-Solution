@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import Image from "next/image";
-import { PlusCircle, Inbox, Calendar, MapPin } from "lucide-react";
+import { PlusCircle, Inbox, Calendar, MapPin, Trash2 } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -16,8 +16,18 @@ import { Textarea } from "@/components/ui/textarea";
 import { useAuth, useRequireAuth } from "@/context/auth-context";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
-import { createEvent, getEventsByHost, type Event } from "@/lib/firebase";
+import { createEvent, getEventsByHost, type Event, deleteEvent } from "@/lib/firebase";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 const formSchema = z.object({
   title: z.string().min(5, "Title must be at least 5 characters long."),
@@ -36,6 +46,8 @@ export default function ManageEventsPage() {
     const [events, setEvents] = useState<Event[]>([]);
     const [loading, setLoading] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [eventToDelete, setEventToDelete] = useState<Event | null>(null);
+
 
     const form = useForm<FormValues>({
         resolver: zodResolver(formSchema),
@@ -74,7 +86,20 @@ export default function ManageEventsPage() {
         }
     };
 
+    const handleDeleteEvent = async () => {
+        if (!eventToDelete) return;
+        try {
+            await deleteEvent(eventToDelete.id);
+            toast({ title: "Event Removed", description: `"${eventToDelete.title}" has been successfully removed.` });
+        } catch (error: any) {
+            toast({ variant: "destructive", title: "Failed to Remove Event", description: error.message });
+        } finally {
+            setEventToDelete(null);
+        }
+    };
+
   return (
+    <>
     <div className="container mx-auto px-4 md:px-6 py-12">
         <div className="flex items-center justify-between mb-8">
             <h1 className="text-3xl font-bold font-headline">Manage Your Events</h1>
@@ -109,8 +134,12 @@ export default function ManageEventsPage() {
                                 </div>
                             </div>
                         </CardContent>
-                        <CardFooter className="p-4 bg-secondary/30">
+                        <CardFooter className="p-4 bg-secondary/30 flex items-center justify-between">
                             <p className="text-xs text-muted-foreground">Event ID: {event.id}</p>
+                            <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:bg-destructive/10" onClick={() => setEventToDelete(event)}>
+                                <Trash2 className="h-4 w-4" />
+                                <span className="sr-only">Delete event</span>
+                            </Button>
                         </CardFooter>
                     </Card>
                 ))}
@@ -158,5 +187,23 @@ export default function ManageEventsPage() {
             </Card>
         </div>
     </div>
+
+    <AlertDialog open={!!eventToDelete} onOpenChange={(open) => !open && setEventToDelete(null)}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+          <AlertDialogDescription>
+            This action cannot be undone. This will permanently delete this event from our servers.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel onClick={() => setEventToDelete(null)}>Cancel</AlertDialogCancel>
+          <AlertDialogAction onClick={handleDeleteEvent} className="bg-destructive hover:bg-destructive/90">
+            Yes, delete event
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+    </>
   );
 }

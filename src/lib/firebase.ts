@@ -369,6 +369,37 @@ export const createProject = async (projectData: Omit<Project, 'id' | 'createdAt
     }
 };
 
+// Functions to delete items
+export const deleteEvent = async (eventId: string) => {
+    try {
+        await deleteDoc(doc(db, "events", eventId));
+        return { success: true };
+    } catch (error: any) {
+        console.error("Error deleting event:", error);
+        throw new Error("Failed to delete event.");
+    }
+};
+
+export const deleteProject = async (projectId: string) => {
+    try {
+        await deleteDoc(doc(db, "projects", projectId));
+        return { success: true };
+    } catch (error: any) {
+        console.error("Error deleting project:", error);
+        throw new Error("Failed to delete project.");
+    }
+};
+
+export const deleteHackathon = async (hackathonId: string) => {
+    try {
+        await deleteDoc(doc(db, "hackathons", hackathonId));
+        return { success: true };
+    } catch (error: any) {
+        console.error("Error deleting hackathon:", error);
+        throw new Error("Failed to delete hackathon.");
+    }
+};
+
 // Functions to get all items (for public pages)
 export const getEvents = (callback: (events: Event[]) => void) => {
     const q = query(collection(db, "events"), orderBy("date", "desc"));
