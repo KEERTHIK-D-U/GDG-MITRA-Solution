@@ -6,12 +6,11 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth, useRequireAuth } from "@/context/auth-context";
-import { type UserProfile, db } from "@/lib/firebase";
-import { Linkedin, Users, User as UserIcon, School, Mail } from "lucide-react";
+import { type UserProfile, getMentors } from "@/lib/firebase";
+import { Linkedin, Users, User as UserIcon, School, Mail, GraduationCap } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
-import { collection, onSnapshot, query, where } from "firebase/firestore";
 
 const UserCardSkeleton = () => (
     <Card className="flex flex-col">
@@ -30,33 +29,21 @@ const UserCardSkeleton = () => (
     </Card>
 )
 
-export default function ConnectionsPage() {
+export default function MentorsPage() {
     useRequireAuth();
     const { user: currentUser } = useAuth();
-    const [users, setUsers] = useState<UserProfile[]>([]);
+    const [mentors, setMentors] = useState<UserProfile[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         if (!currentUser) {
-            setUsers([]);
+            setMentors([]);
             setLoading(false);
             return;
         }
 
-        const usersRef = collection(db, "users");
-        // Query for users who are either volunteers or hosts, excluding admins.
-        const q = query(usersRef, where("role", "in", ["volunteer", "host"]));
-
-        const unsubscribe = onSnapshot(q, (snapshot) => {
-            const usersData = snapshot.docs
-                .map(doc => doc.data() as UserProfile)
-                // Also filter out the current user from the list
-                .filter(user => user.uid !== currentUser.uid);
-
-            setUsers(usersData);
-            setLoading(false);
-        }, (error) => {
-            console.error("Failed to subscribe to user updates:", error);
+        const unsubscribe = getMentors(currentUser.uid, (fetchedMentors) => {
+            setMentors(fetchedMentors);
             setLoading(false);
         });
 
@@ -68,10 +55,10 @@ export default function ConnectionsPage() {
         <div className="container mx-auto px-4 md:px-6 py-12">
             <div className="flex flex-col items-start space-y-4 mb-12">
                 <h1 className="text-4xl md:text-5xl font-bold tracking-tight font-headline">
-                    Community Connections
+                    Find a Mentor
                 </h1>
                 <p className="max-w-2xl text-lg text-muted-foreground font-subheading">
-                    Discover and connect with other volunteers and hosts in the Mitra community.
+                    Connect with experienced professionals and alumni from the community.
                 </p>
             </div>
 
@@ -79,18 +66,19 @@ export default function ConnectionsPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                    {Array.from({ length: 8 }).map((_, i) => <UserCardSkeleton key={i} />)}
                 </div>
-            ) : users.length > 0 ? (
+            ) : mentors.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                    {users.map((user) => (
+                    {mentors.map((user) => (
                         <Card key={user.uid} className="flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-2 hover:border-[#222222] hover:shadow-[#02006c]/40 dark:hover:border-[#00e97b] dark:hover:shadow-[#00e97b]/30">
                             <CardHeader className="flex flex-row items-center gap-4">
                                 <Avatar className="h-12 w-12">
                                     <AvatarFallback>{user.name ? user.name.charAt(0).toUpperCase() : <UserIcon />}</AvatarFallback>
                                 </Avatar>
                                 <div>
-                                    <CardTitle className="text-lg">{user.name || 'Community Member'}</CardTitle>
+                                    <CardTitle className="text-lg">{user.name || 'Community Mentor'}</CardTitle>
                                     <div className="flex flex-wrap gap-1 mt-1">
                                         <Badge variant="secondary" className="capitalize">{user.role}</Badge>
+                                        <Badge variant="default" className="capitalize"><GraduationCap className="w-3 h-3 mr-1"/>Mentor</Badge>
                                     </div>
                                     {user.college && (
                                         <p className="text-sm text-muted-foreground mt-2 flex items-center">
@@ -123,9 +111,9 @@ export default function ConnectionsPage() {
             ) : (
                 <div className="flex flex-col items-center justify-center text-center py-16 px-4 border-2 border-dashed rounded-lg">
                     <Users className="w-16 h-16 text-muted-foreground" />
-                    <h3 className="mt-4 text-xl font-semibold">No Other Users Found</h3>
+                    <h3 className="mt-4 text-xl font-semibold">No Mentors Found</h3>
                     <p className="mt-2 text-muted-foreground">
-                        As the community grows, other users will appear here.
+                        As more users sign up to be mentors, they will appear here.
                     </p>
                 </div>
             )}

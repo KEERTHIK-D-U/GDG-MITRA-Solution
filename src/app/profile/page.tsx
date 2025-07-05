@@ -18,6 +18,7 @@ import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
 
 type HistoryItem = {
     id: string;
@@ -28,7 +29,7 @@ type HistoryItem = {
 
 export default function ProfilePage() {
     useRequireAuth(); // Protect this route for any logged in user
-    const { user, loading } = useAuth();
+    const { user, setUser, loading } = useAuth();
     const { toast } = useToast();
 
     // Form state
@@ -37,6 +38,7 @@ export default function ProfilePage() {
     const [college, setCollege] = useState('');
     const [techStacks, setTechStacks] = useState('');
     const [bio, setBio] = useState('');
+    const [isMentor, setIsMentor] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
 
     // History state
@@ -51,6 +53,7 @@ export default function ProfilePage() {
             setCollege(user.college || '');
             setTechStacks(user.techStacks || '');
             setBio(user.bio || '');
+            setIsMentor(user.isMentor || false);
         }
     }, [user]);
 
@@ -111,8 +114,10 @@ export default function ProfilePage() {
     const handleSaveChanges = async () => {
         if (!user) return;
         setIsSaving(true);
+        const updatedData = { name, linkedinUrl, college, techStacks, bio, isMentor };
         try {
-            await updateUserProfile(user.uid, { name, linkedinUrl, college, techStacks, bio });
+            await updateUserProfile(user.uid, updatedData);
+            setUser(prev => prev ? { ...prev, ...updatedData } : null);
             toast({
                 title: "Profile Updated",
                 description: "Your profile has been successfully saved."
@@ -144,8 +149,14 @@ export default function ProfilePage() {
                 <div className="text-center md:text-left flex-1">
                     <h1 className="text-4xl font-bold font-headline">{user.name}</h1>
                     <p className="text-muted-foreground">{user.email}</p>
+                    <div className="flex flex-wrap gap-2 justify-center md:justify-start mt-2">
+                        <Badge variant="secondary" className="capitalize">{user.role}</Badge>
+                        {user.isMentor && (
+                            <Badge variant="default">Mentor</Badge>
+                        )}
+                    </div>
                      {user.college && (
-                        <p className="text-muted-foreground mt-1 flex items-center justify-center md:justify-start">
+                        <p className="text-muted-foreground mt-2 flex items-center justify-center md:justify-start">
                             <School className="w-4 h-4 mr-1.5"/>
                             {user.college}
                         </p>
@@ -232,7 +243,7 @@ export default function ProfilePage() {
                             <CardTitle>Profile Details</CardTitle>
                             <CardDescription>Update your personal information.</CardDescription>
                         </CardHeader>
-                        <CardContent className="space-y-4">
+                        <CardContent className="space-y-6">
                             <div className="space-y-2">
                                 <Label htmlFor="name">Full Name</Label>
                                 <Input id="name" value={name} onChange={(e) => setName(e.target.value)} />
@@ -253,6 +264,19 @@ export default function ProfilePage() {
                                 <Label htmlFor="tech-stacks">Tech Stacks</Label>
                                 <Input id="tech-stacks" placeholder="e.g., React, Next.js, Firebase" value={techStacks} onChange={(e) => setTechStacks(e.target.value)} />
                                 <p className="text-sm text-muted-foreground">Comma-separated list of your technical skills.</p>
+                            </div>
+                            <div className="flex items-center space-x-3 rounded-lg border p-4">
+                                <Switch
+                                    id="is-mentor"
+                                    checked={isMentor}
+                                    onCheckedChange={setIsMentor}
+                                />
+                                <div className="space-y-0.5">
+                                    <Label htmlFor="is-mentor">Open to Mentoring</Label>
+                                    <p className="text-xs text-muted-foreground">
+                                        Enable this to appear on the mentors page for others to connect with you.
+                                    </p>
+                                </div>
                             </div>
                             <Button onClick={handleSaveChanges} disabled={isSaving}>
                                 {isSaving ? "Saving..." : "Save Changes"}

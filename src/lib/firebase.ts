@@ -47,6 +47,7 @@ export interface UserProfile {
     techStacks?: string;
     bio?: string;
     hasCompletedTutorial?: boolean;
+    isMentor?: boolean;
 }
 
 export interface EventRegistration {
@@ -118,6 +119,7 @@ export const createUserProfile = async (user: FirebaseUser, name: string, role: 
         techStacks: "",
         bio: "Passionate community member and tech enthusiast.",
         hasCompletedTutorial: false,
+        isMentor: false,
     };
     try {
         await setDoc(userRef, userProfile);
@@ -483,6 +485,18 @@ export const getHackathonsByHost = (hostId: string, callback: (hackathons: Hacka
         const hackathons = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Hackathon));
         const sortedHackathons = hackathons.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
         callback(sortedHackathons);
+    });
+};
+
+export const getMentors = (currentUserId: string, callback: (users: UserProfile[]) => void) => {
+    const usersRef = collection(db, "users");
+    const q = query(usersRef, where("isMentor", "==", true), where("uid", "!=", currentUserId));
+    
+    return onSnapshot(q, (snapshot) => {
+        const mentors = snapshot.docs.map(doc => doc.data() as UserProfile);
+        callback(mentors);
+    }, (error) => {
+        console.error("Failed to subscribe to mentor updates:", error);
     });
 };
 
