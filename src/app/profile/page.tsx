@@ -8,13 +8,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { userBadges } from "@/lib/mock-data";
-import { Award, Code, Edit, GitBranch, Hand, HeartHandshake, Linkedin, Sprout, User as UserIcon, Users } from "lucide-react";
+import { Award, Code, GitBranch, Hand, HeartHandshake, Linkedin, Sprout, User as UserIcon, Users } from "lucide-react";
 import * as React from "react";
 import { useAuth, useRequireAuth } from "@/context/auth-context";
 import { useToast } from "@/hooks/use-toast";
 import Link from "next/link";
-import { useState, useEffect, useRef } from "react";
-import { updateUserProfile, getUserRegistrations, type EventRegistration, getUserHackathonRegistrations, type HackathonRegistration, getUserProjectContributions, type ProjectContribution, uploadImage } from "@/lib/firebase";
+import { useState, useEffect } from "react";
+import { updateUserProfile, getUserRegistrations, type EventRegistration, getUserHackathonRegistrations, type HackathonRegistration, getUserProjectContributions, type ProjectContribution } from "@/lib/firebase";
 import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -40,7 +40,6 @@ export default function ProfilePage() {
     useRequireAuth(); // Protect this route for any logged in user
     const { user, loading } = useAuth();
     const { toast } = useToast();
-    const fileInputRef = useRef<HTMLInputElement>(null);
 
     // Form state
     const [name, setName] = useState('');
@@ -48,7 +47,6 @@ export default function ProfilePage() {
     const [techStacks, setTechStacks] = useState('');
     const [bio, setBio] = useState('');
     const [isSaving, setIsSaving] = useState(false);
-    const [isUploading, setIsUploading] = useState(false);
 
     // History state
     const [combinedHistory, setCombinedHistory] = useState<HistoryItem[]>([]);
@@ -138,36 +136,6 @@ export default function ProfilePage() {
         }
     };
     
-    const handleProfilePictureChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-        if (!event.target.files || event.target.files.length === 0 || !user) {
-            return;
-        }
-
-        const file = event.target.files[0];
-        if (file.size > 4 * 1024 * 1024) { // 4MB
-            toast({ variant: "destructive", title: "Image too large", description: "Please upload an image smaller than 4MB." });
-            return;
-        }
-        if (!file.type.startsWith("image/")) {
-            toast({ variant: "destructive", title: "Invalid file type", description: "Please upload an image file." });
-            return;
-        }
-
-        setIsUploading(true);
-        try {
-            const photoURL = await uploadImage(file);
-            await updateUserProfile(user.uid, { photoURL });
-            toast({ title: "Profile Picture Updated", description: "Your new picture has been saved." });
-        } catch (error: any) {
-            toast({ variant: "destructive", title: "Upload Failed", description: error.message });
-        } finally {
-            setIsUploading(false);
-            if (fileInputRef.current) {
-                fileInputRef.current.value = "";
-            }
-        }
-    };
-
     if (loading || !user) {
         // You can add a more sophisticated skeleton loader here
         return <div>Loading...</div>; 
@@ -175,37 +143,11 @@ export default function ProfilePage() {
 
     return (
         <div className="container mx-auto px-4 md:px-6 py-12">
-             <input 
-                type="file" 
-                ref={fileInputRef} 
-                onChange={handleProfilePictureChange} 
-                style={{ display: 'none' }}
-                accept="image/*" 
-            />
             <div className="flex flex-col md:flex-row items-center md:items-start gap-8 mb-12">
                 <div className="relative">
                     <Avatar className="w-32 h-32 border-4 border-background shadow-md">
-                         {isUploading ? (
-                            <div className="flex items-center justify-center w-full h-full rounded-full bg-muted/50">
-                                <div className="w-8 h-8 border-4 border-dashed rounded-full animate-spin border-primary"></div>
-                            </div>
-                        ) : (
-                            <>
-                                <AvatarImage src={user.photoURL} alt={user.name || 'User avatar'} />
-                                <AvatarFallback><UserIcon className="w-16 h-16" /></AvatarFallback>
-                            </>
-                        )}
+                        <AvatarFallback><UserIcon className="w-16 h-16" /></AvatarFallback>
                     </Avatar>
-                    <Button 
-                        variant="outline" 
-                        size="icon" 
-                        className="absolute bottom-1 right-1 h-8 w-8 rounded-full bg-background"
-                        onClick={() => fileInputRef.current?.click()}
-                        disabled={isUploading}
-                    >
-                        <Edit className="h-4 w-4" />
-                        <span className="sr-only">Edit Profile Picture</span>
-                    </Button>
                 </div>
                 <div className="text-center md:text-left flex-1">
                     <h1 className="text-4xl font-bold font-headline">{user.name}</h1>
