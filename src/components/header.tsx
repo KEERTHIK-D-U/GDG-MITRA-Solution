@@ -14,7 +14,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { HandHeart, Menu, User, LogOut, LayoutDashboard, Compass, ShieldCheck, UserPlus, LogInIcon, Users } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
-import { Sheet, SheetContent, SheetTrigger } from "./ui/sheet";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "./ui/sheet";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/context/auth-context";
 import { auth } from "@/lib/firebase";
@@ -78,11 +78,15 @@ export function Header() {
               </Button>
             </SheetTrigger>
             <SheetContent side="left">
-              <div className="flex flex-col space-y-2 p-4">
-                <Link href="/" className="flex items-center space-x-2 mb-4" onClick={() => setIsMobileMenuOpen(false)}>
+              <SheetHeader>
+                <SheetTitle asChild>
+                  <Link href="/" className="flex items-center space-x-2" onClick={() => setIsMobileMenuOpen(false)}>
                     <HandHeart className="h-6 w-6 text-primary" />
                     <span className="font-bold font-headline text-lg">Mitra</span>
-                </Link>
+                  </Link>
+                </SheetTitle>
+              </SheetHeader>
+              <div className="flex flex-col space-y-2 py-4">
                 {navLinks.map((link) => (
                   <NavLink key={link.href} href={link.href} onClick={() => setIsMobileMenuOpen(false)}>
                     {link.label}
