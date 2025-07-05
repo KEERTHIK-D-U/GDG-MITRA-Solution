@@ -171,7 +171,7 @@ export default function ManageEventsPage() {
         )}
 
         <div id="add-event-form" className="pt-16">
-            <Card className="max-w-3xl mx-auto transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-2 hover:border-[#222222] hover:shadow-[#090088]/30 dark:hover:border-[#00e97b] dark:hover:shadow-[#00e97b]/30">
+            <Card className="max-w-3xl mx-auto transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-2 hover:border-[#222222] hover:shadow-[#02006c]/40 dark:hover:border-[#00e97b] dark:hover:shadow-[#00e97b]/30">
                 <CardHeader>
                     <CardTitle>Create a New Event</CardTitle>
                     <CardDescription>Fill out the details below to post a new volunteering event.</CardDescription>
