@@ -146,7 +146,6 @@ export default function ProfilePage() {
             <div className="flex flex-col md:flex-row items-center md:items-start gap-8 mb-12">
                 <div className="relative">
                     <Avatar className="w-32 h-32 border-4 border-background shadow-md">
-                        <AvatarImage src="https://placehold.co/128x128.png" alt={user.name} />
                         <AvatarFallback><UserIcon className="w-16 h-16" /></AvatarFallback>
                     </Avatar>
                     <Button variant="outline" size="icon" className="absolute bottom-1 right-1 h-8 w-8 rounded-full bg-background">
