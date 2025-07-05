@@ -41,24 +41,37 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="py-16 md:py-24">
+      <section className="py-16 md:py-24 bg-secondary/50">
         <div className="container mx-auto px-4 md:px-6">
             <div className="text-center mb-12">
-                <h2 className="text-3xl md:text-4xl font-bold font-headline">How It Works</h2>
-                <p className="text-muted-foreground mt-2 font-subheading">Joining our community is as easy as 1-2-3.</p>
+                <h2 className="text-3xl md:text-4xl font-bold font-headline">What MITRA Stands For</h2>
+                <p className="text-muted-foreground mt-2 font-subheading">Our name reflects our mission to build a thriving community.</p>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
-                <div className="p-6 rounded-lg">
-                    <h3 className="text-2xl font-semibold mb-2 font-headline">1. Discover</h3>
-                    <p className="text-muted-foreground">Browse a curated list of volunteering events, hackathons, and open-source projects tailored for our local community.</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8 text-center">
+                <div className="p-6 rounded-lg flex flex-col items-center">
+                    <h3 className="text-5xl font-bold text-primary font-headline mb-4">M</h3>
+                    <h4 className="text-xl font-semibold mb-2 font-headline">Meet & Mentor</h4>
+                    <p className="text-muted-foreground">Connect with peers and experienced professionals in the community.</p>
                 </div>
-                <div className="p-6 rounded-lg">
-                    <h3 className="text-2xl font-semibold mb-2 font-headline">2. Engage</h3>
-                    <p className="text-muted-foreground">Sign up for events, register for hackathons, or start contributing to projects that match your skills and passion.</p>
+                <div className="p-6 rounded-lg flex flex-col items-center">
+                    <h3 className="text-5xl font-bold text-primary font-headline mb-4">I</h3>
+                    <h4 className="text-xl font-semibold mb-2 font-headline">Ignite Innovation</h4>
+                    <p className="text-muted-foreground">Participate in hackathons and build groundbreaking projects.</p>
                 </div>
-                 <div className="p-6 rounded-lg">
-                    <h3 className="text-2xl font-semibold mb-2 font-headline">3. Impact</h3>
-                    <p className="text-muted-foreground">Make a real difference, earn badges for your contributions, and build a strong profile showcasing your commitment.</p>
+                <div className="p-6 rounded-lg flex flex-col items-center">
+                    <h3 className="text-5xl font-bold text-primary font-headline mb-4">T</h3>
+                    <h4 className="text-xl font-semibold mb-2 font-headline">Tackle Challenges</h4>
+                    <p className="text-muted-foreground">Join forces with others to solve real-world problems through volunteering.</p>
+                </div>
+                <div className="p-6 rounded-lg flex flex-col items-center">
+                    <h3 className="text-5xl font-bold text-primary font-headline mb-4">R</h3>
+                    <h4 className="text-xl font-semibold mb-2 font-headline">Reinforce Skills</h4>
+                    <p className="text-muted-foreground">Gain practical experience by contributing to open-source projects.</p>
+                </div>
+                <div className="p-6 rounded-lg flex flex-col items-center">
+                    <h3 className="text-5xl font-bold text-primary font-headline mb-4">A</h3>
+                    <h4 className="text-xl font-semibold mb-2 font-headline">Activate Community</h4>
+                    <p className="text-muted-foreground">Be an active part of Mangalore's tech and social impact scene.</p>
                 </div>
             </div>
         </div>
