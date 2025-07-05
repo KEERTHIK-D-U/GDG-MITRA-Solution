@@ -12,7 +12,7 @@ const firebaseConfig = {
 
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
-import { getFirestore, doc, setDoc, getDoc, collection, addDoc, serverTimestamp, getDocs, query, where } from "firebase/firestore";
+import { getFirestore, doc, setDoc, getDoc, collection, addDoc, serverTimestamp, getDocs, query, where, deleteDoc } from "firebase/firestore";
 import type { User as FirebaseUser } from 'firebase/auth';
 
 // For debugging: This will print the Project ID to your browser's developer console.
@@ -101,6 +101,20 @@ export const getAllUsers = async (currentUserId: string): Promise<UserProfile[]>
              throw new Error("Firestore permission denied. Please check your security rules to allow reading from the 'users' collection.");
         }
         throw error;
+    }
+};
+
+// Function to delete a user's profile from Firestore
+export const deleteUserProfile = async (uid: string): Promise<void> => {
+    const userRef = doc(db, "users", uid);
+    try {
+        await deleteDoc(userRef);
+    } catch (error: any) {
+        console.error("Error deleting user profile:", error);
+        if (error.code === 'permission-denied') {
+            throw new Error("Firestore permission denied. Check your security rules to allow deleting documents from the 'users' collection.");
+        }
+        throw new Error("Failed to delete user profile due to a database error.");
     }
 };
 
