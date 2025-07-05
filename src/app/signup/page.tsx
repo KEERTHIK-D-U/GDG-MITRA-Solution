@@ -7,15 +7,13 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { GoogleIcon } from "@/components/google-icon";
-import { Separator } from "@/components/ui/separator";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
-import { auth, createUserProfile, getUserProfile, UserRole } from "@/lib/firebase";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { auth, createUserProfile, UserRole } from "@/lib/firebase";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -65,51 +63,6 @@ export default function SignupPage() {
     }
   };
   
-  const handleGoogleSignup = async (role: UserRole) => {
-    setLoading(true);
-    const provider = new GoogleAuthProvider();
-    try {
-        const result = await signInWithPopup(auth, provider);
-        const user = result.user;
-        
-        // Check if user profile already exists
-        const existingProfile = await getUserProfile(user.uid);
-        if (existingProfile) {
-            // User already exists, so just log them in.
-            toast({
-              title: "Welcome Back!",
-              description: "You have been successfully logged in.",
-            });
-            router.push(existingProfile.role === 'host' ? "/dashboard" : "/discover");
-            return;
-        }
-        
-        // If no profile, create a new one. The linkedinUrl will be empty and can be added later.
-        await createUserProfile(user, user.displayName || "New User", role);
-        toast({
-          title: "Account Created!",
-          description: "You have been successfully signed up with Google.",
-        });
-        router.push(role === 'host' ? "/dashboard" : "/discover");
-    } catch (error: any) {
-         if (error.code === 'auth/account-exists-with-different-credential') {
-            toast({
-                variant: "destructive",
-                title: "Account Exists",
-                description: "An account with this email already exists. Please log in using your original method.",
-            });
-        } else {
-            toast({
-                variant: "destructive",
-                title: "Google Sign-Up Failed",
-                description: error.message,
-            });
-        }
-    } finally {
-        setLoading(false);
-    }
-  }
-
   return (
     <div className="flex items-center justify-center min-h-[calc(100vh-4rem)] bg-secondary/50 p-4">
       <Card className="mx-auto max-w-sm w-full shadow-xl">
@@ -159,22 +112,6 @@ export default function SignupPage() {
                     </FormItem>
                   )}
                 />
-              
-              <div className="relative">
-                  <div className="absolute inset-0 flex items-center">
-                      <Separator />
-                  </div>
-                  <div className="relative flex justify-center text-xs uppercase">
-                      <span className="bg-card px-2 text-muted-foreground">
-                      Or create account with
-                      </span>
-                  </div>
-              </div>
-
-              <Button variant="outline" className="w-full" type="button" onClick={() => handleGoogleSignup(form.getValues('role') as UserRole)} disabled={loading}>
-                <GoogleIcon className="mr-2 h-4 w-4" />
-                Sign up with Google
-              </Button>
               
               <FormField
                 control={form.control}

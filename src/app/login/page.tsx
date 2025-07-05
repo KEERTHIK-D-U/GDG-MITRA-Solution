@@ -6,15 +6,12 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { GoogleIcon } from "@/components/google-icon";
-import { Separator } from "@/components/ui/separator";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
-import { auth, getUserProfile, UserRole } from "@/lib/firebase";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth, UserRole } from "@/lib/firebase";
 import { useState, useEffect, useCallback } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/context/auth-context";
@@ -89,51 +86,6 @@ export default function LoginPage() {
     }
   };
   
-  const handleGoogleLogin = async () => {
-    setLoading(true);
-    const provider = new GoogleAuthProvider();
-    try {
-        const result = await signInWithPopup(auth, provider);
-        const userProfile = await getUserProfile(result.user.uid);
-
-        // For Google sign-in, we must check if a profile exists.
-        // If not, the user needs to go through the signup flow to choose a role.
-        if (!userProfile) {
-             await auth.signOut();
-             toast({
-                variant: "destructive",
-                title: "No Account Found",
-                description: "Please sign up first to select your role.",
-            });
-            router.push('/signup');
-            setLoading(false);
-            return;
-        }
-
-        // If the profile exists, the AuthProvider and useEffect will handle redirection.
-        toast({
-          title: "Login Successful!",
-          description: "Welcome back. Redirecting...",
-        });
-
-    } catch (error: any) {
-        if (error.code === 'auth/account-exists-with-different-credential') {
-             toast({
-                variant: "destructive",
-                title: "Account Exists",
-                description: "This email is registered with a password. Please log in with your email and password.",
-            });
-        } else {
-            toast({
-                variant: "destructive",
-                title: "Google Sign-In Failed",
-                description: error.message,
-            });
-        }
-        setLoading(false);
-    }
-  }
-
   return (
     <div className="flex items-center justify-center min-h-[calc(100vh-4rem)] bg-secondary/50 p-4">
       <Card className="mx-auto max-w-sm w-full shadow-xl">
@@ -144,22 +96,6 @@ export default function LoginPage() {
         <CardContent>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-6">
-
-              <Button variant="outline" className="w-full" type="button" onClick={handleGoogleLogin} disabled={loading}>
-                <GoogleIcon className="mr-2 h-4 w-4" />
-                Login with Google
-              </Button>
-              
-              <div className="relative">
-                  <div className="absolute inset-0 flex items-center">
-                      <Separator />
-                  </div>
-                  <div className="relative flex justify-center text-xs uppercase">
-                      <span className="bg-card px-2 text-muted-foreground">
-                      Or continue with
-                      </span>
-                  </div>
-              </div>
               
               <FormField
                 control={form.control}
