@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useEffect, useState } from "react";
@@ -41,11 +42,15 @@ export default function ConnectionsPage() {
         }
 
         const usersRef = collection(db, "users");
-        // Query all users except the current one
-        const q = query(usersRef, where("uid", "!=", currentUser.uid));
+        // Query for users who are either volunteers or hosts, excluding admins.
+        const q = query(usersRef, where("role", "in", ["volunteer", "host"]));
 
         const unsubscribe = onSnapshot(q, (snapshot) => {
-            const usersData = snapshot.docs.map(doc => doc.data() as UserProfile);
+            const usersData = snapshot.docs
+                .map(doc => doc.data() as UserProfile)
+                // Also filter out the current user from the list
+                .filter(user => user.uid !== currentUser.uid);
+
             setUsers(usersData);
             setLoading(false);
         }, (error) => {
