@@ -13,6 +13,7 @@ const firebaseConfig = {
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore, doc, setDoc, getDoc, collection, addDoc, serverTimestamp, getDocs, query, where, deleteDoc, onSnapshot, orderBy } from "firebase/firestore";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import type { User as FirebaseUser } from 'firebase/auth';
 
 // For debugging: This will print the Project ID to your browser's developer console.
@@ -32,6 +33,7 @@ if (!getApps().length) {
 
 const auth = getAuth(app);
 const db = getFirestore(app);
+const storage = getStorage(app);
 
 export type UserRole = "volunteer" | "host" | "admin";
 
@@ -341,6 +343,20 @@ export const contributeToProject = async (userId: string, userName: string | nul
     }
 };
 
+// --- Storage Functions ---
+export const uploadImage = async (file: File): Promise<string> => {
+    const filePath = `images/${Date.now()}-${file.name}`;
+    const storageRef = ref(storage, filePath);
+    try {
+        await uploadBytes(storageRef, file);
+        const downloadURL = await getDownloadURL(storageRef);
+        return downloadURL;
+    } catch (error) {
+        console.error("Error uploading image:", error);
+        throw new Error("Failed to upload image.");
+    }
+};
+
 
 // Functions to create items
 export const createEvent = async (eventData: Omit<Event, 'id' | 'createdAt'>) => {
@@ -366,6 +382,19 @@ export const createProject = async (projectData: Omit<Project, 'id' | 'createdAt
     } catch (error: any) {
         console.error("Error creating project:", error);
         throw new Error("Failed to create project.");
+    }
+};
+
+export const createHackathon = async (hackathonData: Omit<Hackathon, 'id' | 'createdAt'>) => {
+    try {
+        const docRef = await addDoc(collection(db, "hackathons"), {
+            ...hackathonData,
+            createdAt: serverTimestamp(),
+        });
+        return { success: true, id: docRef.id };
+    } catch (error: any) {
+        console.error("Error creating hackathon:", error);
+        throw new Error("Failed to create hackathon.");
     }
 };
 
@@ -430,7 +459,8 @@ export const getEventsByHost = (hostId: string, callback: (events: Event[]) => v
     const q = query(collection(db, "events"), where("hostId", "==", hostId));
     return onSnapshot(q, (snapshot) => {
         const events = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Event));
-        callback(events);
+        const sortedEvents = events.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+        callback(sortedEvents);
     });
 };
 
@@ -438,9 +468,19 @@ export const getProjectsByHost = (hostId: string, callback: (projects: Project[]
     const q = query(collection(db, "projects"), where("hostId", "==", hostId));
     return onSnapshot(q, (snapshot) => {
         const projects = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Project));
-        callback(projects);
+        const sortedProjects = projects.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+        callback(sortedProjects);
+    });
+};
+
+export const getHackathonsByHost = (hostId: string, callback: (hackathons: Hackathon[]) => void) => {
+    const q = query(collection(db, "hackathons"), where("hostId", "==", hostId));
+    return onSnapshot(q, (snapshot) => {
+        const hackathons = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Hackathon));
+        const sortedHackathons = hackathons.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+        callback(sortedHackathons);
     });
 };
 
 
-export { app, auth, db };
+export { app, auth, db, storage };

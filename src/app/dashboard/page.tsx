@@ -3,11 +3,11 @@
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { PlusCircle, Calendar, GitBranch } from "lucide-react";
+import { PlusCircle, Calendar, GitBranch, Trophy } from "lucide-react";
 import Link from "next/link";
 import { useAuth, useRequireAuth } from "@/context/auth-context";
 import { useEffect, useState } from "react";
-import { getEventsByHost, getProjectsByHost } from "@/lib/firebase";
+import { getEventsByHost, getProjectsByHost, getHackathonsByHost } from "@/lib/firebase";
 
 export default function DashboardPage() {
   useRequireAuth('host'); // Protect this route for hosts
@@ -15,6 +15,7 @@ export default function DashboardPage() {
   
   const [hostedEventsCount, setHostedEventsCount] = useState(0);
   const [hostedProjectsCount, setHostedProjectsCount] = useState(0);
+  const [hostedHackathonsCount, setHostedHackathonsCount] = useState(0);
 
   useEffect(() => {
     if (!user) return;
@@ -27,9 +28,14 @@ export default function DashboardPage() {
       setHostedProjectsCount(projects.length);
     });
 
+    const unsubscribeHackathons = getHackathonsByHost(user.uid, (hackathons) => {
+      setHostedHackathonsCount(hackathons.length);
+    });
+
     return () => {
       unsubscribeEvents();
       unsubscribeProjects();
+      unsubscribeHackathons();
     };
   }, [user]);
 
@@ -42,10 +48,10 @@ export default function DashboardPage() {
               Host Dashboard
             </h1>
             <p className="max-w-2xl text-lg text-muted-foreground">
-              Manage your events and open source projects.
+              Manage your events, projects, and hackathons.
             </p>
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
              <Button asChild>
                 <Link href="/dashboard/events#add-event-form">
                     <PlusCircle className="mr-2 h-4 w-4" /> Add Event
@@ -54,6 +60,11 @@ export default function DashboardPage() {
               <Button asChild variant="outline">
                 <Link href="/dashboard/projects#add-project-form">
                     <PlusCircle className="mr-2 h-4 w-4" /> Add Project
+                </Link>
+             </Button>
+              <Button asChild>
+                <Link href="/dashboard/hackathons#add-hackathon-form">
+                    <PlusCircle className="mr-2 h-4 w-4" /> Add Hackathon
                 </Link>
              </Button>
           </div>
@@ -84,16 +95,29 @@ export default function DashboardPage() {
                     <p className="text-sm text-muted-foreground">Total projects managed</p>
                 </CardContent>
             </Card>
+            <Card className="transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-2 hover:border-[#ced4ce] dark:hover:border-[#00e97b] hover:shadow-[#006a35]/30 dark:hover:shadow-[#00e97b]/30">
+                <CardHeader>
+                    <CardTitle className="flex items-center justify-between">
+                        <span>My Hackathons</span>
+                        <Trophy className="w-6 h-6 text-muted-foreground"/>
+                    </CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <p className="text-4xl font-bold">{hostedHackathonsCount}</p>
+                    <p className="text-sm text-muted-foreground">Total hackathons hosted</p>
+                </CardContent>
+            </Card>
         </div>
 
-        <div className="mt-12">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-12">
             <Link href="/dashboard/events">
                 <Button variant="link" className="p-0 h-auto text-lg">Manage Events &rarr;</Button>
             </Link>
-        </div>
-         <div className="mt-4">
             <Link href="/dashboard/projects">
                 <Button variant="link" className="p-0 h-auto text-lg">Manage Projects &rarr;</Button>
+            </Link>
+             <Link href="/dashboard/hackathons">
+                <Button variant="link" className="p-0 h-auto text-lg">Manage Hackathons &rarr;</Button>
             </Link>
         </div>
 

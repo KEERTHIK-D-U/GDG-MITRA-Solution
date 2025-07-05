@@ -6,17 +6,16 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import Image from "next/image";
-import { PlusCircle, Inbox, Calendar, MapPin, Trash2, Upload } from "lucide-react";
+import { PlusCircle, Inbox, Calendar, Trash2, Upload } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useAuth, useRequireAuth } from "@/context/auth-context";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
-import { createEvent, getEventsByHost, type Event, deleteEvent, uploadImage } from "@/lib/firebase";
+import { createHackathon, getHackathonsByHost, type Hackathon, deleteHackathon, uploadImage } from "@/lib/firebase";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   AlertDialog,
@@ -34,8 +33,7 @@ const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/web
 const formSchema = z.object({
   title: z.string().min(5, "Title must be at least 5 characters long."),
   description: z.string().min(20, "Description must be at least 20 characters long."),
-  location: z.string().min(3, "Location is required."),
-  date: z.string().refine((val) => !isNaN(Date.parse(val)), { message: "Please select a valid date." }),
+  dates: z.string().min(3, "Dates are required (e.g., July 20-22, 2024)."),
   image: z
     .any()
     .refine((file) => !file || (file && file.size <= 4 * 1024 * 1024), {
@@ -49,26 +47,26 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-export default function ManageEventsPage() {
+export default function ManageHackathonsPage() {
     useRequireAuth('host');
     const { user } = useAuth();
     const { toast } = useToast();
-    const [events, setEvents] = useState<Event[]>([]);
+    const [hackathons, setHackathons] = useState<Hackathon[]>([]);
     const [loading, setLoading] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [eventToDelete, setEventToDelete] = useState<Event | null>(null);
+    const [hackathonToDelete, setHackathonToDelete] = useState<Hackathon | null>(null);
 
     const form = useForm<FormValues>({
         resolver: zodResolver(formSchema),
-        defaultValues: { title: "", description: "", location: "", date: "" },
+        defaultValues: { title: "", description: "", dates: "" },
     });
-     const imageRef = form.register("image");
+    const imageRef = form.register("image");
 
     useEffect(() => {
         if (!user) return;
         setLoading(true);
-        const unsubscribe = getEventsByHost(user.uid, (hostedEvents) => {
-            setEvents(hostedEvents);
+        const unsubscribe = getHackathonsByHost(user.uid, (hostedHackathons) => {
+            setHackathons(hostedHackathons);
             setLoading(false);
         });
         return () => unsubscribe();
@@ -76,43 +74,40 @@ export default function ManageEventsPage() {
 
     const onSubmit = async (data: FormValues) => {
         if (!user) {
-            toast({ variant: "destructive", title: "Authentication Error", description: "You must be logged in to create an event." });
+            toast({ variant: "destructive", title: "Authentication Error", description: "You must be logged in to create a hackathon." });
             return;
         }
         setIsSubmitting(true);
         try {
-            let imageUrl = `https://placehold.co/400x250.png`;
+            let imageUrl = `https://placehold.co/400x225.png`;
             if (data.image && data.image.length > 0) {
                 imageUrl = await uploadImage(data.image[0]);
             }
 
-            await createEvent({
-                title: data.title,
-                description: data.description,
-                location: data.location,
-                date: data.date,
+            await createHackathon({
+                ...data,
                 imageUrl: imageUrl,
                 hostId: user.uid,
                 hostName: user.name || "Anonymous Host",
             });
-            toast({ title: "Event Created!", description: `"${data.title}" has been successfully published.` });
+            toast({ title: "Hackathon Created!", description: `"${data.title}" has been successfully published.` });
             form.reset();
         } catch (error: any) {
-            toast({ variant: "destructive", title: "Failed to Create Event", description: error.message });
+            toast({ variant: "destructive", title: "Failed to Create Hackathon", description: error.message });
         } finally {
             setIsSubmitting(false);
         }
     };
 
-    const handleDeleteEvent = async () => {
-        if (!eventToDelete) return;
+    const handleDeleteHackathon = async () => {
+        if (!hackathonToDelete) return;
         try {
-            await deleteEvent(eventToDelete.id);
-            toast({ title: "Event Removed", description: `"${eventToDelete.title}" has been successfully removed.` });
+            await deleteHackathon(hackathonToDelete.id);
+            toast({ title: "Hackathon Removed", description: `"${hackathonToDelete.title}" has been successfully removed.` });
         } catch (error: any) {
-            toast({ variant: "destructive", title: "Failed to Remove Event", description: error.message });
+            toast({ variant: "destructive", title: "Failed to Remove Hackathon", description: error.message });
         } finally {
-            setEventToDelete(null);
+            setHackathonToDelete(null);
         }
     };
 
@@ -120,43 +115,38 @@ export default function ManageEventsPage() {
     <>
     <div className="container mx-auto px-4 md:px-6 py-12">
         <div className="flex items-center justify-between mb-8">
-            <h1 className="text-3xl font-bold font-headline">Manage Your Events</h1>
+            <h1 className="text-3xl font-bold font-headline">Manage Your Hackathons</h1>
             <Button asChild>
-                <a href="#add-event-form">
-                    <PlusCircle className="mr-2 h-4 w-4" /> Add New Event
+                <a href="#add-hackathon-form">
+                    <PlusCircle className="mr-2 h-4 w-4" /> Add New Hackathon
                 </a>
             </Button>
         </div>
 
         {loading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-64 w-full" />)}
+                {Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-80 w-full" />)}
             </div>
-        ) : events.length > 0 ? (
+        ) : hackathons.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {events.map((event) => (
-                    <Card key={event.id} className="overflow-hidden flex flex-col">
+                {hackathons.map((hackathon) => (
+                    <Card key={hackathon.id} className="overflow-hidden flex flex-col">
                         <CardHeader className="p-0">
-                            <Image src={event.imageUrl} alt={event.title} width={400} height={250} className="w-full h-40 object-cover" />
+                            <Image src={hackathon.imageUrl} alt={hackathon.title} width={400} height={225} className="w-full h-40 object-cover" />
                         </CardHeader>
                         <CardContent className="p-4 flex-grow">
-                            <CardTitle className="text-xl mb-2 font-headline">{event.title}</CardTitle>
-                             <div className="text-muted-foreground space-y-2 text-sm">
-                                <div className="flex items-center">
-                                    <Calendar className="w-4 h-4 mr-2" />
-                                    <span>{new Date(event.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
-                                </div>
-                                <div className="flex items-center">
-                                    <MapPin className="w-4 h-4 mr-2" />
-                                    <span>{event.location}</span>
-                                </div>
+                            <CardTitle className="text-xl mb-2 font-headline">{hackathon.title}</CardTitle>
+                            <div className="flex items-center text-muted-foreground mb-4">
+                                <Calendar className="w-4 h-4 mr-2" />
+                                <span>{hackathon.dates}</span>
                             </div>
+                            <p className="text-sm text-muted-foreground">{hackathon.description}</p>
                         </CardContent>
-                        <CardFooter className="p-4 bg-secondary/30 flex items-center justify-between">
-                            <p className="text-xs text-muted-foreground">Event ID: {event.id}</p>
-                            <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:bg-destructive/10" onClick={() => setEventToDelete(event)}>
+                         <CardFooter className="p-4 bg-secondary/30 flex items-center justify-between">
+                            <p className="text-xs text-muted-foreground">Hosted by: {hackathon.hostName}</p>
+                            <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:bg-destructive/10" onClick={() => setHackathonToDelete(hackathon)}>
                                 <Trash2 className="h-4 w-4" />
-                                <span className="sr-only">Delete event</span>
+                                <span className="sr-only">Delete hackathon</span>
                             </Button>
                         </CardFooter>
                     </Card>
@@ -165,35 +155,30 @@ export default function ManageEventsPage() {
         ) : (
             <div className="flex flex-col items-center justify-center text-center py-16 px-4 border-2 border-dashed rounded-lg">
                 <Inbox className="w-16 h-16 text-muted-foreground" />
-                <h3 className="mt-4 text-xl font-semibold">No Events Created Yet</h3>
-                <p className="mt-2 text-muted-foreground">Click "Add New Event" to get started.</p>
+                <h3 className="mt-4 text-xl font-semibold">No Hackathons Created Yet</h3>
+                <p className="mt-2 text-muted-foreground">Click "Add New Hackathon" to get started.</p>
             </div>
         )}
 
-        <div id="add-event-form" className="pt-16">
+        <div id="add-hackathon-form" className="pt-16">
             <Card className="max-w-3xl mx-auto transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-2 hover:border-[#ced4ce] dark:hover:border-[#00e97b] hover:shadow-[#006a35]/30 dark:hover:shadow-[#00e97b]/30">
                 <CardHeader>
-                    <CardTitle>Create a New Event</CardTitle>
-                    <CardDescription>Fill out the details below to post a new volunteering event.</CardDescription>
+                    <CardTitle>Create a New Hackathon</CardTitle>
+                    <CardDescription>Fill out the details below to list your hackathon.</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <Form {...form}>
                         <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-6">
                             <FormField control={form.control} name="title" render={({ field }) => (
-                                <FormItem><FormLabel>Event Title</FormLabel><FormControl><Input placeholder="e.g., Coastal Cleanup Drive" {...field} /></FormControl><FormMessage /></FormItem>
+                                <FormItem><FormLabel>Hackathon Title</FormLabel><FormControl><Input placeholder="e.g., AI for Good Hackathon" {...field} /></FormControl><FormMessage /></FormItem>
                             )} />
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <FormField control={form.control} name="date" render={({ field }) => (
-                                    <FormItem><FormLabel>Date</FormLabel><FormControl><Input type="date" {...field} /></FormControl><FormMessage /></FormItem>
-                                )} />
-                                <FormField control={form.control} name="location" render={({ field }) => (
-                                    <FormItem><FormLabel>Location</FormLabel><FormControl><Input placeholder="e.g., Panambur Beach" {...field} /></FormControl><FormMessage /></FormItem>
-                                )} />
-                            </div>
+                            <FormField control={form.control} name="dates" render={({ field }) => (
+                                <FormItem><FormLabel>Dates</FormLabel><FormControl><Input placeholder="e.g., August 1-3, 2024" {...field} /></FormControl><FormMessage /></FormItem>
+                            )} />
                             <FormField control={form.control} name="description" render={({ field }) => (
-                                <FormItem><FormLabel>Description</FormLabel><FormControl><Textarea placeholder="Describe the event, what volunteers will do, etc." {...field} /></FormControl><FormMessage /></FormItem>
+                                <FormItem><FormLabel>Description</FormLabel><FormControl><Textarea placeholder="Describe the hackathon, its themes, prizes, etc." {...field} /></FormControl><FormMessage /></FormItem>
                             )} />
-                             <FormField
+                            <FormField
                                 control={form.control}
                                 name="image"
                                 render={({ field }) => (
@@ -202,7 +187,7 @@ export default function ManageEventsPage() {
                                     <FormControl>
                                        <div className="relative">
                                           <Upload className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                                          <Input type="file" className="pl-10" {...imageRef} />
+                                          <Input type="file" accept="image/*" className="pl-10" {...imageRef} />
                                        </div>
                                     </FormControl>
                                     <FormMessage />
@@ -210,7 +195,7 @@ export default function ManageEventsPage() {
                                 )}
                               />
                             <div className="flex justify-end">
-                                <Button type="submit" disabled={isSubmitting}>{isSubmitting ? "Publishing..." : "Publish Event"}</Button>
+                                <Button type="submit" disabled={isSubmitting}>{isSubmitting ? "Publishing..." : "Publish Hackathon"}</Button>
                             </div>
                         </form>
                     </Form>
@@ -218,19 +203,18 @@ export default function ManageEventsPage() {
             </Card>
         </div>
     </div>
-
-    <AlertDialog open={!!eventToDelete} onOpenChange={(open) => !open && setEventToDelete(null)}>
+     <AlertDialog open={!!hackathonToDelete} onOpenChange={(open) => !open && setHackathonToDelete(null)}>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
           <AlertDialogDescription>
-            This action cannot be undone. This will permanently delete this event from our servers.
+            This action cannot be undone. This will permanently delete this hackathon from our servers.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel onClick={() => setEventToDelete(null)}>Cancel</AlertDialogCancel>
-          <AlertDialogAction onClick={handleDeleteEvent} className="bg-destructive hover:bg-destructive/90">
-            Yes, delete event
+          <AlertDialogCancel onClick={() => setHackathonToDelete(null)}>Cancel</AlertDialogCancel>
+          <AlertDialogAction onClick={handleDeleteHackathon} className="bg-destructive hover:bg-destructive/90">
+            Yes, delete hackathon
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
