@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect } from "react";
@@ -7,28 +6,36 @@ import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { getHackathons, type Hackathon } from "@/lib/firebase";
 import { ArrowRight, Calendar, Inbox } from "lucide-react";
-import { useRequireAuth } from "@/context/auth-context";
+import { useAuth, useRequireAuth } from "@/context/auth-context";
 import { HackathonRegistrationDialog } from "@/components/hackathon-registration-dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function HackathonsPage() {
   useRequireAuth();
+  const { user, loading: authLoading } = useAuth();
+  
   const [hackathons, setHackathons] = useState<Hackathon[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedHackathon, setSelectedHackathon] = useState<Hackathon | null>(null);
 
   useEffect(() => {
+    if (!user) {
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     const unsubscribe = getHackathons((fetchedHackathons) => {
       setHackathons(fetchedHackathons);
       setLoading(false);
     });
     return () => unsubscribe();
-  }, []);
+  }, [user]);
 
   const handleRegisterClick = (hackathon: Hackathon) => {
     setSelectedHackathon(hackathon);
   };
+  
+  const isLoading = authLoading || loading;
 
   return (
     <>
@@ -43,7 +50,7 @@ export default function HackathonsPage() {
             </p>
           </div>
 
-          {loading ? (
+          {isLoading ? (
              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                {Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-96 w-full" />)}
             </div>

@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect } from "react";
@@ -14,20 +13,24 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export default function ProjectsPage() {
   useRequireAuth();
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const { toast } = useToast();
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [contributing, setContributing] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!user) {
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     const unsubscribe = getProjects((fetchedProjects) => {
       setProjects(fetchedProjects);
       setLoading(false);
     });
     return () => unsubscribe();
-  }, []);
+  }, [user]);
 
   const handleContribute = async (project: Project) => {
     if (!user) {
@@ -64,6 +67,8 @@ export default function ProjectsPage() {
     }
   }
 
+  const isLoading = authLoading || loading;
+
   return (
     <div className="bg-background">
       <div className="container mx-auto px-4 md:px-6 py-12">
@@ -76,7 +81,7 @@ export default function ProjectsPage() {
           </p>
         </div>
 
-        {loading ? (
+        {isLoading ? (
            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-96 w-full" />)}
            </div>

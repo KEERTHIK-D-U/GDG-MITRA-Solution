@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect } from "react";
@@ -8,18 +7,23 @@ import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { Search, MapPin, Calendar, Inbox } from "lucide-react";
 import { getEvents, type Event } from "@/lib/firebase";
-import { useRequireAuth } from "@/context/auth-context";
+import { useAuth, useRequireAuth } from "@/context/auth-context";
 import { EventRegistrationDialog } from "@/components/event-registration-dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function DiscoverPage() {
   useRequireAuth(); // Protect this route for any logged-in user
+  const { user, loading: authLoading } = useAuth();
 
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
 
   useEffect(() => {
+    if (!user) {
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     const unsubscribe = getEvents((fetchedEvents) => {
       setEvents(fetchedEvents);
@@ -27,11 +31,13 @@ export default function DiscoverPage() {
     });
     // Cleanup subscription on unmount
     return () => unsubscribe();
-  }, []);
+  }, [user]);
 
   const handleRegisterClick = (event: Event) => {
     setSelectedEvent(event);
   };
+
+  const isLoading = authLoading || loading;
 
   return (
     <>
@@ -57,7 +63,7 @@ export default function DiscoverPage() {
           </div>
 
           <h2 className="text-3xl font-bold tracking-tight mb-8 font-headline">Upcoming Events</h2>
-          {loading ? (
+          {isLoading ? (
              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-80 w-full" />)}
              </div>
