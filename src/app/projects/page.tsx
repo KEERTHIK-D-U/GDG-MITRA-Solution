@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from "react";
@@ -20,6 +21,9 @@ export default function ProjectsPage() {
   const [contributing, setContributing] = useState<string | null>(null);
 
   useEffect(() => {
+    if (authLoading) {
+      return;
+    }
     if (!user) {
       setLoading(false);
       return;
@@ -30,7 +34,7 @@ export default function ProjectsPage() {
       setLoading(false);
     });
     return () => unsubscribe();
-  }, [user]);
+  }, [user, authLoading]);
 
   const handleContribute = async (project: Project) => {
     if (!user) {
@@ -76,7 +80,7 @@ export default function ProjectsPage() {
           <h1 className="text-4xl md:text-5xl font-bold tracking-tight font-headline">
             Open Source Projects
           </h1>
-          <p className="max-w-2xl text-lg text-muted-foreground">
+          <p className="max-w-2xl text-lg text-muted-foreground font-subheading">
             Contribute to meaningful projects, learn new skills, and build your portfolio.
           </p>
         </div>
@@ -100,7 +104,7 @@ export default function ProjectsPage() {
                   />
                 </CardHeader>
                 <CardContent className="p-6 flex-grow">
-                  <CardTitle className="text-2xl mb-2 font-headline">{project.title}</CardTitle>
+                  <CardTitle className="text-2xl mb-2">{project.title}</CardTitle>
                   <p className="text-muted-foreground mb-4">{project.description}</p>
                   <div className="flex flex-wrap gap-2">
                     {project.tags.map((tag) => (

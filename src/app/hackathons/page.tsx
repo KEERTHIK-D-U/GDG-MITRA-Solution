@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from "react";
@@ -19,6 +20,9 @@ export default function HackathonsPage() {
   const [selectedHackathon, setSelectedHackathon] = useState<Hackathon | null>(null);
 
   useEffect(() => {
+    if (authLoading) {
+      return;
+    }
     if (!user) {
       setLoading(false);
       return;
@@ -29,7 +33,7 @@ export default function HackathonsPage() {
       setLoading(false);
     });
     return () => unsubscribe();
-  }, [user]);
+  }, [user, authLoading]);
 
   const handleRegisterClick = (hackathon: Hackathon) => {
     setSelectedHackathon(hackathon);
@@ -45,7 +49,7 @@ export default function HackathonsPage() {
             <h1 className="text-4xl md:text-5xl font-bold tracking-tight font-headline">
               Hackathons
             </h1>
-            <p className="max-w-2xl text-lg text-muted-foreground">
+            <p className="max-w-2xl text-lg text-muted-foreground font-subheading">
               Challenge yourself, build innovative projects, and win amazing prizes.
             </p>
           </div>
@@ -69,7 +73,7 @@ export default function HackathonsPage() {
                     />
                   </CardHeader>
                   <CardContent className="p-6 flex-grow">
-                    <CardTitle className="text-2xl mb-2 font-headline">{hackathon.title}</CardTitle>
+                    <CardTitle className="text-2xl mb-2">{hackathon.title}</CardTitle>
                     <div className="flex items-center text-muted-foreground mb-4">
                       <Calendar className="w-4 h-4 mr-2" />
                       <span>{hackathon.dates}</span>

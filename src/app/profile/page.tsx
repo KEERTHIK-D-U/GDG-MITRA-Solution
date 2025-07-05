@@ -167,7 +167,7 @@ export default function ProfilePage() {
                         </div>
                     )}
                      {user.bio && (
-                        <blockquote className="mt-4 text-muted-foreground italic border-l-2 pl-4">
+                        <blockquote className="mt-4 text-muted-foreground italic border-l-2 pl-4 font-subheading">
                            {user.bio}
                         </blockquote>
                     )}

@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth, useRequireAuth } from "@/context/auth-context";
 import { type UserProfile, db } from "@/lib/firebase";
-import { Linkedin, Users } from "lucide-react";
+import { Linkedin, Users, User as UserIcon } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
@@ -68,7 +68,7 @@ export default function ConnectionsPage() {
                 <h1 className="text-4xl md:text-5xl font-bold tracking-tight font-headline">
                     Community Connections
                 </h1>
-                <p className="max-w-2xl text-lg text-muted-foreground">
+                <p className="max-w-2xl text-lg text-muted-foreground font-subheading">
                     Discover and connect with other volunteers and hosts in the Mitra community.
                 </p>
             </div>
@@ -83,7 +83,7 @@ export default function ConnectionsPage() {
                         <Card key={user.uid} className="flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-2 hover:border-[#ced4ce] dark:hover:border-[#00e97b] hover:shadow-[#006a35]/30 dark:hover:shadow-[#00e97b]/30">
                             <CardHeader className="flex flex-row items-center gap-4">
                                 <Avatar className="h-12 w-12">
-                                    <AvatarFallback>{user.name ? user.name.charAt(0).toUpperCase() : 'U'}</AvatarFallback>
+                                    <AvatarFallback>{user.name ? user.name.charAt(0).toUpperCase() : <UserIcon />}</AvatarFallback>
                                 </Avatar>
                                 <div>
                                     <CardTitle className="text-lg">{user.name || 'Community Member'}</CardTitle>

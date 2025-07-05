@@ -47,7 +47,7 @@ export default function DashboardPage() {
             <h1 className="text-4xl md:text-5xl font-bold tracking-tight font-headline">
               Host Dashboard
             </h1>
-            <p className="max-w-2xl text-lg text-muted-foreground">
+            <p className="max-w-2xl text-lg text-muted-foreground font-subheading">
               Manage your events, projects, and hackathons.
             </p>
           </div>

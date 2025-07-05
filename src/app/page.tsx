@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import Link from "next/link";
@@ -21,7 +22,7 @@ export default function Home() {
             <h1 className="text-4xl md:text-6xl font-bold tracking-tighter !leading-tight font-headline">
               Connect, Collaborate, Contribute.
             </h1>
-            <p className="max-w-3xl text-lg md:text-xl text-primary-foreground/90">
+            <p className="max-w-3xl text-lg md:text-xl text-primary-foreground/90 font-subheading">
               Mitra is the bridge between passionate volunteers and impactful opportunities in Mangalore. Discover local events, contribute to open-source projects, and be the change your community needs.
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
@@ -44,7 +45,7 @@ export default function Home() {
         <div className="container mx-auto px-4 md:px-6">
             <div className="text-center mb-12">
                 <h2 className="text-3xl md:text-4xl font-bold font-headline">How It Works</h2>
-                <p className="text-muted-foreground mt-2">Joining our community is as easy as 1-2-3.</p>
+                <p className="text-muted-foreground mt-2 font-subheading">Joining our community is as easy as 1-2-3.</p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
                 <div className="p-6 rounded-lg">

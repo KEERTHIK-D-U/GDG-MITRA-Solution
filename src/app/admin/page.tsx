@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from "react";
@@ -88,7 +89,7 @@ export default function AdminPage() {
             <h1 className="text-4xl md:text-5xl font-bold tracking-tight font-headline">
               Admin Dashboard
             </h1>
-            <p className="max-w-2xl text-lg text-muted-foreground">
+            <p className="max-w-2xl text-lg text-muted-foreground font-subheading">
               Oversee application activity and manage users.
             </p>
           </div>

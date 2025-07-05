@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from "react";
@@ -20,10 +21,15 @@ export default function DiscoverPage() {
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
 
   useEffect(() => {
+    // Wait for authentication to complete before fetching data
+    if (authLoading) {
+      return;
+    }
     if (!user) {
       setLoading(false);
       return;
     }
+    
     setLoading(true);
     const unsubscribe = getEvents((fetchedEvents) => {
       setEvents(fetchedEvents);
@@ -31,7 +37,7 @@ export default function DiscoverPage() {
     });
     // Cleanup subscription on unmount
     return () => unsubscribe();
-  }, [user]);
+  }, [user, authLoading]);
 
   const handleRegisterClick = (event: Event) => {
     setSelectedEvent(event);
@@ -47,7 +53,7 @@ export default function DiscoverPage() {
             <h1 className="text-4xl md:text-5xl font-bold tracking-tight font-headline">
               Discover Opportunities
             </h1>
-            <p className="max-w-2xl text-lg text-muted-foreground">
+            <p className="max-w-2xl text-lg text-muted-foreground font-subheading">
               Find volunteering events and open-source projects happening around Mangalore.
             </p>
             <div className="w-full max-w-lg">
@@ -82,7 +88,7 @@ export default function DiscoverPage() {
                     />
                   </CardHeader>
                   <CardContent className="p-4 flex-grow">
-                    <CardTitle className="text-xl mb-2 font-headline">{event.title}</CardTitle>
+                    <CardTitle className="text-xl mb-2">{event.title}</CardTitle>
                     <div className="text-muted-foreground space-y-2">
                       <div className="flex items-center">
                         <Calendar className="w-4 h-4 mr-2" />
