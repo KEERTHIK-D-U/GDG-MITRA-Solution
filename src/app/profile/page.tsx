@@ -1,3 +1,4 @@
+
 "use client";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -8,11 +9,12 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { userHistory, userBadges } from "@/lib/mock-data";
-import { Award, Code, Edit, GitPullRequest, Hand, HeartHandshake, Sprout, User as UserIcon, Users } from "lucide-react";
+import { Award, Code, Edit, GitPullRequest, Hand, HeartHandshake, Linkedin, Sprout, User as UserIcon, Users } from "lucide-react";
 import * as React from "react";
 import { useAuth, useRequireAuth } from "@/context/auth-context";
 import { useToast } from "@/hooks/use-toast";
 import { testFirestoreConnection } from "@/lib/firebase";
+import Link from "next/link";
 
 const iconMap: { [key: string]: React.ElementType } = {
     Award,
@@ -72,6 +74,16 @@ export default function ProfilePage() {
                 <div className="text-center md:text-left">
                     <h1 className="text-4xl font-bold font-headline">{user.name}</h1>
                     <p className="text-muted-foreground">{user.email}</p>
+                     {user.linkedinUrl && (
+                        <div className="mt-2">
+                             <Button variant="link" asChild className="p-0 h-auto">
+                                <Link href={user.linkedinUrl} target="_blank" rel="noopener noreferrer">
+                                    <Linkedin className="mr-2 h-4 w-4" />
+                                    LinkedIn Profile
+                                </Link>
+                            </Button>
+                        </div>
+                    )}
                     <p className="mt-2 max-w-xl text-foreground">
                         Passionate about leveraging technology for community good. Full-stack developer with a love for open source and volunteering.
                     </p>
@@ -141,6 +153,10 @@ export default function ProfilePage() {
                             <div className="space-y-2">
                                 <Label htmlFor="name">Full Name</Label>
                                 <Input id="name" defaultValue={user.name} />
+                            </div>
+                             <div className="space-y-2">
+                                <Label htmlFor="linkedin">LinkedIn Profile URL</Label>
+                                <Input id="linkedin" placeholder="https://linkedin.com/in/your-profile" defaultValue={user.linkedinUrl} />
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="bio">Bio</Label>

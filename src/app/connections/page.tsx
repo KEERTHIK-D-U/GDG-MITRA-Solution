@@ -1,0 +1,101 @@
+
+"use client";
+
+import { useEffect, useState } from "react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useAuth, useRequireAuth } from "@/context/auth-context";
+import { getAllUsers, UserProfile } from "@/lib/firebase";
+import { Linkedin, User, Users } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
+import Link from "next/link";
+import { Badge } from "@/components/ui/badge";
+
+const UserCardSkeleton = () => (
+    <Card className="flex flex-col">
+        <CardHeader className="flex flex-row items-center gap-4">
+            <Skeleton className="h-12 w-12 rounded-full" />
+            <div className="flex-1 space-y-2">
+                <Skeleton className="h-4 w-3/4" />
+                <Skeleton className="h-4 w-1/2" />
+            </div>
+        </CardHeader>
+        <CardContent className="flex-grow flex items-end justify-end">
+            <Skeleton className="h-10 w-28" />
+        </CardContent>
+    </Card>
+)
+
+export default function ConnectionsPage() {
+    useRequireAuth();
+    const { user: currentUser } = useAuth();
+    const [users, setUsers] = useState<UserProfile[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        if (currentUser) {
+            getAllUsers(currentUser.uid)
+                .then(setUsers)
+                .catch(console.error)
+                .finally(() => setLoading(false));
+        }
+    }, [currentUser]);
+
+    return (
+        <div className="container mx-auto px-4 md:px-6 py-12">
+            <div className="flex flex-col items-start space-y-4 mb-12">
+                <h1 className="text-4xl md:text-5xl font-bold tracking-tight font-headline">
+                    Community Connections
+                </h1>
+                <p className="max-w-2xl text-lg text-muted-foreground">
+                    Discover and connect with other volunteers and hosts in the Mitra community.
+                </p>
+            </div>
+
+            {loading ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                   {Array.from({ length: 8 }).map((_, i) => <UserCardSkeleton key={i} />)}
+                </div>
+            ) : users.length > 0 ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    {users.map((user) => (
+                        <Card key={user.uid} className="transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-2 hover:border-[#ced4ce] dark:hover:border-[#00e97b] hover:shadow-[#006a35]/30 dark:hover:shadow-[#00e97b]/30">
+                            <CardHeader className="flex flex-row items-center gap-4">
+                                <Avatar className="h-12 w-12">
+                                    <AvatarImage src={`https://placehold.co/128x128.png`} alt={user.name} />
+                                    <AvatarFallback>{user.name.charAt(0).toUpperCase()}</AvatarFallback>
+                                </Avatar>
+                                <div>
+                                    <CardTitle className="text-lg">{user.name}</CardTitle>
+                                    <Badge variant="secondary" className="capitalize mt-1">{user.role}</Badge>
+                                </div>
+                            </CardHeader>
+                            <CardContent className="flex justify-end">
+                                {user.linkedinUrl ? (
+                                    <Button asChild>
+                                        <Link href={user.linkedinUrl} target="_blank" rel="noopener noreferrer">
+                                            <Linkedin className="mr-2 h-4 w-4" /> Connect
+                                        </Link>
+                                    </Button>
+                                ) : (
+                                    <Button variant="outline" disabled>
+                                        <Linkedin className="mr-2 h-4 w-4" /> Not Available
+                                    </Button>
+                                )}
+                            </CardContent>
+                        </Card>
+                    ))}
+                </div>
+            ) : (
+                <div className="flex flex-col items-center justify-center text-center py-16 px-4 border-2 border-dashed rounded-lg">
+                    <Users className="w-16 h-16 text-muted-foreground" />
+                    <h3 className="mt-4 text-xl font-semibold">No Other Users Found</h3>
+                    <p className="mt-2 text-muted-foreground">
+                        As the community grows, other users will appear here.
+                    </p>
+                </div>
+            )}
+        </div>
+    );
+}

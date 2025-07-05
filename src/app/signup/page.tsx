@@ -24,6 +24,7 @@ const formSchema = z.object({
   email: z.string().email({ message: "Invalid email address." }),
   password: z.string().min(6, { message: "Password must be at least 6 characters." }),
   role: z.enum(["volunteer", "host"], { required_error: "You must select a role." }),
+  linkedinUrl: z.string().url({ message: "Please enter a valid URL." }).optional().or(z.literal('')),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -39,6 +40,7 @@ export default function SignupPage() {
       email: "",
       password: "",
       role: "volunteer",
+      linkedinUrl: "",
     },
   });
 
@@ -46,7 +48,7 @@ export default function SignupPage() {
     setLoading(true);
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, data.email, data.password);
-      await createUserProfile(userCredential.user, data.fullName, data.role as UserRole);
+      await createUserProfile(userCredential.user, data.fullName, data.role as UserRole, { linkedinUrl: data.linkedinUrl });
       toast({
         title: "Account Created!",
         description: "You have been successfully signed up.",
@@ -82,7 +84,7 @@ export default function SignupPage() {
             return;
         }
         
-        // If no profile, create a new one
+        // If no profile, create a new one. The linkedinUrl will be empty and can be added later.
         await createUserProfile(user, user.displayName || "New User", role);
         toast({
           title: "Account Created!",
@@ -208,6 +210,19 @@ export default function SignupPage() {
                     <FormLabel>Password</FormLabel>
                     <FormControl>
                       <Input type="password" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+               <FormField
+                control={form.control}
+                name="linkedinUrl"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>LinkedIn Profile URL (Optional)</FormLabel>
+                    <FormControl>
+                      <Input placeholder="https://www.linkedin.com/in/..." {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

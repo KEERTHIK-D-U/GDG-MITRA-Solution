@@ -1,3 +1,4 @@
+
 // Important: This file reads your Firebase configuration from environment variables.
 // Make sure to populate the .env.local file with your project's credentials.
 const firebaseConfig = {
@@ -11,7 +12,7 @@ const firebaseConfig = {
 
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
-import { getFirestore, doc, setDoc, getDoc, collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { getFirestore, doc, setDoc, getDoc, collection, addDoc, serverTimestamp, getDocs, query, where } from "firebase/firestore";
 import type { User as FirebaseUser } from 'firebase/auth';
 
 // For debugging: This will print the Project ID to your browser's developer console.
@@ -39,16 +40,18 @@ export interface UserProfile {
     email: string;
     name: string;
     role: UserRole;
+    linkedinUrl?: string;
 }
 
 // Function to create user profile in Firestore
-export const createUserProfile = async (user: FirebaseUser, name: string, role: UserRole) => {
+export const createUserProfile = async (user: FirebaseUser, name: string, role: UserRole, additionalData: { linkedinUrl?: string } = {}) => {
     const userRef = doc(db, "users", user.uid);
     const userProfile: UserProfile = {
         uid: user.uid,
         email: user.email!,
         name,
         role,
+        linkedinUrl: additionalData.linkedinUrl || "",
     };
     try {
         await setDoc(userRef, userProfile);
@@ -79,6 +82,27 @@ export const getUserProfile = async (uid: string): Promise<UserProfile | null> =
         throw error;
     }
 }
+
+// Function to get all users from Firestore, excluding the current user
+export const getAllUsers = async (currentUserId: string): Promise<UserProfile[]> => {
+    const usersRef = collection(db, "users");
+    // Exclude the current user from the list
+    const q = query(usersRef, where("uid", "!=", currentUserId));
+    try {
+        const querySnapshot = await getDocs(q);
+        const users: UserProfile[] = [];
+        querySnapshot.forEach((doc) => {
+            users.push(doc.data() as UserProfile);
+        });
+        return users;
+    } catch (error: any) {
+        console.error("Error fetching all users:", error);
+        if (error.code === 'permission-denied') {
+             throw new Error("Firestore permission denied. Please check your security rules to allow reading from the 'users' collection.");
+        }
+        throw error;
+    }
+};
 
 /**
  * A test function to verify Firestore connectivity.
