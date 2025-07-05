@@ -22,9 +22,9 @@ const UserCardSkeleton = () => (
                 <Skeleton className="h-4 w-1/2" />
             </div>
         </CardHeader>
-        <CardContent className="mt-auto flex flex-col items-end gap-2">
+        <CardContent className="mt-auto flex justify-end gap-2 p-4">
+            <Skeleton className="h-10 w-10" />
             <Skeleton className="h-10 w-28" />
-            <Skeleton className="h-3 w-24" />
         </CardContent>
     </Card>
 )
@@ -90,7 +90,12 @@ export default function MentorsPage() {
                                     )}
                                 </div>
                             </CardHeader>
-                            <CardContent className="mt-auto flex flex-col items-end gap-2">
+                           <CardContent className="mt-auto flex items-center justify-end gap-2 p-4 pt-2">
+                                <Button variant="outline" size="icon" asChild>
+                                    <a href={`mailto:${user.email}`} aria-label={`Email ${user.name}`}>
+                                        <Mail className="h-4 w-4" />
+                                    </a>
+                                </Button>
                                 {user.linkedinUrl ? (
                                     <Button asChild>
                                         <Link href={user.linkedinUrl} target="_blank" rel="noopener noreferrer">
@@ -102,10 +107,6 @@ export default function MentorsPage() {
                                         <Linkedin className="mr-2 h-4 w-4" /> Not Available
                                     </Button>
                                 )}
-                                <a href={`mailto:${user.email}`} className="text-xs text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5">
-                                    <Mail className="h-3 w-3" />
-                                    <span>{user.email}</span>
-                                </a>
                             </CardContent>
                         </Card>
                     ))}

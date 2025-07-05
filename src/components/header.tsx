@@ -12,7 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { HandHeart, Menu, User, LogOut, LayoutDashboard, Compass, ShieldCheck, UserPlus, LogInIcon, Users, GraduationCap } from "lucide-react";
+import { HandHeart, Menu, User, LogOut, LayoutDashboard, Compass, ShieldCheck, UserPlus, LogInIcon, Users, GraduationCap, Code, Trophy } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "./ui/sheet";
 import { cn } from "@/lib/utils";
@@ -24,20 +24,31 @@ const loggedOutLinks = [
   { href: "/", label: "Home" },
 ];
 
-const loggedInLinks = [
-  { href: "/discover", label: "Discover" },
-  { href: "/hackathons", label: "Hackathons" },
-  { href: "/projects", label: "Projects" },
-  { href: "/connections", label: "Connections" },
-  { href: "/mentors", label: "Mentors" },
+const defaultLoggedInLinks = [
+  { href: "/discover", label: "Discover", icon: Compass },
+  { href: "/hackathons", label: "Hackathons", icon: Trophy },
+  { href: "/projects", label: "Projects", icon: Code },
+  { href: "/connections", label: "Connections", icon: Users },
+  { href: "/mentors", label: "Mentors", icon: GraduationCap },
+];
+
+const mentorLinks = [
+  { href: "/projects", label: "Projects", icon: Code },
+  { href: "/connections", label: "Connections", icon: Users },
+  { href: "/mentors", label: "Mentors", icon: GraduationCap },
 ];
 
 export function Header() {
   const pathname = usePathname();
   const router = useRouter();
   const { user, loading } = useAuth();
-  const navLinks = user ? loggedInLinks : loggedOutLinks;
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const navLinks = user
+    ? user.role === 'mentor'
+      ? mentorLinks
+      : defaultLoggedInLinks
+    : loggedOutLinks;
 
   const handleLogout = async () => {
     await auth.signOut();
@@ -49,10 +60,25 @@ export function Header() {
       href={href}
       onClick={onClick}
       className={cn(
-        "px-4 py-2 rounded-full text-sm font-medium transition-colors",
+        "px-4 py-2 rounded-full text-sm font-medium transition-colors flex items-center gap-2",
         pathname === href
           ? "bg-primary text-primary-foreground"
           : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+      )}
+    >
+      {children}
+    </Link>
+  );
+  
+  const MobileNavLink = ({ href, children, onClick }: { href: string; children: React.ReactNode; onClick?: () => void; }) => (
+    <Link
+      href={href}
+      onClick={onClick}
+      className={cn(
+        "px-4 py-3 rounded-lg text-base font-medium transition-colors flex items-center gap-3",
+        pathname === href
+          ? "bg-primary text-primary-foreground"
+          : "text-foreground hover:bg-accent hover:text-accent-foreground"
       )}
     >
       {children}
@@ -79,7 +105,7 @@ export function Header() {
               </Button>
             </SheetTrigger>
             <SheetContent side="left">
-              <SheetHeader>
+               <SheetHeader>
                 <SheetTitle asChild>
                   <Link href="/" className="flex items-center space-x-2" onClick={() => setIsMobileMenuOpen(false)}>
                     <HandHeart className="h-6 w-6 text-primary" />
@@ -88,17 +114,21 @@ export function Header() {
                 </SheetTitle>
               </SheetHeader>
               <div className="flex flex-col space-y-2 py-4">
-                {navLinks.map((link) => (
-                  <NavLink key={link.href} href={link.href} onClick={() => setIsMobileMenuOpen(false)}>
-                    {link.label}
-                  </NavLink>
-                ))}
+                {navLinks.map((link) => {
+                  const Icon = (link as any).icon;
+                  return (
+                    <MobileNavLink key={link.href} href={link.href} onClick={() => setIsMobileMenuOpen(false)}>
+                      {Icon && <Icon className="h-5 w-5" />}
+                      <span>{link.label}</span>
+                    </MobileNavLink>
+                  );
+                })}
               </div>
             </SheetContent>
           </Sheet>
         </div>
 
-        <nav className="hidden md:flex items-center space-x-2 text-sm font-medium">
+        <nav className="hidden md:flex items-center space-x-1 text-sm font-medium">
           {navLinks.map((link) => (
             <NavLink key={link.href} href={link.href}>
               {link.label}
@@ -131,24 +161,6 @@ export function Header() {
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
                    <DropdownMenuItem asChild>
-                    <Link href="/discover">
-                      <Compass className="mr-2 h-4 w-4" />
-                      <span>Discover</span>
-                    </Link>
-                  </DropdownMenuItem>
-                   <DropdownMenuItem asChild>
-                    <Link href="/connections">
-                      <Users className="mr-2 h-4 w-4" />
-                      <span>Connections</span>
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link href="/mentors">
-                      <GraduationCap className="mr-2 h-4 w-4" />
-                      <span>Mentors</span>
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
                     <Link href="/profile">
                       <User className="mr-2 h-4 w-4" />
                       <span>Profile</span>

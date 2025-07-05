@@ -36,18 +36,18 @@ type FormValues = z.infer<typeof formSchema>;
 const roleInfo = {
     volunteer: {
         icon: HandHeart,
-        title: "Volunteer",
+        title: "Contributor",
         description: "Join events, contribute to projects, and make a difference in the community.",
     },
     host: {
         icon: Trophy,
-        title: "Host",
+        title: "Organizer",
         description: "Organize events, create projects, and host hackathons for the community.",
     },
     mentor: {
         icon: User,
-        title: "Mentor",
-        description: "Guide and support fellow community members by sharing your experience.",
+        title: "Guide",
+        description: "Share your experience and support fellow community members on their journey.",
     }
 }
 
@@ -117,7 +117,7 @@ export default function SignupPage() {
         </CardHeader>
         <CardContent>
           {!selectedRole ? (
-             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 {(Object.keys(roleInfo) as UserRole[]).filter(r => r !== 'admin').map((role) => {
                     const RoleIcon = roleInfo[role].icon;
                     return (
@@ -196,7 +196,7 @@ export default function SignupPage() {
                     <FormItem>
                       <FormLabel>College</FormLabel>
                       <FormControl>
-                        <Input placeholder="Srinivas Institute of Technology" {...field} />
+                        <Input placeholder="e.g., Institute of Technology" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
