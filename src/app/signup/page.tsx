@@ -28,7 +28,7 @@ const formSchema = z.object({
     .regex(/[0-9]/, { message: "Password must contain at least one number." })
     .regex(/[^A-Za-z0-9]/, { message: "Password must contain at least one special character." }),
   role: z.enum(["volunteer", "host"], { required_error: "You must select a role." }),
-  college: z.string().optional(),
+  college: z.string().min(1, { message: "College name is required." }),
   linkedinUrl: z.string().url({ message: "Please enter a valid URL." }).optional().or(z.literal('')),
 });
 
@@ -145,7 +145,7 @@ export default function SignupPage() {
                   <FormItem>
                     <FormLabel>Email</FormLabel>
                     <FormControl>
-                      <Input type="email" placeholder="m@example.com" {...field} />
+                      <Input type="email" placeholder="example@gmail.com" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -181,9 +181,9 @@ export default function SignupPage() {
                 name="college"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>College (Optional)</FormLabel>
+                    <FormLabel>College</FormLabel>
                     <FormControl>
-                      <Input placeholder="e.g., Sahyadri College" {...field} />
+                      <Input placeholder="Srinivas Institute of Technology" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
