@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Code, GitBranch, Hand, Linkedin, User as UserIcon, School } from "lucide-react";
+import { Code, GitBranch, Hand, Linkedin, User as UserIcon, School, GraduationCap } from "lucide-react";
 import * as React from "react";
 import { useAuth, useRequireAuth } from "@/context/auth-context";
 import { useToast } from "@/hooks/use-toast";
@@ -18,7 +18,6 @@ import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
-import { Switch } from "@/components/ui/switch";
 
 type HistoryItem = {
     id: string;
@@ -38,7 +37,6 @@ export default function ProfilePage() {
     const [college, setCollege] = useState('');
     const [techStacks, setTechStacks] = useState('');
     const [bio, setBio] = useState('');
-    const [isMentor, setIsMentor] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
 
     // History state
@@ -53,7 +51,6 @@ export default function ProfilePage() {
             setCollege(user.college || '');
             setTechStacks(user.techStacks || '');
             setBio(user.bio || '');
-            setIsMentor(user.isMentor || false);
         }
     }, [user]);
 
@@ -114,7 +111,7 @@ export default function ProfilePage() {
     const handleSaveChanges = async () => {
         if (!user) return;
         setIsSaving(true);
-        const updatedData = { name, linkedinUrl, college, techStacks, bio, isMentor };
+        const updatedData = { name, linkedinUrl, college, techStacks, bio };
         try {
             await updateUserProfile(user.uid, updatedData);
             setUser(prev => prev ? { ...prev, ...updatedData } : null);
@@ -151,8 +148,8 @@ export default function ProfilePage() {
                     <p className="text-muted-foreground">{user.email}</p>
                     <div className="flex flex-wrap gap-2 justify-center md:justify-start mt-2">
                         <Badge variant="secondary" className="capitalize">{user.role}</Badge>
-                        {user.isMentor && (
-                            <Badge variant="default">Mentor</Badge>
+                         {user.role === 'mentor' && (
+                            <Badge variant="default"><GraduationCap className="w-3 h-3 mr-1"/>Mentor</Badge>
                         )}
                     </div>
                      {user.college && (
@@ -264,19 +261,6 @@ export default function ProfilePage() {
                                 <Label htmlFor="tech-stacks">Tech Stacks</Label>
                                 <Input id="tech-stacks" placeholder="e.g., React, Next.js, Firebase" value={techStacks} onChange={(e) => setTechStacks(e.target.value)} />
                                 <p className="text-sm text-muted-foreground">Comma-separated list of your technical skills.</p>
-                            </div>
-                            <div className="flex items-center space-x-3 rounded-lg border p-4">
-                                <Switch
-                                    id="is-mentor"
-                                    checked={isMentor}
-                                    onCheckedChange={setIsMentor}
-                                />
-                                <div className="space-y-0.5">
-                                    <Label htmlFor="is-mentor">Open to Mentoring</Label>
-                                    <p className="text-xs text-muted-foreground">
-                                        Enable this to appear on the mentors page for others to connect with you.
-                                    </p>
-                                </div>
                             </div>
                             <Button onClick={handleSaveChanges} disabled={isSaving}>
                                 {isSaving ? "Saving..." : "Save Changes"}

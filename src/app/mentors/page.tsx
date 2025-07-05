@@ -77,8 +77,10 @@ export default function MentorsPage() {
                                 <div>
                                     <CardTitle className="text-lg">{user.name || 'Community Mentor'}</CardTitle>
                                     <div className="flex flex-wrap gap-1 mt-1">
-                                        <Badge variant="secondary" className="capitalize">{user.role}</Badge>
                                         <Badge variant="default" className="capitalize"><GraduationCap className="w-3 h-3 mr-1"/>Mentor</Badge>
+                                        {currentUser?.college && user.college && currentUser.college.trim().toLowerCase() === user.college.trim().toLowerCase() && (
+                                            <Badge variant="outline" className="capitalize border-green-500 text-green-500"><GraduationCap className="w-3 h-3 mr-1"/>Alumni</Badge>
+                                        )}
                                     </div>
                                     {user.college && (
                                         <p className="text-sm text-muted-foreground mt-2 flex items-center">

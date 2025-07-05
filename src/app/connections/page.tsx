@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth, useRequireAuth } from "@/context/auth-context";
 import { type UserProfile, db } from "@/lib/firebase";
-import { Linkedin, Users, User as UserIcon, School, Mail } from "lucide-react";
+import { Linkedin, Users, User as UserIcon, School, Mail, GraduationCap } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
@@ -44,8 +44,8 @@ export default function ConnectionsPage() {
         }
 
         const usersRef = collection(db, "users");
-        // Query for users who are either volunteers or hosts, excluding admins.
-        const q = query(usersRef, where("role", "in", ["volunteer", "host"]));
+        // Query for all user roles except admin.
+        const q = query(usersRef, where("role", "in", ["volunteer", "host", "mentor"]));
 
         const unsubscribe = onSnapshot(q, (snapshot) => {
             const usersData = snapshot.docs
@@ -71,7 +71,7 @@ export default function ConnectionsPage() {
                     Community Connections
                 </h1>
                 <p className="max-w-2xl text-lg text-muted-foreground font-subheading">
-                    Discover and connect with other volunteers and hosts in the Mitra community.
+                    Discover and connect with other volunteers, hosts, and mentors in the Mitra community.
                 </p>
             </div>
 
@@ -91,6 +91,12 @@ export default function ConnectionsPage() {
                                     <CardTitle className="text-lg">{user.name || 'Community Member'}</CardTitle>
                                     <div className="flex flex-wrap gap-1 mt-1">
                                         <Badge variant="secondary" className="capitalize">{user.role}</Badge>
+                                        {user.role === 'mentor' && (
+                                            <Badge variant="default"><GraduationCap className="w-3 h-3 mr-1"/>Mentor</Badge>
+                                        )}
+                                        {currentUser?.college && user.college && currentUser.college.trim().toLowerCase() === user.college.trim().toLowerCase() && (
+                                            <Badge variant="outline" className="capitalize border-green-500 text-green-500"><GraduationCap className="w-3 h-3 mr-1"/>Alumni</Badge>
+                                        )}
                                     </div>
                                     {user.college && (
                                         <p className="text-sm text-muted-foreground mt-2 flex items-center">

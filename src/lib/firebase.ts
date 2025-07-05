@@ -1,4 +1,3 @@
-
 // Important: This file reads your Firebase configuration from environment variables.
 // Make sure to populate the .env.local file with your project's credentials.
 const firebaseConfig = {
@@ -35,7 +34,7 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 const storage = getStorage(app);
 
-export type UserRole = "volunteer" | "host" | "admin";
+export type UserRole = "volunteer" | "host" | "admin" | "mentor";
 
 export interface UserProfile {
     uid: string;
@@ -47,7 +46,6 @@ export interface UserProfile {
     techStacks?: string;
     bio?: string;
     hasCompletedTutorial?: boolean;
-    isMentor?: boolean;
 }
 
 export interface EventRegistration {
@@ -119,7 +117,6 @@ export const createUserProfile = async (user: FirebaseUser, name: string, role: 
         techStacks: "",
         bio: "Passionate community member and tech enthusiast.",
         hasCompletedTutorial: false,
-        isMentor: false,
     };
     try {
         await setDoc(userRef, userProfile);
@@ -490,10 +487,14 @@ export const getHackathonsByHost = (hostId: string, callback: (hackathons: Hacka
 
 export const getMentors = (currentUserId: string, callback: (users: UserProfile[]) => void) => {
     const usersRef = collection(db, "users");
-    const q = query(usersRef, where("isMentor", "==", true), where("uid", "!=", currentUserId));
+    // Query for mentors
+    const q = query(usersRef, where("role", "==", "mentor"));
     
     return onSnapshot(q, (snapshot) => {
-        const mentors = snapshot.docs.map(doc => doc.data() as UserProfile);
+        // Filter out the current user on the client side to avoid composite indexes
+        const mentors = snapshot.docs
+            .map(doc => doc.data() as UserProfile)
+            .filter(mentor => mentor.uid !== currentUserId);
         callback(mentors);
     }, (error) => {
         console.error("Failed to subscribe to mentor updates:", error);
