@@ -202,7 +202,7 @@ export default function ManageEventsPage() {
                                     <FormControl>
                                        <div className="relative">
                                           <Upload className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                                          <Input type="file" className="pl-10" {...imageRef} />
+                                          <Input type="file" accept="image/*" className="pl-10" {...imageRef} />
                                        </div>
                                     </FormControl>
                                     <FormMessage />
