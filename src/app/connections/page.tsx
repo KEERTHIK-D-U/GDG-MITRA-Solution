@@ -75,7 +75,7 @@ export default function ConnectionsPage() {
             ) : users.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                     {users.map((user) => (
-                        <Card key={user.uid} className="transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-2 hover:border-[#ced4ce] dark:hover:border-[#00e97b] hover:shadow-[#006a35]/30 dark:hover:shadow-[#00e97b]/30">
+                        <Card key={user.uid} className="flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-2 hover:border-[#ced4ce] dark:hover:border-[#00e97b] hover:shadow-[#006a35]/30 dark:hover:shadow-[#00e97b]/30">
                             <CardHeader className="flex flex-row items-center gap-4">
                                 <Avatar className="h-12 w-12">
                                     <AvatarImage src={`https://placehold.co/128x128.png`} alt={user.name || 'User Avatar'} />
@@ -86,7 +86,7 @@ export default function ConnectionsPage() {
                                     <Badge variant="secondary" className="capitalize mt-1">{user.role}</Badge>
                                 </div>
                             </CardHeader>
-                            <CardContent className="flex justify-end">
+                            <CardContent className="mt-auto flex flex-col items-end gap-2">
                                 {user.linkedinUrl ? (
                                     <Button asChild>
                                         <Link href={user.linkedinUrl} target="_blank" rel="noopener noreferrer">
@@ -98,6 +98,7 @@ export default function ConnectionsPage() {
                                         <Linkedin className="mr-2 h-4 w-4" /> Not Available
                                     </Button>
                                 )}
+                                <p className="text-xs text-muted-foreground">{user.email}</p>
                             </CardContent>
                         </Card>
                     ))}
