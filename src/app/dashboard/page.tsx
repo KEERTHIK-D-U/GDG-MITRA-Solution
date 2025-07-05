@@ -14,7 +14,7 @@ import { useToast } from "@/hooks/use-toast";
 
 export default function DashboardPage() {
   useRequireAuth('host'); // Protect this route for hosts
-  const { user } = useAuth();
+  const { user, setUser } = useAuth();
   const { toast } = useToast();
   
   const [hostedEventsCount, setHostedEventsCount] = useState(0);
@@ -54,6 +54,7 @@ export default function DashboardPage() {
     if (!user) return;
     try {
         await updateUserProfile(user.uid, { hasCompletedTutorial: true });
+        setUser(prev => prev ? { ...prev, hasCompletedTutorial: true } : null);
         toast({ title: "Tour Complete!", description: "You're all set. Let's build your community!" });
     } catch (error: any) {
         toast({ variant: "destructive", title: "Error", description: "Could not save tutorial progress." });

@@ -16,7 +16,7 @@ import { useToast } from "@/hooks/use-toast";
 
 export default function DiscoverPage() {
   useRequireAuth(); // Protect this route for any logged-in user
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, setUser } = useAuth();
   const { toast } = useToast();
 
   const [events, setEvents] = useState<Event[]>([]);
@@ -55,6 +55,7 @@ export default function DiscoverPage() {
     if (!user) return;
     try {
       await updateUserProfile(user.uid, { hasCompletedTutorial: true });
+      setUser(prev => prev ? { ...prev, hasCompletedTutorial: true } : null);
       toast({ title: "Tour Complete!", description: "You're all set. Time to explore!" });
     } catch (error: any) {
       toast({ variant: "destructive", title: "Error", description: "Could not save tutorial progress." });

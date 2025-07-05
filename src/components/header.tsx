@@ -18,6 +18,7 @@ import { Sheet, SheetContent, SheetTrigger } from "./ui/sheet";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/context/auth-context";
 import { auth } from "@/lib/firebase";
+import { useState } from "react";
 
 const loggedOutLinks = [
   { href: "/", label: "Home" },
@@ -35,15 +36,17 @@ export function Header() {
   const router = useRouter();
   const { user, loading } = useAuth();
   const navLinks = user ? loggedInLinks : loggedOutLinks;
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const handleLogout = async () => {
     await auth.signOut();
     router.push('/');
   };
 
-  const NavLink = ({ href, children }: { href: string; children: React.ReactNode }) => (
+  const NavLink = ({ href, children, onClick }: { href: string; children: React.ReactNode; onClick?: () => void; }) => (
     <Link
       href={href}
+      onClick={onClick}
       className={cn(
         "px-4 py-2 rounded-full text-sm font-medium transition-colors",
         pathname === href
@@ -67,21 +70,21 @@ export function Header() {
 
         {/* Mobile Menu */}
         <div className="md:hidden">
-          <Sheet>
+          <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon">
+              <Button variant="ghost" size="icon" onClick={() => setIsMobileMenuOpen(true)}>
                 <Menu className="h-6 w-6" />
                 <span className="sr-only">Toggle Menu</span>
               </Button>
             </SheetTrigger>
             <SheetContent side="left">
               <div className="flex flex-col space-y-2 p-4">
-                <Link href="/" className="flex items-center space-x-2 mb-4">
+                <Link href="/" className="flex items-center space-x-2 mb-4" onClick={() => setIsMobileMenuOpen(false)}>
                     <HandHeart className="h-6 w-6 text-primary" />
                     <span className="font-bold font-headline text-lg">Mitra</span>
                 </Link>
                 {navLinks.map((link) => (
-                  <NavLink key={link.href} href={link.href}>
+                  <NavLink key={link.href} href={link.href} onClick={() => setIsMobileMenuOpen(false)}>
                     {link.label}
                   </NavLink>
                 ))}
