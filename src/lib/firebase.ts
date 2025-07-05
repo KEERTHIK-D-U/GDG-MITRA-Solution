@@ -89,7 +89,7 @@ export const getUserProfile = async (uid: string): Promise<UserProfile | null> =
          if (error.code === 'permission-denied') {
              throw new Error("Firestore permission denied. Please check your security rules to allow reading from the 'users' collection.");
         }
-        throw error;
+        throw new Error("Failed to fetch user profile due to a database error.");
     }
 }
 
@@ -117,7 +117,10 @@ export const getUserRegistrations = async (userId: string): Promise<EventRegistr
         return registrations;
     } catch (error: any) {
         console.error("Error fetching user registrations:", error);
-        throw new Error("Failed to fetch event history.");
+        if (error.code === 'permission-denied') {
+            throw new Error("Firestore permission denied. Check your security rules to allow reading from the 'registrations' collection.");
+        }
+        throw new Error("Failed to fetch event history due to a database error.");
     }
 }
 
@@ -139,7 +142,7 @@ export const getAllUsers = async (currentUserId: string): Promise<UserProfile[]>
         if (error.code === 'permission-denied') {
              throw new Error("Firestore permission denied. Please check your security rules to allow reading from the 'users' collection.");
         }
-        throw error;
+        throw new Error("Failed to fetch all users due to a database error.");
     }
 };
 
@@ -178,7 +181,7 @@ export const testFirestoreConnection = async (uid: string) => {
         if (error.code === 'permission-denied') {
              throw new Error("Firestore permission denied. Please check your security rules to allow writes to the 'users' collection for your user.");
         }
-        throw error; 
+        throw new Error("Firestore connectivity test failed with a database error.");
     }
 }
 
