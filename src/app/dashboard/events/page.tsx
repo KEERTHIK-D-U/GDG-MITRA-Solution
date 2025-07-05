@@ -38,10 +38,10 @@ const formSchema = z.object({
   date: z.string().refine((val) => !isNaN(Date.parse(val)), { message: "Please select a valid date." }),
   image: z
     .any()
-    .refine((file) => !file || (file && file.size <= 4 * 1024 * 1024), {
+    .refine((files) => !files || files.length === 0 || (files[0] && files[0].size <= 4 * 1024 * 1024), {
       message: "Max image size is 4MB.",
     })
-    .refine((file) => !file || (file && ACCEPTED_IMAGE_TYPES.includes(file.type)), {
+    .refine((files) => !files || files.length === 0 || (files[0] && ACCEPTED_IMAGE_TYPES.includes(files[0].type)), {
       message: "Only .jpg, .jpeg, .png and .webp formats are supported.",
     })
     .optional(),
@@ -137,7 +137,7 @@ export default function ManageEventsPage() {
                 {events.map((event) => (
                     <Card key={event.id} className="overflow-hidden flex flex-col">
                         <CardHeader className="p-0">
-                            <Image src={event.imageUrl} alt={event.title} width={400} height={250} className="w-full h-40 object-cover" />
+                            <Image src={event.imageUrl} alt={event.title} width={400} height={250} className="w-full h-40 object-cover" data-ai-hint="event community" />
                         </CardHeader>
                         <CardContent className="p-4 flex-grow">
                             <CardTitle className="text-xl mb-2 font-headline">{event.title}</CardTitle>

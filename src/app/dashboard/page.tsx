@@ -57,7 +57,7 @@ export default function DashboardPage() {
                     <PlusCircle className="mr-2 h-4 w-4" /> Add Event
                 </Link>
              </Button>
-              <Button asChild variant="outline">
+              <Button asChild>
                 <Link href="/dashboard/projects#add-project-form">
                     <PlusCircle className="mr-2 h-4 w-4" /> Add Project
                 </Link>
