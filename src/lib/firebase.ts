@@ -22,8 +22,8 @@ import type { User as FirebaseUser } from 'firebase/auth';
 // Initialize Firebase
 let app;
 if (!getApps().length) {
-    if (!firebaseConfig.apiKey || !firebaseConfig.projectId) {
-        console.error("Firebase config is not set. Please update .env.local and restart your server.");
+    if (!firebaseConfig.apiKey || !firebaseConfig.projectId || !firebaseConfig.storageBucket) {
+        console.error("Firebase config is not fully set. Please ensure NEXT_PUBLIC_FIREBASE_API_KEY, NEXT_PUBLIC_FIREBASE_PROJECT_ID, and NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET are all present in .env.local and restart your server.");
     }
     app = initializeApp(firebaseConfig);
 } else {
