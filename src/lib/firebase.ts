@@ -522,11 +522,14 @@ export const sendMessage = async (chatRoomId: string, senderId: string, text: st
         });
     } catch (error: any) {
         console.error("Error sending message:", error);
+        if (error.code === 'permission-denied') {
+             throw new Error("Firestore permission denied. Check your security rules for the 'chats' collection.");
+        }
         throw new Error("Failed to send message.");
     }
 };
 
-export const getMessages = (chatRoomId: string, callback: (messages: ChatMessage[]) => void) => {
+export const getMessages = (chatRoomId: string, callback: (messages: ChatMessage[]) => void, onError: (error: Error) => void) => {
     const messagesRef = collection(db, "chats", chatRoomId, "messages");
     const q = query(messagesRef, orderBy("createdAt", "asc"), limit(50));
 
@@ -536,8 +539,13 @@ export const getMessages = (chatRoomId: string, callback: (messages: ChatMessage
             ...doc.data()
         } as ChatMessage));
         callback(messages);
-    }, (error) => {
+    }, (error: any) => {
         console.error("Error getting messages:", error);
+        if (error.code === 'permission-denied') {
+            onError(new Error("Firestore permission denied. Check your security rules for the 'chats' collection."));
+        } else {
+            onError(new Error("Failed to load messages."));
+        }
     });
 };
 

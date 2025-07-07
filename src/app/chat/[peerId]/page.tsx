@@ -12,6 +12,7 @@ import { Card, CardContent, CardHeader, CardFooter } from "@/components/ui/card"
 import { Send, User as UserIcon, AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useToast } from "@/hooks/use-toast";
 
 function getChatRoomId(user1Id: string, user2Id: string): string {
     if (!user1Id || !user2Id) return '';
@@ -23,6 +24,7 @@ export default function ChatPage() {
     const { user: currentUser } = useAuth();
     const params = useParams();
     const peerId = params.peerId as string;
+    const { toast } = useToast();
 
     const [peerProfile, setPeerProfile] = useState<UserProfile | null>(null);
     const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -44,16 +46,32 @@ export default function ChatPage() {
 
         getUserProfile(peerId).then(profile => {
             setPeerProfile(profile);
+        }).catch(error => {
+            console.error("Failed to load peer profile:", error);
+            toast({
+                variant: "destructive",
+                title: "Failed to load user",
+                description: error.message,
+            });
         });
 
         const unsubscribe = getMessages(id, (newMessages) => {
             setMessages(newMessages);
             if (loading) setLoading(false);
+        },
+        (error) => {
+            console.error("Message stream error:", error);
+            toast({
+                variant: "destructive",
+                title: "Could not load chat",
+                description: error.message,
+            });
+            setLoading(false);
         });
 
         return () => unsubscribe();
 
-    }, [currentUser, peerId, loading]);
+    }, [currentUser, peerId, loading, toast]);
 
     const handleSendMessage = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -62,8 +80,13 @@ export default function ChatPage() {
         try {
             await sendMessage(chatRoomId, currentUser.uid, newMessage);
             setNewMessage("");
-        } catch (error) {
+        } catch (error: any) {
             console.error("Failed to send message:", error);
+            toast({
+                variant: "destructive",
+                title: "Failed to send message",
+                description: error.message,
+            });
         }
     };
 
