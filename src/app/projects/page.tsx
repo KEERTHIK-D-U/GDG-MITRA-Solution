@@ -7,18 +7,21 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import Image from "next/image";
 import { getProjects, type Project, contributeToProject } from "@/lib/firebase";
-import { GitBranch, Inbox } from "lucide-react";
+import { GitBranch, Inbox, Search } from "lucide-react";
 import { useAuth, useRequireAuth } from "@/context/auth-context";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Input } from "@/components/ui/input";
 
 export default function ProjectsPage() {
   useRequireAuth();
   const { user, loading: authLoading } = useAuth();
   const { toast } = useToast();
   const [projects, setProjects] = useState<Project[]>([]);
+  const [filteredProjects, setFilteredProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [contributing, setContributing] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     if (authLoading) {
@@ -31,10 +34,24 @@ export default function ProjectsPage() {
     setLoading(true);
     const unsubscribe = getProjects((fetchedProjects) => {
       setProjects(fetchedProjects);
+      setFilteredProjects(fetchedProjects);
       setLoading(false);
     });
     return () => unsubscribe();
   }, [user, authLoading]);
+
+  useEffect(() => {
+    const lowercasedFilter = searchTerm.toLowerCase();
+    const filtered = projects.filter((project) => {
+      return (
+        project.title.toLowerCase().includes(lowercasedFilter) ||
+        project.description.toLowerCase().includes(lowercasedFilter) ||
+        project.tags.some(tag => tag.toLowerCase().includes(lowercasedFilter))
+      );
+    });
+    setFilteredProjects(filtered);
+  }, [searchTerm, projects]);
+
 
   const handleContribute = async (project: Project) => {
     if (!user) {
@@ -76,7 +93,7 @@ export default function ProjectsPage() {
   return (
     <div className="bg-background">
       <div className="container mx-auto px-4 md:px-6 py-12">
-        <div className="flex flex-col items-start space-y-4 mb-12">
+        <div className="flex flex-col items-start space-y-4 mb-8">
           <h1 className="text-4xl md:text-5xl font-bold tracking-tight font-headline">
             Open Source Projects
           </h1>
@@ -84,14 +101,27 @@ export default function ProjectsPage() {
             Contribute to meaningful projects, learn new skills, and build your portfolio.
           </p>
         </div>
+        
+        <div className="mb-12 w-full max-w-lg">
+            <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                <Input
+                  type="search"
+                  placeholder="Search projects by title, tech, or description..."
+                  className="w-full pl-10 pr-4 py-3 text-base rounded-full"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </div>
+        </div>
 
         {isLoading ? (
            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-96 w-full" />)}
            </div>
-        ) : projects.length > 0 ? (
+        ) : filteredProjects.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {projects.map((project) => (
+            {filteredProjects.map((project) => (
               <Card key={project.id} className="flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-2 hover:border-[#222222] hover:shadow-[#02006c]/40 dark:hover:border-[#00e97b] dark:hover:shadow-[#00e97b]/30">
                 <CardHeader className="p-0">
                   <Image
@@ -129,9 +159,13 @@ export default function ProjectsPage() {
         ) : (
           <div className="flex flex-col items-center justify-center text-center py-16 px-4 border-2 border-dashed rounded-lg">
             <Inbox className="w-16 h-16 text-muted-foreground" />
-            <h3 className="mt-4 text-xl font-semibold">No Projects Found</h3>
+            <h3 className="mt-4 text-xl font-semibold">
+              {searchTerm ? "No Matching Projects Found" : "No Projects Found"}
+            </h3>
             <p className="mt-2 text-muted-foreground">
-              There are no open source projects listed right now. Ask a host to create one!
+              {searchTerm
+                ? "Try a different search term."
+                : "There are no open source projects listed right now. Ask a host to create one!"}
             </p>
           </div>
         )}

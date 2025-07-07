@@ -6,18 +6,21 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { getHackathons, type Hackathon } from "@/lib/firebase";
-import { ArrowRight, Calendar, Inbox } from "lucide-react";
+import { ArrowRight, Calendar, Inbox, Search } from "lucide-react";
 import { useAuth, useRequireAuth } from "@/context/auth-context";
 import { HackathonRegistrationDialog } from "@/components/hackathon-registration-dialog";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Input } from "@/components/ui/input";
 
 export default function HackathonsPage() {
   useRequireAuth();
   const { user, loading: authLoading } = useAuth();
   
   const [hackathons, setHackathons] = useState<Hackathon[]>([]);
+  const [filteredHackathons, setFilteredHackathons] = useState<Hackathon[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedHackathon, setSelectedHackathon] = useState<Hackathon | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     if (authLoading) {
@@ -30,10 +33,22 @@ export default function HackathonsPage() {
     setLoading(true);
     const unsubscribe = getHackathons((fetchedHackathons) => {
       setHackathons(fetchedHackathons);
+      setFilteredHackathons(fetchedHackathons);
       setLoading(false);
     });
     return () => unsubscribe();
   }, [user, authLoading]);
+
+  useEffect(() => {
+    const lowercasedFilter = searchTerm.toLowerCase();
+    const filtered = hackathons.filter((hackathon) => {
+      return (
+        hackathon.title.toLowerCase().includes(lowercasedFilter) ||
+        hackathon.description.toLowerCase().includes(lowercasedFilter)
+      );
+    });
+    setFilteredHackathons(filtered);
+  }, [searchTerm, hackathons]);
 
   const handleRegisterClick = (hackathon: Hackathon) => {
     setSelectedHackathon(hackathon);
@@ -45,7 +60,7 @@ export default function HackathonsPage() {
     <>
       <div className="bg-background">
         <div className="container mx-auto px-4 md:px-6 py-12">
-          <div className="flex flex-col items-start space-y-4 mb-12">
+          <div className="flex flex-col items-start space-y-4 mb-8">
             <h1 className="text-4xl md:text-5xl font-bold tracking-tight font-headline">
               Hackathons
             </h1>
@@ -53,14 +68,27 @@ export default function HackathonsPage() {
               Challenge yourself, build innovative projects, and win amazing prizes.
             </p>
           </div>
+          
+           <div className="mb-12 w-full max-w-lg">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                <Input
+                  type="search"
+                  placeholder="Search for hackathons..."
+                  className="w-full pl-10 pr-4 py-3 text-base rounded-full"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </div>
+            </div>
 
           {isLoading ? (
              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                {Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-96 w-full" />)}
             </div>
-          ) : hackathons.length > 0 ? (
+          ) : filteredHackathons.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {hackathons.map((hackathon) => (
+              {filteredHackathons.map((hackathon) => (
                 <Card key={hackathon.id} className="flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-2 hover:border-[#222222] hover:shadow-[#02006c]/40 dark:hover:border-[#00e97b] dark:hover:shadow-[#00e97b]/30">
                   <CardHeader className="p-0">
                     <Image
@@ -94,9 +122,13 @@ export default function HackathonsPage() {
           ) : (
             <div className="flex flex-col items-center justify-center text-center py-16 px-4 border-2 border-dashed rounded-lg">
               <Inbox className="w-16 h-16 text-muted-foreground" />
-              <h3 className="mt-4 text-xl font-semibold">No Hackathons Found</h3>
+              <h3 className="mt-4 text-xl font-semibold">
+                {searchTerm ? "No Matching Hackathons Found" : "No Hackathons Found"}
+              </h3>
               <p className="mt-2 text-muted-foreground">
-                There are no hackathons scheduled at the moment. Stay tuned!
+                {searchTerm 
+                  ? "Try adjusting your search."
+                  : "There are no hackathons scheduled at the moment. Stay tuned!"}
               </p>
             </div>
           )}

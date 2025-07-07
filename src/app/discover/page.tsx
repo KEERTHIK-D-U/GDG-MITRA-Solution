@@ -17,8 +17,10 @@ export default function DiscoverPage() {
   const { user, loading: authLoading } = useAuth();
 
   const [events, setEvents] = useState<Event[]>([]);
+  const [filteredEvents, setFilteredEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     // Wait for authentication to complete before fetching data
@@ -33,11 +35,25 @@ export default function DiscoverPage() {
     setLoading(true);
     const unsubscribe = getEvents((fetchedEvents) => {
       setEvents(fetchedEvents);
+      setFilteredEvents(fetchedEvents);
       setLoading(false);
     });
     // Cleanup subscription on unmount
     return () => unsubscribe();
   }, [user, authLoading]);
+
+  useEffect(() => {
+    const lowercasedFilter = searchTerm.toLowerCase();
+    const filtered = events.filter((event) => {
+      return (
+        event.title.toLowerCase().includes(lowercasedFilter) ||
+        event.description.toLowerCase().includes(lowercasedFilter) ||
+        event.location.toLowerCase().includes(lowercasedFilter)
+      );
+    });
+    setFilteredEvents(filtered);
+  }, [searchTerm, events]);
+
 
   const handleRegisterClick = (event: Event) => {
     setSelectedEvent(event);
@@ -61,8 +77,10 @@ export default function DiscoverPage() {
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                 <Input
                   type="search"
-                  placeholder="Search for events, hackathons, or projects..."
+                  placeholder="Search for events by title, location, or keyword..."
                   className="w-full pl-10 pr-4 py-3 text-base rounded-full"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
                 />
               </div>
             </div>
@@ -73,9 +91,9 @@ export default function DiscoverPage() {
              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-80 w-full" />)}
              </div>
-          ) : events.length > 0 ? (
+          ) : filteredEvents.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {events.map((event) => (
+              {filteredEvents.map((event) => (
                 <Card key={event.id} className="overflow-hidden flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-2 hover:border-[#222222] hover:shadow-[#02006c]/40 dark:hover:border-[#00e97b] dark:hover:shadow-[#00e97b]/30">
                   <CardHeader className="p-0">
                     <Image
@@ -115,9 +133,13 @@ export default function DiscoverPage() {
           ) : (
             <div className="flex flex-col items-center justify-center text-center py-16 px-4 border-2 border-dashed rounded-lg">
               <Inbox className="w-16 h-16 text-muted-foreground" />
-              <h3 className="mt-4 text-xl font-semibold">No Events Found</h3>
+               <h3 className="mt-4 text-xl font-semibold">
+                {searchTerm ? "No Matching Events Found" : "No Events Found"}
+              </h3>
               <p className="mt-2 text-muted-foreground">
-                There are no upcoming events at the moment. Check back later or ask a host to create one!
+                {searchTerm
+                  ? "Try searching for something else."
+                  : "There are no upcoming events at the moment. Check back later or ask a host to create one!"}
               </p>
             </div>
           )}
