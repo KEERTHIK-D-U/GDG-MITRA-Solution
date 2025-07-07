@@ -9,10 +9,11 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardFooter } from "@/components/ui/card";
-import { Send, User as UserIcon, AlertTriangle } from "lucide-react";
+import { Send, User as UserIcon, AlertTriangle, ShieldAlert } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 function getChatRoomId(user1Id: string, user2Id: string): string {
     if (!user1Id || !user2Id) return '';
@@ -31,6 +32,7 @@ export default function ChatPage() {
     const [newMessage, setNewMessage] = useState("");
     const [loading, setLoading] = useState(true);
     const [chatRoomId, setChatRoomId] = useState<string | null>(null);
+    const [chatError, setChatError] = useState<string | null>(null);
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -41,41 +43,59 @@ export default function ChatPage() {
         if (!currentUser || !peerId) return;
 
         setLoading(true);
+        setChatError(null);
         const id = getChatRoomId(currentUser.uid, peerId);
         setChatRoomId(id);
 
+        let isMounted = true;
+
         getUserProfile(peerId).then(profile => {
-            setPeerProfile(profile);
+            if (isMounted) setPeerProfile(profile);
         }).catch(error => {
             console.error("Failed to load peer profile:", error);
-            toast({
-                variant: "destructive",
-                title: "Failed to load user",
-                description: error.message,
-            });
+            if (isMounted) {
+                 toast({
+                    variant: "destructive",
+                    title: "Failed to load user",
+                    description: error.message,
+                });
+                setChatError("Could not load the other user's profile.");
+            }
         });
 
-        const unsubscribe = getMessages(id, (newMessages) => {
-            setMessages(newMessages);
-            if (loading) setLoading(false);
-        },
-        (error) => {
-            console.error("Message stream error:", error);
-            toast({
-                variant: "destructive",
-                title: "Could not load chat",
-                description: error.message,
-            });
-            setLoading(false);
-        });
+        const unsubscribe = getMessages(id, 
+            (newMessages) => {
+                if(isMounted) {
+                    setMessages(newMessages);
+                    if (loading) setLoading(false);
+                }
+            },
+            (error) => {
+                console.error("Message stream error:", error);
+                 if (isMounted) {
+                    if (!chatError) { 
+                        toast({
+                            variant: "destructive",
+                            title: "Could not load chat",
+                            description: error.message,
+                        });
+                    }
+                    setChatError(error.message);
+                    setLoading(false);
+                }
+            }
+        );
 
-        return () => unsubscribe();
+        return () => {
+            isMounted = false;
+            unsubscribe();
+        }
 
-    }, [currentUser, peerId, loading, toast]);
+    }, [currentUser, peerId, chatError, toast]);
 
     const handleSendMessage = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!newMessage.trim() || !currentUser || !chatRoomId) return;
+        if (!newMessage.trim() || !currentUser || !chatRoomId || chatError) return;
         
         try {
             await sendMessage(chatRoomId, currentUser.uid, newMessage);
@@ -87,6 +107,7 @@ export default function ChatPage() {
                 title: "Failed to send message",
                 description: error.message,
             });
+            setChatError(error.message);
         }
     };
 
@@ -128,18 +149,28 @@ export default function ChatPage() {
                             <p>Messages are temporary and will be deleted after 24 hours. No chat history is saved permanently.</p>
                         </div>
                     </div>
-                    {messages.map((msg) => (
-                        <div key={msg.id} className={cn("flex items-end gap-2", msg.senderId === currentUser?.uid ? "justify-end" : "justify-start")}>
-                           {msg.senderId !== currentUser?.uid && (
-                               <Avatar className="h-8 w-8">
-                                    <AvatarFallback>{peerProfile.name.charAt(0).toUpperCase()}</AvatarFallback>
-                               </Avatar>
-                           )}
-                           <div className={cn("max-w-xs md:max-w-md p-3 rounded-lg", msg.senderId === currentUser?.uid ? "bg-primary text-primary-foreground" : "bg-secondary")}>
-                                <p className="text-sm">{msg.text}</p>
-                           </div>
-                        </div>
-                    ))}
+                    {chatError ? (
+                        <Alert variant="destructive" className="mt-4">
+                            <ShieldAlert className="h-4 w-4" />
+                            <AlertTitle>Chat Error</AlertTitle>
+                            <AlertDescription>
+                                {chatError}
+                            </AlertDescription>
+                        </Alert>
+                    ) : (
+                        messages.map((msg) => (
+                            <div key={msg.id} className={cn("flex items-end gap-2", msg.senderId === currentUser?.uid ? "justify-end" : "justify-start")}>
+                               {msg.senderId !== currentUser?.uid && (
+                                   <Avatar className="h-8 w-8">
+                                        <AvatarFallback>{peerProfile.name.charAt(0).toUpperCase()}</AvatarFallback>
+                                   </Avatar>
+                               )}
+                               <div className={cn("max-w-xs md:max-w-md p-3 rounded-lg", msg.senderId === currentUser?.uid ? "bg-primary text-primary-foreground" : "bg-secondary")}>
+                                    <p className="text-sm">{msg.text}</p>
+                               </div>
+                            </div>
+                        ))
+                    )}
                     <div ref={messagesEndRef} />
                 </CardContent>
                 <CardFooter className="p-4 border-t">
@@ -149,8 +180,9 @@ export default function ChatPage() {
                             onChange={(e) => setNewMessage(e.target.value)}
                             placeholder="Type a message..."
                             autoComplete="off"
+                            disabled={!!chatError}
                         />
-                        <Button type="submit" size="icon" disabled={!newMessage.trim()}>
+                        <Button type="submit" size="icon" disabled={!newMessage.trim() || !!chatError}>
                             <Send className="h-4 w-4"/>
                             <span className="sr-only">Send</span>
                         </Button>
