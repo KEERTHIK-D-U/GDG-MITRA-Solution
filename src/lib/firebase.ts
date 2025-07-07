@@ -1,3 +1,4 @@
+
 // Important: This file reads your Firebase configuration from environment variables.
 // Make sure to populate the .env.local file with your project's credentials.
 const firebaseConfig = {
@@ -11,7 +12,7 @@ const firebaseConfig = {
 
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
-import { getFirestore, doc, setDoc, getDoc, collection, addDoc, serverTimestamp, getDocs, query, where, deleteDoc, onSnapshot, orderBy } from "firebase/firestore";
+import { getFirestore, doc, setDoc, getDoc, collection, addDoc, serverTimestamp, getDocs, query, where, deleteDoc, onSnapshot, orderBy, limit } from "firebase/firestore";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import type { User as FirebaseUser } from 'firebase/auth';
 
@@ -100,6 +101,13 @@ export interface Hackathon {
     imageUrl: string;
     hostId: string;
     hostName: string;
+    createdAt: any; // Firestore Timestamp
+}
+
+export interface ChatMessage {
+    id: string;
+    text: string;
+    senderId: string;
     createdAt: any; // Firestore Timestamp
 }
 
@@ -498,6 +506,38 @@ export const getMentors = (currentUserId: string, callback: (users: UserProfile[
         callback(mentors);
     }, (error) => {
         console.error("Failed to subscribe to mentor updates:", error);
+    });
+};
+
+// --- Chat Functions ---
+
+export const sendMessage = async (chatRoomId: string, senderId: string, text: string) => {
+    if (!text.trim()) return;
+    const messagesRef = collection(db, "chats", chatRoomId, "messages");
+    try {
+        await addDoc(messagesRef, {
+            senderId,
+            text,
+            createdAt: serverTimestamp(),
+        });
+    } catch (error: any) {
+        console.error("Error sending message:", error);
+        throw new Error("Failed to send message.");
+    }
+};
+
+export const getMessages = (chatRoomId: string, callback: (messages: ChatMessage[]) => void) => {
+    const messagesRef = collection(db, "chats", chatRoomId, "messages");
+    const q = query(messagesRef, orderBy("createdAt", "asc"), limit(50));
+
+    return onSnapshot(q, (snapshot) => {
+        const messages = snapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+        } as ChatMessage));
+        callback(messages);
+    }, (error) => {
+        console.error("Error getting messages:", error);
     });
 };
 

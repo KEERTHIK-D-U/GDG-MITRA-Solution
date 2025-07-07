@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth, useRequireAuth } from "@/context/auth-context";
 import { type UserProfile, getMentors } from "@/lib/firebase";
-import { Linkedin, Users, User as UserIcon, School, Mail, GraduationCap } from "lucide-react";
+import { Linkedin, Users, User as UserIcon, School, Mail, GraduationCap, MessageSquare } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
@@ -23,7 +23,6 @@ const UserCardSkeleton = () => (
             </div>
         </CardHeader>
         <CardContent className="mt-auto flex justify-end gap-2 p-4">
-            <Skeleton className="h-10 w-10" />
             <Skeleton className="h-10 w-28" />
         </CardContent>
     </Card>
@@ -91,22 +90,11 @@ export default function MentorsPage() {
                                 </div>
                             </CardHeader>
                            <CardContent className="mt-auto flex items-center justify-end gap-2 p-4 pt-2">
-                                <Button variant="outline" size="icon" asChild>
-                                    <a href={`mailto:${user.email}`} aria-label={`Email ${user.name}`}>
-                                        <Mail className="h-4 w-4" />
-                                    </a>
+                                <Button asChild>
+                                    <Link href={`/chat/${user.uid}`}>
+                                        <MessageSquare className="mr-2 h-4 w-4" /> Chat
+                                    </Link>
                                 </Button>
-                                {user.linkedinUrl ? (
-                                    <Button asChild>
-                                        <Link href={user.linkedinUrl} target="_blank" rel="noopener noreferrer">
-                                            <Linkedin className="mr-2 h-4 w-4" /> Connect
-                                        </Link>
-                                    </Button>
-                                ) : (
-                                    <Button variant="outline" disabled>
-                                        <Linkedin className="mr-2 h-4 w-4" /> Not Available
-                                    </Button>
-                                )}
                             </CardContent>
                         </Card>
                     ))}
