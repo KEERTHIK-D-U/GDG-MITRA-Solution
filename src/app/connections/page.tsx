@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth, useRequireAuth } from "@/context/auth-context";
 import { type UserProfile, db } from "@/lib/firebase";
-import { Linkedin, Users, User as UserIcon, School, Mail, GraduationCap, MessageSquare } from "lucide-react";
+import { Linkedin, Users, User as UserIcon, School, Mail, GraduationCap } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
@@ -107,9 +107,9 @@ export default function ConnectionsPage() {
                             </CardHeader>
                             <CardContent className="mt-auto flex items-center justify-end gap-2 p-4 pt-2">
                                 <Button asChild>
-                                    <Link href={`/chat/${user.uid}`}>
-                                        <MessageSquare className="mr-2 h-4 w-4" /> Chat
-                                    </Link>
+                                    <a href={`mailto:${user.email}`}>
+                                        <Mail className="mr-2 h-4 w-4" /> Contact
+                                    </a>
                                 </Button>
                             </CardContent>
                         </Card>
