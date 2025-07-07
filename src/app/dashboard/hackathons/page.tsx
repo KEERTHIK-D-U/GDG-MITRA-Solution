@@ -79,7 +79,7 @@ export default function ManageHackathonsPage() {
         }
         setIsSubmitting(true);
         try {
-            let imageUrl = `https://placehold.co/400x225.png`;
+            let imageUrl = `https://placehold.co/600x400.png`;
             if (data.image && data.image.length > 0) {
                 imageUrl = await uploadImage(data.image[0]);
             }
@@ -134,7 +134,7 @@ export default function ManageHackathonsPage() {
                 {hackathons.map((hackathon) => (
                     <Card key={hackathon.id} className="overflow-hidden flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-2 hover:border-[#222222] hover:shadow-[#02006c]/40 dark:hover:border-[#00e97b] dark:hover:shadow-[#00e97b]/30">
                         <CardHeader className="p-0">
-                            <Image src={hackathon.imageUrl} alt={hackathon.title} width={400} height={225} className="w-full h-40 object-cover" data-ai-hint="hackathon code" />
+                            <Image src={hackathon.imageUrl} alt={hackathon.title} width={600} height={400} className="w-full h-40 object-cover" data-ai-hint="hackathon code" />
                         </CardHeader>
                         <CardContent className="p-4 flex-grow">
                             <CardTitle className="text-xl mb-2 font-headline">{hackathon.title}</CardTitle>

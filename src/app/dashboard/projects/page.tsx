@@ -80,7 +80,7 @@ export default function ManageProjectsPage() {
         }
         setIsSubmitting(true);
         try {
-            let imageUrl = `https://placehold.co/400x225.png`;
+            let imageUrl = `https://placehold.co/600x400.png`;
              if (data.image && data.image.length > 0) {
                 imageUrl = await uploadImage(data.image[0]);
             }
@@ -135,7 +135,7 @@ export default function ManageProjectsPage() {
                 {projects.map((project) => (
                     <Card key={project.id} className="overflow-hidden flex flex-col">
                         <CardHeader className="p-0">
-                            <Image src={project.imageUrl} alt={project.title} width={400} height={225} className="w-full h-40 object-cover" data-ai-hint="project code" />
+                            <Image src={project.imageUrl} alt={project.title} width={600} height={400} className="w-full h-40 object-cover" data-ai-hint="code project" />
                         </CardHeader>
                         <CardContent className="p-4 flex-grow">
                             <CardTitle className="text-xl mb-2 font-headline">{project.title}</CardTitle>

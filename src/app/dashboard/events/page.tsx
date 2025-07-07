@@ -81,7 +81,7 @@ export default function ManageEventsPage() {
         }
         setIsSubmitting(true);
         try {
-            let imageUrl = `https://placehold.co/400x250.png`;
+            let imageUrl = `https://placehold.co/600x400.png`;
             if (data.image && data.image.length > 0) {
                 imageUrl = await uploadImage(data.image[0]);
             }
@@ -137,7 +137,7 @@ export default function ManageEventsPage() {
                 {events.map((event) => (
                     <Card key={event.id} className="overflow-hidden flex flex-col">
                         <CardHeader className="p-0">
-                            <Image src={event.imageUrl} alt={event.title} width={400} height={250} className="w-full h-40 object-cover" data-ai-hint="event community" />
+                            <Image src={event.imageUrl} alt={event.title} width={600} height={400} className="w-full h-40 object-cover" data-ai-hint="event community" />
                         </CardHeader>
                         <CardContent className="p-4 flex-grow">
                             <CardTitle className="text-xl mb-2 font-headline">{event.title}</CardTitle>
