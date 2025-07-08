@@ -97,3 +97,37 @@ service cloud.firestore {
   }
 }
 ```
+
+## 🎨 Using a Custom Logo
+
+The application uses a text-based logo by default. If you want to use your own image logo, follow these steps:
+
+1.  **Create the `public` directory**: In the root of your project, create a new folder named `public`.
+
+2.  **Add your logo**: Place your logo file inside the `public` folder. The app is configured to look for a file named `logo.png`. So, your file path should be `public/logo.png`.
+
+3.  **Update the Logo Component**: Once your logo is in place, replace the entire content of `src/components/logo.tsx` with the following code to display it:
+
+    ```tsx
+    import Image from 'next/image';
+    import { cn } from '@/lib/utils';
+
+    interface LogoProps {
+      className?: string;
+      width?: number;
+      height?: number;
+    }
+
+    export function Logo({ className, width = 100, height = 35 }: LogoProps) {
+      return (
+        <Image
+          src="/logo.png" // This path points to public/logo.png
+          alt="Mitra Logo"
+          width={width}
+          height={height}
+          className={cn(className)}
+          priority
+        />
+      );
+    }
+    ```
