@@ -28,7 +28,7 @@ export function AiMentorDialog({ isOpen, onOpenChange }: AiMentorDialogProps) {
     const { user } = useAuth();
     const { toast } = useToast();
     const messagesEndRef = useRef<HTMLDivElement>(null);
-    const { theme } = useTheme();
+    const { resolvedTheme } = useTheme();
 
     const [messages, setMessages] = useState<Message[]>([]);
     const [input, setInput] = useState("");
@@ -88,7 +88,7 @@ export function AiMentorDialog({ isOpen, onOpenChange }: AiMentorDialogProps) {
         <Dialog open={isOpen} onOpenChange={onOpenChange}>
             <DialogContent className={cn(
                 "sm:max-w-2xl h-[80vh] flex flex-col p-0 gap-0",
-                theme === 'light' ? 'dark' : 'force-light-theme'
+                resolvedTheme === 'light' ? 'dark' : 'force-light-theme'
             )}>
                  <DialogHeader className="p-6 pb-2 border-b">
                     <DialogTitle className="flex items-center gap-2">
