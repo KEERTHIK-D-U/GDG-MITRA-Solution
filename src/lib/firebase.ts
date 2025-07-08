@@ -507,25 +507,43 @@ export const getHackathons = (callback: (hackathons: Hackathon[]) => void, onErr
 
 // Functions to get host-specific items (for dashboard)
 export const getEventsByHost = (hostId: string, callback: (events: Event[]) => void, onError: (error: Error) => void) => {
-    const q = query(collection(db, "events"), where("hostId", "==", hostId), orderBy("createdAt", "desc"));
+    const q = query(collection(db, "events"), where("hostId", "==", hostId));
     return onSnapshot(q, (snapshot) => {
         const events = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Event));
+        events.sort((a, b) => {
+            if (a.createdAt && b.createdAt) {
+                return b.createdAt.toDate().getTime() - a.createdAt.toDate().getTime();
+            }
+            return 0;
+        });
         callback(events);
     }, (error) => handleSnapshotError(error, "events", onError));
 };
 
 export const getProjectsByHost = (hostId: string, callback: (projects: Project[]) => void, onError: (error: Error) => void) => {
-    const q = query(collection(db, "projects"), where("hostId", "==", hostId), orderBy("createdAt", "desc"));
+    const q = query(collection(db, "projects"), where("hostId", "==", hostId));
     return onSnapshot(q, (snapshot) => {
         const projects = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Project));
+        projects.sort((a, b) => {
+            if (a.createdAt && b.createdAt) {
+                return b.createdAt.toDate().getTime() - a.createdAt.toDate().getTime();
+            }
+            return 0;
+        });
         callback(projects);
     }, (error) => handleSnapshotError(error, "projects", onError));
 };
 
 export const getHackathonsByHost = (hostId: string, callback: (hackathons: Hackathon[]) => void, onError: (error: Error) => void) => {
-    const q = query(collection(db, "hackathons"), where("hostId", "==", hostId), orderBy("createdAt", "desc"));
+    const q = query(collection(db, "hackathons"), where("hostId", "==", hostId));
     return onSnapshot(q, (snapshot) => {
         const hackathons = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Hackathon));
+        hackathons.sort((a, b) => {
+            if (a.createdAt && b.createdAt) {
+                return b.createdAt.toDate().getTime() - a.createdAt.toDate().getTime();
+            }
+            return 0;
+        });
         callback(hackathons);
     }, (error) => handleSnapshotError(error, "hackathons", onError));
 };
