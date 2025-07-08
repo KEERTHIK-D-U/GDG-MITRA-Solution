@@ -16,7 +16,7 @@ import { Badge } from "@/components/ui/badge";
 import { useAuth, useRequireAuth } from "@/context/auth-context";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
-import { createProject, getProjectsByHost, type Project, deleteProject, uploadImage } from "@/lib/firebase";
+import { createProject, getProjectsByHost, type Project, deleteProject, uploadImage, getContributionsForProject, type ProjectContribution } from "@/lib/firebase";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   AlertDialog,
@@ -28,6 +28,9 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { format } from "date-fns";
 
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
 
@@ -47,6 +50,48 @@ const formSchema = z.object({
 });
 
 type FormValues = z.infer<typeof formSchema>;
+
+const ContributionsList = ({ projectId }: { projectId: string }) => {
+    const [contributions, setContributions] = useState<ProjectContribution[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const unsubscribe = getContributionsForProject(projectId, (data) => {
+            setContributions(data);
+            setLoading(false);
+        });
+        return () => unsubscribe();
+    }, [projectId]);
+
+    if (loading) {
+        return <Skeleton className="h-24 w-full" />;
+    }
+
+    if (contributions.length === 0) {
+        return <p className="text-sm text-muted-foreground text-center py-4">No interested contributors yet.</p>;
+    }
+    
+    return (
+        <Table>
+            <TableHeader>
+                <TableRow>
+                    <TableHead>Name</TableHead>
+                    <TableHead>Email</TableHead>
+                    <TableHead className="text-right">Date</TableHead>
+                </TableRow>
+            </TableHeader>
+            <TableBody>
+                {contributions.map(reg => (
+                    <TableRow key={reg.id}>
+                        <TableCell>{reg.userName}</TableCell>
+                        <TableCell>{reg.userEmail}</TableCell>
+                        <TableCell className="text-right">{format(reg.contributedAt.toDate(), "PPP")}</TableCell>
+                    </TableRow>
+                ))}
+            </TableBody>
+        </Table>
+    );
+};
 
 export default function ManageProjectsPage() {
     useRequireAuth('host');
@@ -74,7 +119,7 @@ export default function ManageProjectsPage() {
     }, [user]);
 
     const onSubmit = async (data: FormValues) => {
-        if (!user) {
+        if (!user || !user.email) {
             toast({ variant: "destructive", title: "Authentication Error", description: "You must be logged in to create a project." });
             return;
         }
@@ -92,6 +137,7 @@ export default function ManageProjectsPage() {
                 imageUrl: imageUrl,
                 hostId: user.uid,
                 hostName: user.name || "Anonymous Host",
+                hostEmail: user.email,
             });
             toast({ title: "Project Created!", description: `"${data.title}" has been successfully published.` });
             form.reset();
@@ -131,31 +177,41 @@ export default function ManageProjectsPage() {
                 {Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-80 w-full" />)}
             </div>
         ) : projects.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <Accordion type="single" collapsible className="w-full space-y-4">
                 {projects.map((project) => (
-                    <Card key={project.id} className="overflow-hidden flex flex-col">
-                        <CardHeader className="p-0">
-                            <Image src={project.imageUrl} alt={project.title} width={600} height={400} className="w-full h-40 object-cover" data-ai-hint="code project" />
-                        </CardHeader>
-                        <CardContent className="p-4 flex-grow">
-                            <CardTitle className="text-xl mb-2 font-headline">{project.title}</CardTitle>
-                            <p className="text-sm text-muted-foreground mb-4">{project.description}</p>
-                            <div className="flex flex-wrap gap-2">
-                                {project.tags.map((tag) => (
-                                    <Badge key={tag} variant="secondary">{tag}</Badge>
-                                ))}
-                            </div>
-                        </CardContent>
-                         <CardFooter className="p-4 bg-secondary/30 flex items-center justify-between">
-                            <p className="text-xs text-muted-foreground">Hosted by: {project.hostName}</p>
-                            <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:bg-destructive/10" onClick={() => setProjectToDelete(project)}>
-                                <Trash2 className="h-4 w-4" />
-                                <span className="sr-only">Delete project</span>
-                            </Button>
-                        </CardFooter>
-                    </Card>
+                     <AccordionItem value={project.id} key={project.id} className="border-b-0">
+                        <Card className="overflow-hidden flex flex-col">
+                            <AccordionTrigger className="hover:no-underline p-0 text-left w-full">
+                                <CardHeader className="p-0">
+                                    <Image src={project.imageUrl} alt={project.title} width={600} height={400} className="w-full h-40 object-cover" data-ai-hint="code project" />
+                                </CardHeader>
+                                <CardContent className="p-4 flex-grow">
+                                    <CardTitle className="text-xl mb-2 font-headline">{project.title}</CardTitle>
+                                    <p className="text-sm text-muted-foreground mb-4">{project.description}</p>
+                                    <div className="flex flex-wrap gap-2">
+                                        {project.tags.map((tag) => (
+                                            <Badge key={tag} variant="secondary">{tag}</Badge>
+                                        ))}
+                                    </div>
+                                </CardContent>
+                                <CardFooter className="p-4 bg-secondary/30 flex items-center justify-between">
+                                    <p className="text-xs text-muted-foreground">Hosted by: {project.hostName}</p>
+                                    <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:bg-destructive/10" onClick={(e) => {e.stopPropagation(); setProjectToDelete(project);}}>
+                                        <Trash2 className="h-4 w-4" />
+                                        <span className="sr-only">Delete project</span>
+                                    </Button>
+                                </CardFooter>
+                            </AccordionTrigger>
+                            <AccordionContent>
+                                <div className="p-6 border-t">
+                                    <h3 className="text-lg font-semibold mb-4">Interested Contributors</h3>
+                                    <ContributionsList projectId={project.id} />
+                                </div>
+                            </AccordionContent>
+                        </Card>
+                    </AccordionItem>
                 ))}
-            </div>
+            </Accordion>
         ) : (
             <div className="flex flex-col items-center justify-center text-center py-16 px-4 border-2 border-dashed rounded-lg">
                 <Inbox className="w-16 h-16 text-muted-foreground" />
@@ -187,7 +243,7 @@ export default function ManageProjectsPage() {
                                 name="image"
                                 render={({ field }) => (
                                   <FormItem>
-                                    <FormLabel>Cover Image</FormLabel>
+                                    <FormLabel>Cover Image (Optional)</FormLabel>
                                     <FormControl>
                                        <div className="relative">
                                           <Upload className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />

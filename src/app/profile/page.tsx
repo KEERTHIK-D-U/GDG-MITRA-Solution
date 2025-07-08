@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Code, GitBranch, Hand, Linkedin, User as UserIcon, School, GraduationCap } from "lucide-react";
+import { Code, GitBranch, Hand, Linkedin, User as UserIcon, School, GraduationCap, HandHeart } from "lucide-react";
 import * as React from "react";
 import { useAuth, useRequireAuth } from "@/context/auth-context";
 import { useToast } from "@/hooks/use-toast";
@@ -24,6 +24,7 @@ type HistoryItem = {
     title: string;
     date: Date;
     type: 'event' | 'hackathon' | 'project';
+    registrationType?: 'participant' | 'volunteer';
 };
 
 export default function ProfilePage() {
@@ -71,14 +72,16 @@ export default function ProfilePage() {
                         id: r.id,
                         title: r.eventTitle,
                         date: r.registeredAt.toDate(),
-                        type: 'event'
+                        type: 'event',
+                        registrationType: r.registrationType
                     }));
 
                     const hackathons: HistoryItem[] = hackathonRegs.map(r => ({
                         id: r.id,
                         title: r.hackathonTitle,
                         date: r.registeredAt.toDate(),
-                        type: 'hackathon'
+                        type: 'hackathon',
+                        registrationType: r.registrationType
                     }));
                     
                     const projects: HistoryItem[] = projectConts.map(r => ({
@@ -219,12 +222,15 @@ export default function ProfilePage() {
                                                 {format(item.date, "PPP")}
                                             </p>
                                         </div>
-                                        <Badge variant="outline" className="capitalize mt-2 sm:mt-0">
-                                            {item.type === 'event' && <Hand className="mr-2 h-4 w-4 text-green-500" />}
-                                            {item.type === 'hackathon' && <Code className="mr-2 h-4 w-4 text-blue-500" />}
-                                            {item.type === 'project' && <GitBranch className="mr-2 h-4 w-4 text-purple-500" />}
-                                            {item.type} Contribution
-                                        </Badge>
+                                        <div className="flex items-center gap-2">
+                                            {item.registrationType && <Badge variant="outline" className="capitalize">{item.registrationType}</Badge>}
+                                            <Badge variant="outline" className="capitalize">
+                                                {item.type === 'event' && <HandHeart className="mr-2 h-4 w-4 text-green-500" />}
+                                                {item.type === 'hackathon' && <Code className="mr-2 h-4 w-4 text-blue-500" />}
+                                                {item.type === 'project' && <GitBranch className="mr-2 h-4 w-4 text-purple-500" />}
+                                                {item.type}
+                                            </Badge>
+                                        </div>
                                     </div>
                                 ))
                             ) : (

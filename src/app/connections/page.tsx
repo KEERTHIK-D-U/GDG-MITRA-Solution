@@ -44,7 +44,7 @@ export default function ConnectionsPage() {
 
         const usersRef = collection(db, "users");
         // Query for all user roles except admin.
-        const q = query(usersRef, where("role", "in", ["volunteer", "host", "mentor"]));
+        const q = query(usersRef, where("role", "in", ["user", "host", "mentor"]));
 
         const unsubscribe = onSnapshot(q, (snapshot) => {
             const usersData = snapshot.docs
@@ -70,7 +70,7 @@ export default function ConnectionsPage() {
                     Community Connections
                 </h1>
                 <p className="max-w-2xl text-lg text-muted-foreground font-subheading">
-                    Discover and connect with other volunteers, hosts, and mentors in the Mitra community.
+                    Discover and connect with other users, hosts, and mentors in the Mitra community.
                 </p>
             </div>
 

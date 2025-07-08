@@ -14,8 +14,7 @@ import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth, createUserProfile, UserRole } from "@/lib/firebase";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { Eye, EyeOff, HandHeart, Trophy, User } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { Eye, EyeOff, User, Trophy, GraduationCap } from "lucide-react";
 
 const formSchema = z.object({
   fullName: z.string().min(2, { message: "Name must be at least 2 characters." }),
@@ -26,7 +25,7 @@ const formSchema = z.object({
     .regex(/[a-z]/, { message: "Password must contain at least one lowercase letter." })
     .regex(/[0-9]/, { message: "Password must contain at least one number." })
     .regex(/[^A-Za-z0-9]/, { message: "Password must contain at least one special character." }),
-  role: z.enum(["volunteer", "host", "mentor"], { required_error: "You must select a role." }),
+  role: z.enum(["user", "host", "mentor"], { required_error: "You must select a role." }),
   college: z.string().min(1, { message: "College name is required." }),
   linkedinUrl: z.string().url({ message: "Please enter a valid URL." }).optional().or(z.literal('')),
 });
@@ -34,9 +33,9 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>;
 
 const roleInfo = {
-    volunteer: {
-        icon: HandHeart,
-        title: "Contributor",
+    user: {
+        icon: User,
+        title: "Community Member",
         description: "Join events, contribute to projects, and make a difference in the community.",
     },
     host: {
@@ -45,7 +44,7 @@ const roleInfo = {
         description: "Organize events, create projects, and host hackathons for the community.",
     },
     mentor: {
-        icon: User,
+        icon: GraduationCap,
         title: "Guide",
         description: "Share your experience and support fellow community members on their journey.",
     }
@@ -112,7 +111,7 @@ export default function SignupPage() {
         <CardHeader className="text-center">
           <CardTitle className="text-2xl font-headline">Join Mitra</CardTitle>
           <CardDescription>
-            {selectedRole ? `You've selected the ${selectedRole} role. Fill out the details to join.` : "First, choose your role in our community."}
+            {selectedRole ? `You've selected the ${roleInfo[selectedRole].title} role. Fill out the details to join.` : "First, choose your role in our community."}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -124,7 +123,7 @@ export default function SignupPage() {
                         <Card 
                             key={role} 
                             onClick={() => handleRoleSelect(role)}
-                            className="text-center p-6 cursor-pointer border hover:bg-accent hover:border-primary transition-all"
+                            className="text-center p-6 cursor-pointer border-2 border-transparent hover:bg-accent hover:border-primary transition-all"
                         >
                             <div className="flex justify-center mb-4">
                                 <RoleIcon className="w-10 h-10 text-primary" />

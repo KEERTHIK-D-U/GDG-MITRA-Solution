@@ -35,7 +35,7 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 const storage = getStorage(app);
 
-export type UserRole = "volunteer" | "host" | "admin" | "mentor";
+export type UserRole = "user" | "host" | "admin" | "mentor";
 
 export interface UserProfile {
     uid: string;
@@ -49,23 +49,33 @@ export interface UserProfile {
     hasCompletedTutorial?: boolean;
 }
 
+export type RegistrationType = 'participant' | 'volunteer';
+
 export interface EventRegistration {
     id: string;
     userId: string;
+    userName: string;
+    userEmail: string;
     eventTitle: string;
     registeredAt: any;
+    registrationType: RegistrationType;
 }
 
 export interface HackathonRegistration {
     id: string;
     userId: string;
+    userName: string;
+    userEmail: string;
     hackathonTitle: string;
     registeredAt: any; // Firestore Timestamp
+    registrationType: RegistrationType;
 }
 
 export interface ProjectContribution {
     id: string;
     userId: string;
+    userName: string;
+    userEmail: string;
     projectTitle: string;
     contributedAt: any; // Firestore Timestamp
 }
@@ -79,6 +89,7 @@ export interface Event {
     imageUrl: string;
     hostId: string;
     hostName: string;
+    hostEmail: string;
     createdAt: any; // Firestore Timestamp
 }
 
@@ -90,6 +101,7 @@ export interface Project {
     tags: string[];
     hostId: string;
     hostName: string;
+    hostEmail: string;
     createdAt: any; // Firestore Timestamp
 }
 
@@ -101,6 +113,7 @@ export interface Hackathon {
     imageUrl: string;
     hostId: string;
     hostName: string;
+    hostEmail: string;
     createdAt: any; // Firestore Timestamp
 }
 
@@ -274,13 +287,14 @@ export const testFirestoreConnection = async (uid: string) => {
 
 
 // Function to register a user for an event
-export const registerForEvent = async (userId: string, userName: string | null, userEmail: string | null, eventId: string, eventTitle: string) => {
+export const registerForEvent = async (userId: string, userName: string | null, userEmail: string | null, eventId: string, eventTitle: string, registrationType: RegistrationType) => {
     const registrationData = {
         userId,
         userName,
         userEmail,
         eventId: eventId,
         eventTitle,
+        registrationType,
         registeredAt: serverTimestamp(),
     };
     try {
@@ -296,13 +310,14 @@ export const registerForEvent = async (userId: string, userName: string | null, 
 };
 
 // Function to register a user for a hackathon
-export const registerForHackathon = async (userId: string, userName: string | null, userEmail: string | null, hackathonId: string, hackathonTitle: string) => {
+export const registerForHackathon = async (userId: string, userName: string | null, userEmail: string | null, hackathonId: string, hackathonTitle: string, registrationType: RegistrationType) => {
     const registrationData = {
         userId,
         userName,
         userEmail,
         hackathonId: hackathonId,
         hackathonTitle,
+        registrationType,
         registeredAt: serverTimestamp(),
     };
     try {
@@ -484,6 +499,32 @@ export const getHackathonsByHost = (hostId: string, callback: (hackathons: Hacka
         callback(sortedHackathons);
     });
 };
+
+// Functions to get registrations for the host dashboard
+export const getRegistrationsForEvent = (eventId: string, callback: (registrations: EventRegistration[]) => void) => {
+    const q = query(collection(db, "registrations"), where("eventId", "==", eventId), orderBy("registeredAt", "desc"));
+    return onSnapshot(q, (snapshot) => {
+        const registrations = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as EventRegistration));
+        callback(registrations);
+    });
+};
+
+export const getRegistrationsForHackathon = (hackathonId: string, callback: (registrations: HackathonRegistration[]) => void) => {
+    const q = query(collection(db, "hackathonRegistrations"), where("hackathonId", "==", hackathonId), orderBy("registeredAt", "desc"));
+    return onSnapshot(q, (snapshot) => {
+        const registrations = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as HackathonRegistration));
+        callback(registrations);
+    });
+};
+
+export const getContributionsForProject = (projectId: string, callback: (contributions: ProjectContribution[]) => void) => {
+    const q = query(collection(db, "projectContributions"), where("projectId", "==", projectId), orderBy("contributedAt", "desc"));
+    return onSnapshot(q, (snapshot) => {
+        const contributions = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as ProjectContribution));
+        callback(contributions);
+    });
+};
+
 
 export const getMentors = (currentUserId: string, callback: (users: UserProfile[]) => void) => {
     const usersRef = collection(db, "users");

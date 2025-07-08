@@ -22,12 +22,12 @@ export default function Home() {
               Connect, Collaborate, Contribute.
             </h1>
             <p className="max-w-3xl text-lg md:text-xl text-primary-foreground/90 font-subheading">
-              Mitra is the bridge between passionate volunteers and impactful opportunities. Discover local events, contribute to open-source projects, and be the change your community needs.
+              Mitra is the bridge between passionate community members and impactful opportunities. Discover local events, contribute to open-source projects, and be the change your community needs.
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
               <Button asChild size="lg">
                 <Link href="/signup">
-                  Become a Volunteer
+                  Join the Community
                 </Link>
               </Button>
               <Button asChild size="lg" variant="secondary">
