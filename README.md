@@ -95,3 +95,31 @@ service cloud.firestore {
   }
 }
 ```
+
+## 🚀 Pushing to GitHub
+
+To push this project to your own GitHub repository, follow these steps.
+
+1.  **Create a new repository on GitHub**: Go to [GitHub](https://github.com/new) and create a new, empty repository. Do **not** initialize it with a README, .gitignore, or license file.
+
+2.  **Run the following commands in your terminal**:
+
+    ```bash
+    # Initialize a new Git repository and switch to the 'main' branch
+    git init -b main
+
+    # Add all files to the staging area
+    git add .
+
+    # Commit your changes
+    git commit -m "Initial commit"
+
+    # Add your new GitHub repository as the remote origin
+    # Replace YOUR_USERNAME and YOUR_REPOSITORY with your actual GitHub details
+    git remote add origin https://github.com/YOUR_USERNAME/YOUR_REPOSITORY.git
+
+    # Push your code to GitHub
+    git push -u origin main
+    ```
+
+3.  **Done!** Your code is now safely stored on GitHub.
