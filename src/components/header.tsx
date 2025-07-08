@@ -12,7 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Menu, User, LogOut, LayoutDashboard, Compass, ShieldCheck, UserPlus, LogInIcon, Users, GraduationCap, Code, Trophy } from "lucide-react";
+import { Menu, User, LogOut, LayoutDashboard, Compass, ShieldCheck, UserPlus, LogInIcon, Users, GraduationCap, Code, Trophy, Bot } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "./ui/sheet";
 import { cn } from "@/lib/utils";
@@ -31,6 +31,7 @@ const loggedInLinks = [
   { href: "/projects", label: "Projects", icon: Code },
   { href: "/connections", label: "Connections", icon: Users },
   { href: "/mentors", label: "Mentors", icon: GraduationCap },
+  { href: "/ai-mentor", label: "AI Mentor", icon: Bot },
 ];
 
 export function Header() {
