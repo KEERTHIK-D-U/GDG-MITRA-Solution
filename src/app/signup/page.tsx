@@ -47,8 +47,8 @@ const roleInfo = {
     },
     mentor: {
         icon: GraduationCap,
-        title: "Guide",
-        description: "Share your experience and support fellow community members.",
+        title: "Mentor",
+        description: "Share your experience and guide members on their career path.",
     }
 }
 

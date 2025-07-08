@@ -11,10 +11,10 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        body: ['"Inter"', 'sans-serif'],
-        headline: ['"Inter"', 'sans-serif'],
-        subheading: ['"Inter"', 'sans-serif'],
-        logo: ['"Orbitron"', 'sans-serif'],
+        body: ['var(--font-inter)', 'sans-serif'],
+        headline: ['var(--font-inter)', 'sans-serif'],
+        subheading: ['var(--font-inter)', 'sans-serif'],
+        logo: ['var(--font-orbitron)', 'sans-serif'],
         code: ['monospace'],
       },
       colors: {
