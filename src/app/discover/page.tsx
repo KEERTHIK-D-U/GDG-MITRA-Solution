@@ -12,6 +12,8 @@ import { EventRegistrationDialog } from "@/components/event-registration-dialog"
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 
+declare const anime: any;
+
 export default function DiscoverPage() {
   useRequireAuth(); // Protect this route for any logged-in user
   const { user, loading: authLoading } = useAuth();
@@ -88,6 +90,21 @@ export default function DiscoverPage() {
 
   const isLoading = authLoading || loading || registrationsLoading;
 
+  useEffect(() => {
+    if (!isLoading && filteredEvents.length > 0) {
+      if (typeof anime === 'undefined') return;
+      anime({
+        targets: '.event-card',
+        translateY: [20, 0],
+        opacity: [0, 1],
+        duration: 500,
+        delay: anime.stagger(100),
+        easing: 'easeOutQuad'
+      });
+    }
+  }, [isLoading, filteredEvents.length]);
+
+
   return (
     <>
       <div className="w-full bg-background text-foreground">
@@ -130,7 +147,7 @@ export default function DiscoverPage() {
                 const isRegistered = userRegistrations.has(event.id);
                 const isHost = user?.uid === event.hostId;
                 return (
-                  <Card key={event.id} className="overflow-hidden flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-primary/50 hover:shadow-primary/20 dark:hover:shadow-primary/20">
+                  <Card key={event.id} className="event-card opacity-0 overflow-hidden flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-primary/50 hover:shadow-primary/20 dark:hover:shadow-primary/20">
                     <CardHeader className="p-4 flex-grow">
                       <h3 className="text-xl mb-2 font-semibold">{event.title}</h3>
                       <div className="text-muted-foreground space-y-2">

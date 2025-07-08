@@ -5,6 +5,7 @@ import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/logo";
 import Link from "next/link";
+import { cn } from "@/lib/utils";
 
 declare const anime: any;
 
@@ -54,14 +55,18 @@ export default function Home() {
 
   return (
     <div className="w-full bg-background text-foreground">
-      <section className="h-[60vh] md:h-[80vh] flex items-center justify-center text-center bg-gradient-to-br from-primary to-slate-900 dark:from-slate-300 dark:to-slate-900 overflow-hidden">
+      <section className={cn(
+        "h-[60vh] md:h-[80vh] flex items-center justify-center text-center overflow-hidden",
+        "bg-gradient-to-br from-primary via-slate-800 to-slate-900 dark:from-slate-300 dark:via-slate-900 dark:to-black",
+        "bg-animated-gradient"
+      )}>
         <div className="container mx-auto px-4 md:px-6">
           <div className="flex flex-col items-center space-y-6">
-            <h1 id="hero-title" className="text-4xl md:text-6xl font-bold tracking-tighter !leading-tight font-headline text-primary-foreground dark:text-slate-900 opacity-0">
-              From Classroom Theory to Real-World Impact.
+            <h1 id="hero-title" className="text-4xl md:text-6xl font-bold tracking-tighter !leading-tight font-headline text-primary-foreground dark:text-slate-50 opacity-0">
+              Your Campus Community, Reimagined.
             </h1>
-            <p id="hero-p" className="max-w-3xl text-lg md:text-xl text-primary-foreground/90 dark:text-slate-900 font-subheading opacity-0">
-              Mitra is where your technical skills meet opportunity. Contribute to open-source, join hackathons, find mentors, and turn your knowledge into a powerful portfolio.
+            <p id="hero-p" className="max-w-3xl text-lg md:text-xl text-primary-foreground/90 dark:text-slate-200 font-subheading opacity-0">
+              Mitra bridges the gap between your skills and real-world impact. Join events, contribute to open-source projects, and find mentors—all in one place.
             </p>
             <div id="hero-buttons" className="flex flex-col sm:flex-row gap-4">
               <Button asChild size="lg">

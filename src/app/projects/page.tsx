@@ -12,6 +12,8 @@ import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
 
+declare const anime: any;
+
 export default function ProjectsPage() {
   useRequireAuth();
   const { user, loading: authLoading } = useAuth();
@@ -108,6 +110,21 @@ export default function ProjectsPage() {
   }
 
   const isLoading = authLoading || loading || contributionsLoading;
+  
+  useEffect(() => {
+    if (!isLoading && filteredProjects.length > 0) {
+      if (typeof anime === 'undefined') return;
+      anime({
+        targets: '.project-card',
+        translateY: [20, 0],
+        opacity: [0, 1],
+        duration: 500,
+        delay: anime.stagger(100),
+        easing: 'easeOutQuad'
+      });
+    }
+  }, [isLoading, filteredProjects.length]);
+
 
   return (
     <div className="bg-background">
@@ -150,7 +167,7 @@ export default function ProjectsPage() {
               const hasContributed = userContributions.has(project.id);
               const isHost = user?.uid === project.hostId;
               return (
-                <Card key={project.id} className="flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-primary/50 hover:shadow-primary/20 dark:hover:shadow-primary/20">
+                <Card key={project.id} className="project-card opacity-0 flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-primary/50 hover:shadow-primary/20 dark:hover:shadow-primary/20">
                   <CardHeader className="p-6">
                     <h3 className="text-2xl mb-2 font-semibold">{project.title}</h3>
                     <p className="text-muted-foreground mb-4 line-clamp-3">{project.description}</p>

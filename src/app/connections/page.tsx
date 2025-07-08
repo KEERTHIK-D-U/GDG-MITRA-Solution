@@ -12,6 +12,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 
+declare const anime: any;
+
 const UserCardSkeleton = () => (
     <Card className="flex flex-col">
         <CardHeader className="flex flex-row items-center gap-4">
@@ -62,6 +64,21 @@ export default function ConnectionsPage() {
 
         return () => unsubscribe();
     }, [currentUser, toast]);
+    
+    useEffect(() => {
+        if (!loading && users.length > 0) {
+            if (typeof anime === 'undefined') return;
+            anime({
+                targets: '.user-card',
+                translateY: [20, 0],
+                opacity: [0, 1],
+                duration: 500,
+                delay: anime.stagger(100),
+                easing: 'easeOutQuad'
+            });
+        }
+    }, [loading, users.length]);
+
 
     return (
         <div className="container mx-auto px-4 md:px-6 py-12">
@@ -86,7 +103,7 @@ export default function ConnectionsPage() {
             ) : users.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                     {users.map((user) => (
-                        <Card key={user.uid} className="flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-primary/50 hover:shadow-primary/20 dark:hover:shadow-primary/20">
+                        <Card key={user.uid} className="user-card opacity-0 flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-primary/50 hover:shadow-primary/20 dark:hover:shadow-primary/20">
                             <CardHeader className="flex flex-row items-center gap-4">
                                 <Avatar className="h-12 w-12">
                                     <AvatarFallback>{user.name ? user.name.charAt(0).toUpperCase() : <UserIcon />}</AvatarFallback>

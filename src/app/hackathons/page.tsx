@@ -12,6 +12,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 
+declare const anime: any;
+
 export default function HackathonsPage() {
   useRequireAuth();
   const { user, loading: authLoading } = useAuth();
@@ -83,6 +85,21 @@ export default function HackathonsPage() {
   
   const isLoading = authLoading || loading || registrationsLoading;
 
+  useEffect(() => {
+    if (!isLoading && filteredHackathons.length > 0) {
+      if (typeof anime === 'undefined') return;
+      anime({
+        targets: '.hackathon-card',
+        translateY: [20, 0],
+        opacity: [0, 1],
+        duration: 500,
+        delay: anime.stagger(100),
+        easing: 'easeOutQuad'
+      });
+    }
+  }, [isLoading, filteredHackathons.length]);
+
+
   return (
     <>
       <div className="bg-background">
@@ -125,7 +142,7 @@ export default function HackathonsPage() {
                 const isRegistered = userRegistrations.has(hackathon.id);
                 const isHost = user?.uid === hackathon.hostId;
                 return (
-                  <Card key={hackathon.id} className="flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-primary/50 hover:shadow-primary/20 dark:hover:shadow-primary/20">
+                  <Card key={hackathon.id} className="hackathon-card opacity-0 flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-primary/50 hover:shadow-primary/20 dark:hover:shadow-primary/20">
                     <CardHeader className="p-6 flex-grow">
                       <h3 className="text-2xl mb-2 font-semibold">{hackathon.title}</h3>
                       <div className="flex items-center text-muted-foreground mb-4">
