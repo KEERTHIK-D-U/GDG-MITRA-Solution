@@ -25,15 +25,9 @@ const loggedOutLinks = [
   { href: "/", label: "Home" },
 ];
 
-const defaultLoggedInLinks = [
+const loggedInLinks = [
   { href: "/discover", label: "Discover", icon: Compass },
   { href: "/hackathons", label: "Hackathons", icon: Trophy },
-  { href: "/projects", label: "Projects", icon: Code },
-  { href: "/connections", label: "Connections", icon: Users },
-  { href: "/mentors", label: "Mentors", icon: GraduationCap },
-];
-
-const mentorLinks = [
   { href: "/projects", label: "Projects", icon: Code },
   { href: "/connections", label: "Connections", icon: Users },
   { href: "/mentors", label: "Mentors", icon: GraduationCap },
@@ -45,11 +39,7 @@ export function Header() {
   const { user, loading } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  const navLinks = user
-    ? user.role === 'mentor'
-      ? mentorLinks
-      : defaultLoggedInLinks
-    : loggedOutLinks;
+  const navLinks = user ? loggedInLinks : loggedOutLinks;
 
   const handleLogout = async () => {
     await auth.signOut();

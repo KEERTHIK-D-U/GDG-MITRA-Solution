@@ -75,7 +75,7 @@ export default function DashboardPage() {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              <Card className="transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-2 hover:border-[#222222] hover:shadow-[#02006c]/40 dark:hover:border-[#00e97b] dark:hover:shadow-[#00e97b]/30">
+              <Card className="transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-primary/50 hover:shadow-primary/20 dark:hover:shadow-primary/20">
                   <CardHeader>
                       <CardTitle className="flex items-center justify-between">
                           <span>My Events</span>
@@ -87,7 +87,7 @@ export default function DashboardPage() {
                       <p className="text-sm text-muted-foreground">Total events hosted</p>
                   </CardContent>
               </Card>
-              <Card className="transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-2 hover:border-[#222222] hover:shadow-[#02006c]/40 dark:hover:border-[#00e97b] dark:hover:shadow-[#00e97b]/30">
+              <Card className="transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-primary/50 hover:shadow-primary/20 dark:hover:shadow-primary/20">
                   <CardHeader>
                       <CardTitle className="flex items-center justify-between">
                           <span>My Projects</span>
@@ -99,7 +99,7 @@ export default function DashboardPage() {
                       <p className="text-sm text-muted-foreground">Total projects managed</p>
                   </CardContent>
               </Card>
-              <Card className="transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-2 hover:border-[#222222] hover:shadow-[#02006c]/40 dark:hover:border-[#00e97b] dark:hover:shadow-[#00e97b]/30">
+              <Card className="transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-primary/50 hover:shadow-primary/20 dark:hover:shadow-primary/20">
                   <CardHeader>
                       <CardTitle className="flex items-center justify-between">
                           <span>My Hackathons</span>

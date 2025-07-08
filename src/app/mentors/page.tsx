@@ -88,7 +88,7 @@ export default function MentorsPage() {
             ) : mentors.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                     {mentors.map((user) => (
-                        <Card key={user.uid} className="flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-2 hover:border-[#222222] hover:shadow-[#02006c]/40 dark:hover:border-[#00e97b] dark:hover:shadow-[#00e97b]/30">
+                        <Card key={user.uid} className="flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-primary/50 hover:shadow-primary/20 dark:hover:shadow-primary/20">
                             <CardHeader className="flex flex-row items-center gap-4">
                                 <Avatar className="h-12 w-12">
                                     <AvatarFallback>{user.name ? user.name.charAt(0).toUpperCase() : <UserIcon />}</AvatarFallback>
@@ -98,7 +98,7 @@ export default function MentorsPage() {
                                     <div className="flex flex-wrap gap-1 mt-1">
                                         <Badge variant="default" className="capitalize"><GraduationCap className="w-3 h-3 mr-1"/>Mentor</Badge>
                                         {currentUser?.college && user.college && currentUser.college.trim().toLowerCase() === user.college.trim().toLowerCase() && (
-                                            <Badge variant="outline" className="capitalize border-green-500 text-green-500"><GraduationCap className="w-3 h-3 mr-1"/>Alumni</Badge>
+                                            <Badge variant="outline" className="capitalize border-primary text-primary"><GraduationCap className="w-3 h-3 mr-1"/>Alumni</Badge>
                                         )}
                                     </div>
                                     {user.college && (

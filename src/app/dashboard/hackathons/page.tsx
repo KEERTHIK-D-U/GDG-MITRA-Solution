@@ -170,7 +170,7 @@ export default function ManageHackathonsPage() {
         ) : hackathons.length > 0 ? (
             <div className="space-y-6">
                 {hackathons.map((hackathon) => (
-                    <Card key={hackathon.id} className="overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-2 hover:border-[#222222] hover:shadow-[#02006c]/40 dark:hover:border-[#00e97b] dark:hover:shadow-[#00e97b]/30">
+                    <Card key={hackathon.id} className="overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-primary/50 hover:shadow-primary/20 dark:hover:shadow-primary/20">
                         <CardHeader className="p-6">
                              <div className="flex justify-between items-start gap-4">
                                 <div>
@@ -206,7 +206,7 @@ export default function ManageHackathonsPage() {
         )}
 
         <div id="add-hackathon-form" className="pt-16">
-            <Card className="max-w-3xl mx-auto transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-2 hover:border-[#222222] hover:shadow-[#02006c]/40 dark:hover:border-[#00e97b] dark:hover:shadow-[#00e97b]/30">
+            <Card className="max-w-3xl mx-auto transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-primary/50 hover:shadow-primary/20 dark:hover:shadow-primary/20">
                 <CardHeader>
                     <CardTitle>Create a New Hackathon</CardTitle>
                     <CardDescription>Fill out the details below to list your hackathon.</CardDescription>

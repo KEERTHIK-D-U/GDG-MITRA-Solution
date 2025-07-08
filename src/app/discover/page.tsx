@@ -130,7 +130,7 @@ export default function DiscoverPage() {
                 const isRegistered = userRegistrations.has(event.id);
                 const isHost = user?.uid === event.hostId;
                 return (
-                  <Card key={event.id} className="overflow-hidden flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-2 hover:border-[#222222] hover:shadow-[#02006c]/40 dark:hover:border-[#00e97b] dark:hover:shadow-[#00e97b]/30">
+                  <Card key={event.id} className="overflow-hidden flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-primary/50 hover:shadow-primary/20 dark:hover:shadow-primary/20">
                     <CardHeader className="p-4 flex-grow">
                       <h3 className="text-xl mb-2 font-semibold">{event.title}</h3>
                       <div className="text-muted-foreground space-y-2">

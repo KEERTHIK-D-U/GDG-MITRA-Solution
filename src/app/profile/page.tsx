@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Code, GitBranch, Hand, Linkedin, User as UserIcon, School, GraduationCap, HandHeart, LayoutDashboard } from "lucide-react";
+import { Code, GitBranch, HandHeart, Linkedin, User as UserIcon, School, GraduationCap, LayoutDashboard } from "lucide-react";
 import * as React from "react";
 import { useAuth, useRequireAuth } from "@/context/auth-context";
 import { useToast } from "@/hooks/use-toast";
@@ -18,6 +18,7 @@ import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
+import { WelcomeTutorial } from "@/components/welcome-tutorial";
 
 type HistoryItem = {
     id: string;
@@ -45,6 +46,16 @@ export default function ProfilePage() {
     const [combinedHistory, setCombinedHistory] = useState<HistoryItem[]>([]);
     const [historyLoading, setHistoryLoading] = useState(true);
 
+    // Tutorial state
+    const [isTutorialOpen, setIsTutorialOpen] = useState(false);
+
+    // Effect to check if we should show the tutorial
+    useEffect(() => {
+        if (user && !user.hasCompletedTutorial) {
+            setIsTutorialOpen(true);
+        }
+    }, [user]);
+    
     // Effect to populate form when user data loads
     useEffect(() => {
         if (user) {
@@ -153,6 +164,22 @@ export default function ProfilePage() {
             setIsTesting(false);
         }
     };
+    
+    const handleFinishTutorial = async () => {
+        setIsTutorialOpen(false);
+        if (user) {
+            try {
+                await updateUserProfile(user.uid, { hasCompletedTutorial: true });
+                setUser(prev => prev ? { ...prev, hasCompletedTutorial: true } : null);
+            } catch (error: any) {
+                toast({
+                    variant: "destructive",
+                    title: "Update Failed",
+                    description: "Could not save tutorial completion status."
+                });
+            }
+        }
+    };
 
     if (loading || !user) {
         // You can add a more sophisticated skeleton loader here
@@ -160,163 +187,166 @@ export default function ProfilePage() {
     }
 
     return (
-        <div className="container mx-auto px-4 md:px-6 py-12">
-            <div className="flex flex-col md:flex-row items-center md:items-start gap-8 mb-12">
-                <div className="relative">
-                    <Avatar className="w-32 h-32 border-4 border-background shadow-md">
-                        <AvatarFallback><UserIcon className="w-16 h-16" /></AvatarFallback>
-                    </Avatar>
-                </div>
-                <div className="text-center md:text-left flex-1">
-                    <h1 className="text-4xl font-bold font-headline">{user.name}</h1>
-                    <p className="text-muted-foreground">{user.email}</p>
-                    <div className="flex flex-wrap gap-2 justify-center md:justify-start mt-2">
-                        <Badge variant="secondary" className="capitalize">{user.role}</Badge>
-                         {user.role === 'mentor' && (
-                            <Badge variant="default"><GraduationCap className="w-3 h-3 mr-1"/>Mentor</Badge>
-                        )}
-                         {user.role === 'host' && (
-                            <Badge variant="default"><HandHeart className="w-3 h-3 mr-1"/>Host</Badge>
-                        )}
+        <>
+            {user && <WelcomeTutorial user={user} isOpen={isTutorialOpen} onFinish={handleFinishTutorial} />}
+            <div className="container mx-auto px-4 md:px-6 py-12">
+                <div className="flex flex-col md:flex-row items-center md:items-start gap-8 mb-12">
+                    <div className="relative">
+                        <Avatar className="w-32 h-32 border-4 border-background shadow-md">
+                            <AvatarFallback><UserIcon className="w-16 h-16" /></AvatarFallback>
+                        </Avatar>
                     </div>
-                     {user.college && (
-                        <p className="text-muted-foreground mt-2 flex items-center justify-center md:justify-start">
-                            <School className="w-4 h-4 mr-1.5"/>
-                            {user.college}
-                        </p>
-                     )}
-                     {user.linkedinUrl && (
-                        <div className="mt-2">
-                             <Button variant="link" asChild className="p-0 h-auto">
-                                <Link href={user.linkedinUrl} target="_blank" rel="noopener noreferrer">
-                                    <Linkedin className="mr-2 h-4 w-4" />
-                                    LinkedIn Profile
-                                </Link>
-                            </Button>
-                        </div>
-                    )}
-                     {user.bio && (
-                        <blockquote className="mt-4 text-muted-foreground italic border-l-2 pl-4 font-subheading">
-                           {user.bio}
-                        </blockquote>
-                    )}
-                    {user.techStacks && (
-                        <div className="mt-4">
-                            <h3 className="font-semibold mb-2 text-lg">Tech Stacks</h3>
-                            <div className="flex flex-wrap gap-2 justify-center md:justify-start">
-                                {user.techStacks.split(',').map((stack, index) => (
-                                    <Badge key={`${stack.trim()}-${index}`} variant="secondary">{stack.trim()}</Badge>
-                                ))}
-                            </div>
-                        </div>
-                    )}
-                </div>
-                 <div className="flex-shrink-0 self-center md:self-start">
-                    {user.role === 'host' && (
-                        <Button asChild size="lg">
-                            <Link href="/dashboard">
-                                <LayoutDashboard className="mr-2 h-4 w-4" /> Go to Dashboard
-                            </Link>
-                        </Button>
-                    )}
-                </div>
-            </div>
-
-            <Tabs defaultValue="history" className="w-full">
-                <TabsList className="grid w-full grid-cols-2">
-                    <TabsTrigger value="history">Contribution History</TabsTrigger>
-                    <TabsTrigger value="profile">Edit Profile</TabsTrigger>
-                </TabsList>
-
-                <TabsContent value="history">
-                    <Card className="transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-2 hover:border-[#222222] hover:shadow-[#02006c]/40 dark:hover:border-[#00e97b] dark:hover:shadow-[#00e97b]/30">
-                        <CardHeader>
-                            <CardTitle>Contribution History</CardTitle>
-                            <CardDescription>A record of your event registrations, hackathon sign-ups, and project contributions.</CardDescription>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                            {historyLoading ? (
-                                Array.from({ length: 3 }).map((_, i) => (
-                                    <div key={i} className="p-4 rounded-lg border flex justify-between items-center gap-2">
-                                        <div className="space-y-2">
-                                            <Skeleton className="h-4 w-48" />
-                                            <Skeleton className="h-4 w-32" />
-                                        </div>
-                                        <Skeleton className="h-8 w-32" />
-                                    </div>
-                                ))
-                            ) : combinedHistory.length > 0 ? (
-                                combinedHistory.map((item) => (
-                                    <div key={item.id} className="p-4 rounded-lg border flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-                                        <div>
-                                            <h3 className="font-semibold">{item.title}</h3>
-                                            <p className="text-sm text-muted-foreground">
-                                                {item.type === 'project' ? 'Contribution recorded on: ' : 'Registered on: '}
-                                                {format(item.date, "PPP")}
-                                            </p>
-                                        </div>
-                                        <div className="flex items-center gap-2">
-                                            {item.registrationType && <Badge variant="outline" className="capitalize">{item.registrationType}</Badge>}
-                                            <Badge variant="outline" className="capitalize">
-                                                {item.type === 'event' && <HandHeart className="mr-2 h-4 w-4 text-green-500" />}
-                                                {item.type === 'hackathon' && <Code className="mr-2 h-4 w-4 text-blue-500" />}
-                                                {item.type === 'project' && <GitBranch className="mr-2 h-4 w-4 text-purple-500" />}
-                                                {item.type}
-                                            </Badge>
-                                        </div>
-                                    </div>
-                                ))
-                            ) : (
-                                <p className="text-muted-foreground text-center py-8">No history yet. Register for an event or contribute to a project to get started!</p>
+                    <div className="text-center md:text-left flex-1">
+                        <h1 className="text-4xl font-bold font-headline">{user.name}</h1>
+                        <p className="text-muted-foreground">{user.email}</p>
+                        <div className="flex flex-wrap gap-2 justify-center md:justify-start mt-2">
+                            <Badge variant="secondary" className="capitalize">{user.role}</Badge>
+                             {user.role === 'mentor' && (
+                                <Badge variant="default"><GraduationCap className="w-3 h-3 mr-1"/>Mentor</Badge>
                             )}
-                        </CardContent>
-                    </Card>
-                </TabsContent>
-                
-                <TabsContent value="profile">
-                    <Card className="transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-2 hover:border-[#222222] hover:shadow-[#02006c]/40 dark:hover:border-[#00e97b] dark:hover:shadow-[#00e97b]/30">
-                        <CardHeader>
-                            <CardTitle>Profile Details</CardTitle>
-                            <CardDescription>Update your personal information.</CardDescription>
-                        </CardHeader>
-                        <CardContent className="space-y-6">
-                            <div className="space-y-2">
-                                <Label htmlFor="name">Full Name</Label>
-                                <Input id="name" value={name} onChange={(e) => setName(e.target.value)} />
-                            </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="college">College</Label>
-                                <Input id="college" placeholder="e.g., Institute of Technology" value={college} onChange={(e) => setCollege(e.target.value)} />
-                            </div>
-                             <div className="space-y-2">
-                                <Label htmlFor="linkedin">LinkedIn Profile URL</Label>
-                                <Input id="linkedin" placeholder="https://linkedin.com/in/your-profile" value={linkedinUrl} onChange={(e) => setLinkedinUrl(e.target.value)} />
-                            </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="bio">Your Bio</Label>
-                                <Textarea id="bio" placeholder="Tell the community a little about yourself..." value={bio} onChange={(e) => setBio(e.target.value)} />
-                            </div>
-                             <div className="space-y-2">
-                                <Label htmlFor="tech-stacks">Tech Stacks</Label>
-                                <Input id="tech-stacks" placeholder="e.g., React, Next.js, Firebase" value={techStacks} onChange={(e) => setTechStacks(e.target.value)} />
-                                <p className="text-sm text-muted-foreground">Comma-separated list of your technical skills.</p>
-                            </div>
-                            <Button onClick={handleSaveChanges} disabled={isSaving}>
-                                {isSaving ? "Saving..." : "Save Changes"}
-                            </Button>
-                            <div className="border-t pt-6 mt-6">
-                                <h4 className="text-lg font-medium mb-2">Connection Diagnostics</h4>
-                                <p className="text-sm text-muted-foreground mb-4">
-                                    If you're experiencing errors (e.g., permission denied), use this button to test if your app can write to your user profile in Firestore.
-                                </p>
-                                <Button variant="outline" onClick={handleTestConnection} disabled={isTesting}>
-                                    {isTesting ? "Testing..." : "Test Firestore Connection"}
+                             {user.role === 'host' && (
+                                <Badge variant="default"><HandHeart className="w-3 h-3 mr-1"/>Host</Badge>
+                            )}
+                        </div>
+                         {user.college && (
+                            <p className="text-muted-foreground mt-2 flex items-center justify-center md:justify-start">
+                                <School className="w-4 h-4 mr-1.5"/>
+                                {user.college}
+                            </p>
+                         )}
+                         {user.linkedinUrl && (
+                            <div className="mt-2">
+                                 <Button variant="link" asChild className="p-0 h-auto">
+                                    <Link href={user.linkedinUrl} target="_blank" rel="noopener noreferrer">
+                                        <Linkedin className="mr-2 h-4 w-4" />
+                                        LinkedIn Profile
+                                    </Link>
                                 </Button>
                             </div>
-                        </CardContent>
-                    </Card>
-                </TabsContent>
-            </Tabs>
-        </div>
+                        )}
+                         {user.bio && (
+                            <blockquote className="mt-4 text-muted-foreground italic border-l-2 pl-4 font-subheading">
+                               {user.bio}
+                            </blockquote>
+                        )}
+                        {user.techStacks && (
+                            <div className="mt-4">
+                                <h3 className="font-semibold mb-2 text-lg">Tech Stacks</h3>
+                                <div className="flex flex-wrap gap-2 justify-center md:justify-start">
+                                    {user.techStacks.split(',').map((stack, index) => (
+                                        <Badge key={`${stack.trim()}-${index}`} variant="secondary">{stack.trim()}</Badge>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                     <div className="flex-shrink-0 self-center md:self-start">
+                        {user.role === 'host' && (
+                            <Button asChild size="lg">
+                                <Link href="/dashboard">
+                                    <LayoutDashboard className="mr-2 h-4 w-4" /> Go to Dashboard
+                                </Link>
+                            </Button>
+                        )}
+                    </div>
+                </div>
+
+                <Tabs defaultValue="history" className="w-full">
+                    <TabsList className="grid w-full grid-cols-2">
+                        <TabsTrigger value="history">Contribution History</TabsTrigger>
+                        <TabsTrigger value="profile">Edit Profile</TabsTrigger>
+                    </TabsList>
+
+                    <TabsContent value="history">
+                        <Card className="transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-primary/50 hover:shadow-primary/20 dark:hover:shadow-primary/20">
+                            <CardHeader>
+                                <CardTitle>Contribution History</CardTitle>
+                                <CardDescription>A record of your event registrations, hackathon sign-ups, and project contributions.</CardDescription>
+                            </CardHeader>
+                            <CardContent className="space-y-4">
+                                {historyLoading ? (
+                                    Array.from({ length: 3 }).map((_, i) => (
+                                        <div key={i} className="p-4 rounded-lg border flex justify-between items-center gap-2">
+                                            <div className="space-y-2">
+                                                <Skeleton className="h-4 w-48" />
+                                                <Skeleton className="h-4 w-32" />
+                                            </div>
+                                            <Skeleton className="h-8 w-32" />
+                                        </div>
+                                    ))
+                                ) : combinedHistory.length > 0 ? (
+                                    combinedHistory.map((item) => (
+                                        <div key={item.id} className="p-4 rounded-lg border flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                                            <div>
+                                                <h3 className="font-semibold">{item.title}</h3>
+                                                <p className="text-sm text-muted-foreground">
+                                                    {item.type === 'project' ? 'Contribution recorded on: ' : 'Registered on: '}
+                                                    {format(item.date, "PPP")}
+                                                </p>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                {item.registrationType && <Badge variant="outline" className="capitalize">{item.registrationType}</Badge>}
+                                                <Badge variant="outline" className="capitalize">
+                                                    {item.type === 'event' && <HandHeart className="mr-2 h-4 w-4 text-primary" />}
+                                                    {item.type === 'hackathon' && <Code className="mr-2 h-4 w-4 text-primary" />}
+                                                    {item.type === 'project' && <GitBranch className="mr-2 h-4 w-4 text-primary" />}
+                                                    {item.type}
+                                                </Badge>
+                                            </div>
+                                        </div>
+                                    ))
+                                ) : (
+                                    <p className="text-muted-foreground text-center py-8">No history yet. Register for an event or contribute to a project to get started!</p>
+                                )}
+                            </CardContent>
+                        </Card>
+                    </TabsContent>
+                    
+                    <TabsContent value="profile">
+                        <Card className="transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-primary/50 hover:shadow-primary/20 dark:hover:shadow-primary/20">
+                            <CardHeader>
+                                <CardTitle>Profile Details</CardTitle>
+                                <CardDescription>Update your personal information.</CardDescription>
+                            </CardHeader>
+                            <CardContent className="space-y-6">
+                                <div className="space-y-2">
+                                    <Label htmlFor="name">Full Name</Label>
+                                    <Input id="name" value={name} onChange={(e) => setName(e.target.value)} />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="college">College</Label>
+                                    <Input id="college" placeholder="e.g., Institute of Technology" value={college} onChange={(e) => setCollege(e.target.value)} />
+                                </div>
+                                 <div className="space-y-2">
+                                    <Label htmlFor="linkedin">LinkedIn Profile URL</Label>
+                                    <Input id="linkedin" placeholder="https://linkedin.com/in/your-profile" value={linkedinUrl} onChange={(e) => setLinkedinUrl(e.target.value)} />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="bio">Your Bio</Label>
+                                    <Textarea id="bio" placeholder="Tell the community a little about yourself..." value={bio} onChange={(e) => setBio(e.target.value)} />
+                                </div>
+                                 <div className="space-y-2">
+                                    <Label htmlFor="tech-stacks">Tech Stacks</Label>
+                                    <Input id="tech-stacks" placeholder="e.g., React, Next.js, Firebase" value={techStacks} onChange={(e) => setTechStacks(e.target.value)} />
+                                    <p className="text-sm text-muted-foreground">Comma-separated list of your technical skills.</p>
+                                </div>
+                                <Button onClick={handleSaveChanges} disabled={isSaving}>
+                                    {isSaving ? "Saving..." : "Save Changes"}
+                                </Button>
+                                <div className="border-t pt-6 mt-6">
+                                    <h4 className="text-lg font-medium mb-2">Connection Diagnostics</h4>
+                                    <p className="text-sm text-muted-foreground mb-4">
+                                        If you're experiencing errors (e.g., permission denied), use this button to test if your app can write to your user profile in Firestore.
+                                    </p>
+                                    <Button variant="outline" onClick={handleTestConnection} disabled={isTesting}>
+                                        {isTesting ? "Testing..." : "Test Firestore Connection"}
+                                    </Button>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </TabsContent>
+                </Tabs>
+            </div>
+        </>
     );
 }

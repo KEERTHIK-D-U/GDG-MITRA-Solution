@@ -125,7 +125,7 @@ export default function HackathonsPage() {
                 const isRegistered = userRegistrations.has(hackathon.id);
                 const isHost = user?.uid === hackathon.hostId;
                 return (
-                  <Card key={hackathon.id} className="flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-2 hover:border-[#222222] hover:shadow-[#02006c]/40 dark:hover:border-[#00e97b] dark:hover:shadow-[#00e97b]/30">
+                  <Card key={hackathon.id} className="flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-primary/50 hover:shadow-primary/20 dark:hover:shadow-primary/20">
                     <CardHeader className="p-6 flex-grow">
                       <h3 className="text-2xl mb-2 font-semibold">{hackathon.title}</h3>
                       <div className="flex items-center text-muted-foreground mb-4">

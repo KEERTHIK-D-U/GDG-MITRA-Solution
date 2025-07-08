@@ -150,7 +150,7 @@ export default function ProjectsPage() {
               const hasContributed = userContributions.has(project.id);
               const isHost = user?.uid === project.hostId;
               return (
-                <Card key={project.id} className="flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-2 hover:border-[#222222] hover:shadow-[#02006c]/40 dark:hover:border-[#00e97b] dark:hover:shadow-[#00e97b]/30">
+                <Card key={project.id} className="flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-primary/50 hover:shadow-primary/20 dark:hover:shadow-primary/20">
                   <CardHeader className="p-6">
                     <h3 className="text-2xl mb-2 font-semibold">{project.title}</h3>
                     <p className="text-muted-foreground mb-4 line-clamp-3">{project.description}</p>
