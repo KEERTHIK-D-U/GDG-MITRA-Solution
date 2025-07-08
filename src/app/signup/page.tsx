@@ -117,7 +117,7 @@ export default function SignupPage() {
                         <Card 
                             key={role} 
                             onClick={() => handleRoleSelect(role as UserRole)}
-                            className="text-center p-6 cursor-pointer border-2 border-transparent hover:bg-accent hover:border-primary transition-all"
+                            className="text-center p-6 cursor-pointer border-2 hover:bg-accent hover:border-primary transition-all"
                         >
                             <div className="flex justify-center mb-4">
                                 <RoleIcon className="w-10 h-10 text-primary" />
