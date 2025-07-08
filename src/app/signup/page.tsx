@@ -12,9 +12,11 @@ import * as z from "zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth, createUserProfile, UserRole } from "@/lib/firebase";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Eye, EyeOff, User, Trophy, GraduationCap } from "lucide-react";
+
+declare const anime: any;
 
 const formSchema = z.object({
   fullName: z.string().min(2, { message: "Name must be at least 2 characters." }),
@@ -56,6 +58,20 @@ export default function SignupPage() {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [selectedRole, setSelectedRole] = useState<UserRole | null>(null);
+
+  useEffect(() => {
+    if (typeof anime === 'undefined') return;
+
+    if (!selectedRole) {
+        anime({
+            targets: '.role-card',
+            translateY: [20, 0],
+            opacity: [0, 1],
+            delay: anime.stagger(100),
+            easing: 'spring(1, 80, 10, 0)'
+        });
+    }
+  }, [selectedRole]);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -117,7 +133,7 @@ export default function SignupPage() {
                         <Card 
                             key={role} 
                             onClick={() => handleRoleSelect(role as UserRole)}
-                            className="text-center p-6 cursor-pointer border-2 hover:bg-accent hover:border-primary transition-all"
+                            className="role-card opacity-0 text-center p-6 cursor-pointer border-2 hover:bg-accent hover:border-primary transition-all"
                         >
                             <div className="flex justify-center mb-4">
                                 <RoleIcon className="w-10 h-10 text-primary" />
