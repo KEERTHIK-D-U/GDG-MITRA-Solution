@@ -6,13 +6,13 @@ import Link from "next/link";
 export default function Home() {
   return (
     <div className="w-full bg-background text-foreground">
-      <section className="h-[60vh] md:h-[80vh] flex items-center justify-center text-center text-primary-foreground bg-gradient-to-br from-primary to-slate-900 dark:from-slate-300 dark:to-slate-900">
+      <section className="h-[60vh] md:h-[80vh] flex items-center justify-center text-center text-primary-foreground dark:text-primary bg-gradient-to-br from-primary to-slate-900 dark:from-slate-300 dark:to-slate-900">
         <div className="container mx-auto px-4 md:px-6">
           <div className="flex flex-col items-center space-y-6">
             <h1 className="text-4xl md:text-6xl font-bold tracking-tighter !leading-tight font-headline">
               Connect, Collaborate, Contribute.
             </h1>
-            <p className="max-w-3xl text-lg md:text-xl text-primary-foreground/90 font-subheading">
+            <p className="max-w-3xl text-lg md:text-xl text-primary-foreground/90 dark:text-primary/90 font-subheading">
               Mitra is the bridge between passionate community members and impactful opportunities. Discover local events, contribute to open-source projects, and be the change your community needs.
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
