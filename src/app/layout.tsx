@@ -9,8 +9,8 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { Footer } from "@/components/footer";
 
 export const metadata: Metadata = {
-  title: "Mitra - Community Volunteering",
-  description: "Connect with events and projects in your community.",
+  title: "Mitra",
+  description: "The official platform for the Mitra community. Connect, collaborate, and contribute to impactful events and projects.",
 };
 
 export default function RootLayout({
