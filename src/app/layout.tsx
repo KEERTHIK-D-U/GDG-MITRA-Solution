@@ -9,6 +9,7 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { Footer } from "@/components/footer";
 import Script from "next/script";
 import { FloatingMentorButton } from "@/components/floating-mentor-button";
+import { TutorialProvider } from "@/components/tutorial-provider";
 
 export const metadata: Metadata = {
   title: "Mitra",
@@ -35,6 +36,7 @@ export default function RootLayout({
           themes={['light', 'dark']}
         >
           <AuthProvider>
+            <TutorialProvider />
             <Header />
             <main className="flex-grow">
               {children}

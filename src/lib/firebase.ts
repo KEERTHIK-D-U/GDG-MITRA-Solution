@@ -258,32 +258,6 @@ export const deleteUserProfile = async (uid: string): Promise<void> => {
     }
 };
 
-/**
- * A test function to verify Firestore connectivity.
- * Writes a 'lastTested' timestamp to the currently logged-in user's document.
- * Throws an error if the write fails.
- */
-export const testFirestoreConnection = async (uid: string) => {
-    if (!uid) {
-        throw new Error("No user ID provided for Firestore test.");
-    }
-    const userRef = doc(db, "users", uid);
-    
-    try {
-        console.log(`Attempting to update document for UID: ${uid}...`);
-        await setDoc(userRef, { lastTested: new Date() }, { merge: true });
-        console.log("Firestore update successful!");
-        return { success: true, uid: uid };
-    } catch (error: any) {
-        console.error("Firestore connectivity test failed:", error);
-        if (error.code === 'permission-denied') {
-             throw new Error("Firestore permission denied. Please check your security rules to allow writes to the 'users' collection for your user.");
-        }
-        throw new Error("Firestore connectivity test failed with a database error.");
-    }
-}
-
-
 // Function to register a user for an event
 export const registerForEvent = async (userId: string, userName: string | null, userEmail: string | null, eventId: string, eventTitle: string, registrationType: RegistrationType) => {
     const registrationData = {

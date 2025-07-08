@@ -13,12 +13,11 @@ import { useAuth, useRequireAuth } from "@/context/auth-context";
 import { useToast } from "@/hooks/use-toast";
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { updateUserProfile, getUserRegistrations, getUserHackathonRegistrations, getUserProjectContributions, testFirestoreConnection } from "@/lib/firebase";
+import { updateUserProfile, getUserRegistrations, getUserHackathonRegistrations, getUserProjectContributions } from "@/lib/firebase";
 import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
-import { WelcomeTutorial } from "@/components/welcome-tutorial";
 
 type HistoryItem = {
     id: string;
@@ -40,22 +39,11 @@ export default function ProfilePage() {
     const [techStacks, setTechStacks] = useState('');
     const [bio, setBio] = useState('');
     const [isSaving, setIsSaving] = useState(false);
-    const [isTesting, setIsTesting] = useState(false);
 
     // History state
     const [combinedHistory, setCombinedHistory] = useState<HistoryItem[]>([]);
     const [historyLoading, setHistoryLoading] = useState(true);
 
-    // Tutorial state
-    const [isTutorialOpen, setIsTutorialOpen] = useState(false);
-
-    // Effect to check if we should show the tutorial
-    useEffect(() => {
-        if (user && !user.hasCompletedTutorial) {
-            setIsTutorialOpen(true);
-        }
-    }, [user]);
-    
     // Effect to populate form when user data loads
     useEffect(() => {
         if (user) {
@@ -145,42 +133,6 @@ export default function ProfilePage() {
         }
     };
     
-    const handleTestConnection = async () => {
-        if (!user) return;
-        setIsTesting(true);
-        try {
-            await testFirestoreConnection(user.uid);
-            toast({
-                title: "Firestore Test Successful!",
-                description: "Your app can successfully write to your user profile."
-            });
-        } catch (error: any) {
-            toast({
-                variant: "destructive",
-                title: "Firestore Test Failed",
-                description: error.message,
-            });
-        } finally {
-            setIsTesting(false);
-        }
-    };
-    
-    const handleFinishTutorial = async () => {
-        setIsTutorialOpen(false);
-        if (user) {
-            try {
-                await updateUserProfile(user.uid, { hasCompletedTutorial: true });
-                setUser(prev => prev ? { ...prev, hasCompletedTutorial: true } : null);
-            } catch (error: any) {
-                toast({
-                    variant: "destructive",
-                    title: "Update Failed",
-                    description: "Could not save tutorial completion status."
-                });
-            }
-        }
-    };
-
     if (loading || !user) {
         // You can add a more sophisticated skeleton loader here
         return <div>Loading...</div>; 
@@ -188,7 +140,6 @@ export default function ProfilePage() {
 
     return (
         <>
-            {user && <WelcomeTutorial user={user} isOpen={isTutorialOpen} onFinish={handleFinishTutorial} />}
             <div className="container mx-auto px-4 md:px-6 py-12">
                 <div className="flex flex-col md:flex-row items-center md:items-start gap-8 mb-12">
                     <div className="relative">
@@ -333,15 +284,6 @@ export default function ProfilePage() {
                                 <Button onClick={handleSaveChanges} disabled={isSaving}>
                                     {isSaving ? "Saving..." : "Save Changes"}
                                 </Button>
-                                <div className="border-t pt-6 mt-6">
-                                    <h4 className="text-lg font-medium mb-2">Connection Diagnostics</h4>
-                                    <p className="text-sm text-muted-foreground mb-4">
-                                        If you're experiencing errors (e.g., permission denied), use this button to test if your app can write to your user profile in Firestore.
-                                    </p>
-                                    <Button variant="outline" onClick={handleTestConnection} disabled={isTesting}>
-                                        {isTesting ? "Testing..." : "Test Firestore Connection"}
-                                    </Button>
-                                </div>
                             </CardContent>
                         </Card>
                     </TabsContent>
