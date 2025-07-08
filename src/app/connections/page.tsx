@@ -43,8 +43,8 @@ export default function ConnectionsPage() {
         }
 
         const usersRef = collection(db, "users");
-        // Query for all user roles except admin.
-        const q = query(usersRef, where("role", "in", ["user", "host", "mentor"]));
+        // Query for user and host roles, excluding admins and mentors.
+        const q = query(usersRef, where("role", "in", ["user", "host"]));
 
         const unsubscribe = onSnapshot(q, (snapshot) => {
             const usersData = snapshot.docs
@@ -70,7 +70,7 @@ export default function ConnectionsPage() {
                     Community Connections
                 </h1>
                 <p className="max-w-2xl text-lg text-muted-foreground font-subheading">
-                    Discover and connect with other users, hosts, and mentors in the Mitra community.
+                    Discover and connect with other users and hosts in the Mitra community.
                 </p>
             </div>
 
@@ -90,9 +90,6 @@ export default function ConnectionsPage() {
                                     <CardTitle className="text-lg">{user.name || 'Community Member'}</CardTitle>
                                     <div className="flex flex-wrap gap-1 mt-1">
                                         <Badge variant="secondary" className="capitalize">{user.role}</Badge>
-                                        {user.role === 'mentor' && (
-                                            <Badge variant="default"><GraduationCap className="w-3 h-3 mr-1"/>Mentor</Badge>
-                                        )}
                                         {currentUser?.college && user.college && currentUser.college.trim().toLowerCase() === user.college.trim().toLowerCase() && (
                                             <Badge variant="outline" className="capitalize border-green-500 text-green-500"><GraduationCap className="w-3 h-3 mr-1"/>Alumni</Badge>
                                         )}
