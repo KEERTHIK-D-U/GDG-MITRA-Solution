@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import Image from "next/image";
-import { PlusCircle, Inbox, Calendar, MapPin, Trash2, Upload, Users, Mail, UserCheck, AlertTriangle } from "lucide-react";
+import { PlusCircle, Inbox, Calendar, MapPin, Trash2, Users, Mail, UserCheck, AlertTriangle } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -15,7 +15,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useAuth, useRequireAuth } from "@/context/auth-context";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
-import { createEvent, getEventsByHost, type Event, deleteEvent, uploadImage, getRegistrationsForEvent, type EventRegistration } from "@/lib/firebase";
+import { createEvent, getEventsByHost, type Event, deleteEvent, getRegistrationsForEvent, type EventRegistration } from "@/lib/firebase";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -32,23 +32,11 @@ import {
 } from "@/components/ui/alert-dialog";
 import { format } from "date-fns";
 
-
-const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
-
 const formSchema = z.object({
   title: z.string().min(5, "Title must be at least 5 characters long."),
   description: z.string().min(20, "Description must be at least 20 characters long."),
   location: z.string().min(3, "Location is required."),
   date: z.string().refine((val) => !isNaN(Date.parse(val)), { message: "Please select a valid date." }),
-  image: z
-    .any()
-    .refine((files) => !files || files.length === 0 || (files[0] && files[0].size <= 4 * 1024 * 1024), {
-      message: "Max image size is 4MB.",
-    })
-    .refine((files) => !files || files.length === 0 || (files[0] && ACCEPTED_IMAGE_TYPES.includes(files[0].type)), {
-      message: "Only .jpg, .jpeg, .png and .webp formats are supported.",
-    })
-    .optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -159,7 +147,6 @@ export default function ManageEventsPage() {
         resolver: zodResolver(formSchema),
         defaultValues: { title: "", description: "", location: "", date: "" },
     });
-     const imageRef = form.register("image");
 
     useEffect(() => {
         if (!user) return;
@@ -192,11 +179,8 @@ export default function ManageEventsPage() {
         }
         setIsSubmitting(true);
         try {
-            let imageUrl = `https://placehold.co/600x400.png`;
-            if (data.image && data.image.length > 0) {
-                imageUrl = await uploadImage(data.image[0]);
-            }
-
+            const imageUrl = `https://placehold.co/600x400.png`;
+            
             await createEvent({
                 title: data.title,
                 description: data.description,
@@ -333,22 +317,6 @@ export default function ManageEventsPage() {
                             <FormField control={form.control} name="description" render={({ field }) => (
                                 <FormItem><FormLabel>Description</FormLabel><FormControl><Textarea placeholder="Describe the event, what volunteers will do, etc." {...field} /></FormControl><FormMessage /></FormItem>
                             )} />
-                             <FormField
-                                control={form.control}
-                                name="image"
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel>Cover Image (Optional)</FormLabel>
-                                    <FormControl>
-                                       <div className="relative">
-                                          <Upload className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                                          <Input type="file" accept="image/*" className="pl-10" {...imageRef} />
-                                       </div>
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
                             <div className="flex justify-end">
                                 <Button type="submit" disabled={isSubmitting}>{isSubmitting ? "Publishing..." : "Publish Event"}</Button>
                             </div>
