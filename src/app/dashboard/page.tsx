@@ -1,77 +1,55 @@
 
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { PlusCircle, Calendar, GitBranch, Trophy } from "lucide-react";
 import Link from "next/link";
 import { useAuth, useRequireAuth } from "@/context/auth-context";
 import { useEffect, useState } from "react";
-import { getEventsByHost, getProjectsByHost, getHackathonsByHost, updateUserProfile } from "@/lib/firebase";
-import { WelcomeTutorial } from "@/components/welcome-tutorial";
+import { getEventsByHost, getProjectsByHost, getHackathonsByHost } from "@/lib/firebase";
 import { useToast } from "@/hooks/use-toast";
 
 
 export default function DashboardPage() {
-  useRequireAuth(); // Protect this route for any logged-in user
-  const { user, setUser } = useAuth();
+  useRequireAuth('host'); // Protect this route for hosts only
+  const { user } = useAuth();
   const { toast } = useToast();
   
   const [hostedEventsCount, setHostedEventsCount] = useState(0);
   const [hostedProjectsCount, setHostedProjectsCount] = useState(0);
   const [hostedHackathonsCount, setHostedHackathonsCount] = useState(0);
-  const [isTutorialOpen, setIsTutorialOpen] = useState(false);
-
-  useEffect(() => {
-    if (user && user.hasCompletedTutorial === false && user.role !== 'host') {
-      setIsTutorialOpen(true);
-    }
-  }, [user]);
 
   useEffect(() => {
     if (!user) return;
 
     const unsubscribeEvents = getEventsByHost(user.uid, (events) => {
       setHostedEventsCount(events.length);
-    });
+    }, (error) => toast({ variant: "destructive", title: "Error loading events", description: error.message }));
 
     const unsubscribeProjects = getProjectsByHost(user.uid, (projects) => {
       setHostedProjectsCount(projects.length);
-    });
+    }, (error) => toast({ variant: "destructive", title: "Error loading projects", description: error.message }));
 
     const unsubscribeHackathons = getHackathonsByHost(user.uid, (hackathons) => {
       setHostedHackathonsCount(hackathons.length);
-    });
+    }, (error) => toast({ variant: "destructive", title: "Error loading hackathons", description: error.message }));
 
     return () => {
       unsubscribeEvents();
       unsubscribeProjects();
       unsubscribeHackathons();
     };
-  }, [user]);
-
-  const handleTutorialFinish = async () => {
-    if (!user) return;
-    try {
-        await updateUserProfile(user.uid, { hasCompletedTutorial: true });
-        setUser(prev => prev ? { ...prev, hasCompletedTutorial: true } : null);
-        toast({ title: "Tour Complete!", description: "You're all set. Let's build your community!" });
-    } catch (error: any) {
-        toast({ variant: "destructive", title: "Error", description: "Could not save tutorial progress." });
-    } finally {
-        setIsTutorialOpen(false);
-    }
-  };
+  }, [user, toast]);
 
   return (
     <>
-      {user && <WelcomeTutorial user={user} isOpen={isTutorialOpen} onFinish={handleTutorialFinish} />}
       <div className="bg-secondary/50 min-h-[calc(100vh-4rem)]">
         <div className="container mx-auto px-4 md:px-6 py-12">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center space-y-4 md:space-y-0 mb-12">
             <div>
               <h1 className="text-4xl md:text-5xl font-bold tracking-tight font-headline">
-                My Dashboard
+                Host Dashboard
               </h1>
               <p className="max-w-2xl text-lg text-muted-foreground font-subheading">
                 Manage your events, projects, and hackathons.

@@ -146,7 +146,7 @@ const RegistrationsList = ({ eventId }: { eventId: string }) => {
 
 
 export default function ManageEventsPage() {
-    useRequireAuth();
+    useRequireAuth('host');
     const { user } = useAuth();
     const { toast } = useToast();
     const [events, setEvents] = useState<Event[]>([]);

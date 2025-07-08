@@ -183,7 +183,7 @@ export function Header() {
                       <span>Profile</span>
                     </Link>
                   </DropdownMenuItem>
-                  {user.role !== 'admin' && (
+                  {user.role === 'host' && (
                       <DropdownMenuItem asChild>
                           <Link href="/dashboard">
                               <LayoutDashboard className="mr-2 h-4 w-4" />

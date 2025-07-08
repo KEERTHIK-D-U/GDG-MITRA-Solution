@@ -35,7 +35,7 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 const storage = getStorage(app);
 
-export type UserRole = "user" | "admin" | "mentor";
+export type UserRole = "user" | "admin" | "mentor" | "host";
 
 export interface UserProfile {
     uid: string;
@@ -132,7 +132,7 @@ export const createUserProfile = async (user: FirebaseUser, name: string, role: 
         college: additionalData.college || "",
         techStacks: "",
         bio: "Passionate community member and tech enthusiast.",
-        hasCompletedTutorial: false,
+        hasCompletedTutorial: role === 'host' ? true : false, // Hosts can skip the tutorial
     };
     try {
         await setDoc(userRef, userProfile);

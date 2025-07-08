@@ -175,6 +175,9 @@ export default function ProfilePage() {
                          {user.role === 'mentor' && (
                             <Badge variant="default"><GraduationCap className="w-3 h-3 mr-1"/>Mentor</Badge>
                         )}
+                         {user.role === 'host' && (
+                            <Badge variant="default"><HandHeart className="w-3 h-3 mr-1"/>Host</Badge>
+                        )}
                     </div>
                      {user.college && (
                         <p className="text-muted-foreground mt-2 flex items-center justify-center md:justify-start">
@@ -209,11 +212,13 @@ export default function ProfilePage() {
                     )}
                 </div>
                  <div className="flex-shrink-0 self-center md:self-start">
-                    <Button asChild size="lg">
-                        <Link href="/dashboard">
-                            <LayoutDashboard className="mr-2 h-4 w-4" /> Go to Dashboard
-                        </Link>
-                    </Button>
+                    {user.role === 'host' && (
+                        <Button asChild size="lg">
+                            <Link href="/dashboard">
+                                <LayoutDashboard className="mr-2 h-4 w-4" /> Go to Dashboard
+                            </Link>
+                        </Button>
+                    )}
                 </div>
             </div>
 

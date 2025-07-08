@@ -25,7 +25,7 @@ const formSchema = z.object({
     .regex(/[a-z]/, { message: "Password must contain at least one lowercase letter." })
     .regex(/[0-9]/, { message: "Password must contain at least one number." })
     .regex(/[^A-Za-z0-9]/, { message: "Password must contain at least one special character." }),
-  role: z.enum(["user", "mentor"], { required_error: "You must select a role." }),
+  role: z.enum(["user", "host", "mentor"], { required_error: "You must select a role." }),
   college: z.string().min(1, { message: "College name is required." }),
   linkedinUrl: z.string().url({ message: "Please enter a valid URL." }).optional().or(z.literal('')),
 });
@@ -36,12 +36,17 @@ const roleInfo = {
     user: {
         icon: User,
         title: "Community Member",
-        description: "Join events, host your own, contribute to projects, and make a difference.",
+        description: "Join events, contribute to projects, and make a difference.",
+    },
+    host: {
+        icon: Trophy,
+        title: "Event Host",
+        description: "Organize events, hackathons, and projects for the community.",
     },
     mentor: {
         icon: GraduationCap,
         title: "Guide",
-        description: "Share your experience and support fellow community members on their journey.",
+        description: "Share your experience and support fellow community members.",
     }
 }
 
@@ -64,11 +69,8 @@ export default function SignupPage() {
   });
 
   const handleRoleSelect = (role: UserRole) => {
-    // This function only handles 'user' and 'mentor' now
-    if (role === 'user' || role === 'mentor') {
-      setSelectedRole(role);
-      form.setValue("role", role);
-    }
+    setSelectedRole(role);
+    form.setValue("role", role);
   };
 
   const onSubmit: SubmitHandler<FormValues> = async (data) => {
@@ -84,7 +86,7 @@ export default function SignupPage() {
         description: "You have been successfully signed up.",
       });
       
-      router.push("/discover");
+      router.push(data.role === 'host' ? "/dashboard" : "/discover");
 
     } catch (error: any) {
       toast({
@@ -108,9 +110,9 @@ export default function SignupPage() {
         </CardHeader>
         <CardContent>
           {!selectedRole ? (
-             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 {(Object.keys(roleInfo) as (keyof typeof roleInfo)[]).map((role) => {
-                    const RoleIcon = roleInfo[role].icon;
+                    const RoleIcon = roleInfo[role as keyof typeof roleInfo].icon;
                     return (
                         <Card 
                             key={role} 
@@ -120,8 +122,8 @@ export default function SignupPage() {
                             <div className="flex justify-center mb-4">
                                 <RoleIcon className="w-10 h-10 text-primary" />
                             </div>
-                            <h3 className="font-bold text-lg">{roleInfo[role].title}</h3>
-                            <p className="text-sm text-muted-foreground mt-1">{roleInfo[role].description}</p>
+                            <h3 className="font-bold text-lg">{roleInfo[role as keyof typeof roleInfo].title}</h3>
+                            <p className="text-sm text-muted-foreground mt-1">{roleInfo[role as keyof typeof roleInfo].description}</p>
                         </Card>
                     )
                 })}

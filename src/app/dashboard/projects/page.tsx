@@ -114,7 +114,7 @@ const ContributionsList = ({ projectId }: { projectId: string }) => {
 };
 
 export default function ManageProjectsPage() {
-    useRequireAuth();
+    useRequireAuth('host');
     const { user } = useAuth();
     const { toast } = useToast();
     const [projects, setProjects] = useState<Project[]>([]);
