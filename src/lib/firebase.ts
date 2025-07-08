@@ -56,6 +56,7 @@ export interface EventRegistration {
     userId: string;
     userName: string;
     userEmail: string;
+    eventId: string;
     eventTitle: string;
     registeredAt: any;
     registrationType: RegistrationType;
@@ -66,6 +67,7 @@ export interface HackathonRegistration {
     userId: string;
     userName: string;
     userEmail: string;
+    hackathonId: string;
     hackathonTitle: string;
     registeredAt: any; // Firestore Timestamp
     registrationType: RegistrationType;
@@ -76,6 +78,7 @@ export interface ProjectContribution {
     userId: string;
     userName: string;
     userEmail: string;
+    projectId: string;
     projectTitle: string;
     contributedAt: any; // Firestore Timestamp
 }

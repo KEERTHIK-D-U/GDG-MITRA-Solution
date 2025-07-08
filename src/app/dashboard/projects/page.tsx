@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import Image from "next/image";
-import { PlusCircle, Inbox, GitBranch, Trash2, Upload } from "lucide-react";
+import { PlusCircle, Inbox, GitBranch, Trash2, Upload, Users } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -182,25 +182,30 @@ export default function ManageProjectsPage() {
                      <AccordionItem value={project.id} key={project.id} className="border-b-0">
                         <Card className="overflow-hidden flex flex-col">
                             <AccordionTrigger className="hover:no-underline p-0 text-left w-full">
-                                <CardHeader className="p-0">
-                                    <Image src={project.imageUrl} alt={project.title} width={600} height={400} className="w-full h-40 object-cover" data-ai-hint="code project" />
-                                </CardHeader>
-                                <CardContent className="p-4 flex-grow">
-                                    <CardTitle className="text-xl mb-2 font-headline">{project.title}</CardTitle>
-                                    <p className="text-sm text-muted-foreground mb-4">{project.description}</p>
-                                    <div className="flex flex-wrap gap-2">
-                                        {project.tags.map((tag) => (
-                                            <Badge key={tag} variant="secondary">{tag}</Badge>
-                                        ))}
-                                    </div>
-                                </CardContent>
-                                <CardFooter className="p-4 bg-secondary/30 flex items-center justify-between">
-                                    <p className="text-xs text-muted-foreground">Hosted by: {project.hostName}</p>
-                                    <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:bg-destructive/10" onClick={(e) => {e.stopPropagation(); setProjectToDelete(project);}}>
-                                        <Trash2 className="h-4 w-4" />
-                                        <span className="sr-only">Delete project</span>
-                                    </Button>
-                                </CardFooter>
+                                <div className="w-full">
+                                    <CardHeader className="p-0">
+                                        <Image src={project.imageUrl} alt={project.title} width={600} height={400} className="w-full h-40 object-cover" data-ai-hint="code project" />
+                                    </CardHeader>
+                                    <CardContent className="p-4 flex-grow">
+                                        <CardTitle className="text-xl mb-2 font-headline">{project.title}</CardTitle>
+                                        <p className="text-sm text-muted-foreground mb-4 line-clamp-3">{project.description}</p>
+                                        <div className="flex flex-wrap gap-2">
+                                            {project.tags.map((tag) => (
+                                                <Badge key={tag} variant="secondary">{tag}</Badge>
+                                            ))}
+                                        </div>
+                                    </CardContent>
+                                    <CardFooter className="p-4 bg-secondary/30 flex items-center justify-between">
+                                        <div className="flex items-center text-sm font-medium text-primary">
+                                            <Users className="w-4 h-4 mr-2" />
+                                            <span>View Contributors</span>
+                                        </div>
+                                        <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:bg-destructive/10" onClick={(e) => {e.stopPropagation(); setProjectToDelete(project);}}>
+                                            <Trash2 className="h-4 w-4" />
+                                            <span className="sr-only">Delete project</span>
+                                        </Button>
+                                    </CardFooter>
+                                </div>
                             </AccordionTrigger>
                             <AccordionContent>
                                 <div className="p-6 border-t">

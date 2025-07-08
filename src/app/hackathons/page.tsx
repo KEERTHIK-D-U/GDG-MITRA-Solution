@@ -5,8 +5,8 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
-import { getHackathons, type Hackathon } from "@/lib/firebase";
-import { ArrowRight, Calendar, Inbox, Search } from "lucide-react";
+import { getHackathons, type Hackathon, getUserHackathonRegistrations } from "@/lib/firebase";
+import { ArrowRight, Calendar, Inbox, Search, CheckCircle } from "lucide-react";
 import { useAuth, useRequireAuth } from "@/context/auth-context";
 import { HackathonRegistrationDialog } from "@/components/hackathon-registration-dialog";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -21,22 +21,34 @@ export default function HackathonsPage() {
   const [loading, setLoading] = useState(true);
   const [selectedHackathon, setSelectedHackathon] = useState<Hackathon | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [userRegistrations, setUserRegistrations] = useState<Set<string>>(new Set());
+  const [registrationsLoading, setRegistrationsLoading] = useState(true);
 
   useEffect(() => {
-    if (authLoading) {
-      return;
-    }
+    if (authLoading) return;
+
     if (!user) {
       setLoading(false);
+      setRegistrationsLoading(false);
       return;
     }
     setLoading(true);
-    const unsubscribe = getHackathons((fetchedHackathons) => {
+    const unsubscribeHackathons = getHackathons((fetchedHackathons) => {
       setHackathons(fetchedHackathons);
       setFilteredHackathons(fetchedHackathons);
       setLoading(false);
     });
-    return () => unsubscribe();
+
+    setRegistrationsLoading(true);
+    getUserHackathonRegistrations(user.uid).then((regs) => {
+        const hackathonIds = new Set(regs.map(r => r.hackathonId));
+        setUserRegistrations(hackathonIds);
+    }).catch(console.error)
+      .finally(() => {
+        setRegistrationsLoading(false);
+    });
+
+    return () => unsubscribeHackathons();
   }, [user, authLoading]);
 
   useEffect(() => {
@@ -54,7 +66,7 @@ export default function HackathonsPage() {
     setSelectedHackathon(hackathon);
   };
   
-  const isLoading = authLoading || loading;
+  const isLoading = authLoading || loading || registrationsLoading;
 
   return (
     <>
@@ -88,36 +100,50 @@ export default function HackathonsPage() {
             </div>
           ) : filteredHackathons.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {filteredHackathons.map((hackathon) => (
-                <Card key={hackathon.id} className="flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-2 hover:border-[#222222] hover:shadow-[#02006c]/40 dark:hover:border-[#00e97b] dark:hover:shadow-[#00e97b]/30">
-                  <CardHeader className="p-0">
-                    <Image
-                      src={hackathon.imageUrl}
-                      alt={hackathon.title}
-                      width={400}
-                      height={225}
-                      className="w-full h-48 object-cover rounded-t-lg"
-                      data-ai-hint="hackathon code"
-                    />
-                  </CardHeader>
-                  <CardContent className="p-6 flex-grow">
-                    <CardTitle className="text-2xl mb-2">{hackathon.title}</CardTitle>
-                    <div className="flex items-center text-muted-foreground mb-4">
-                      <Calendar className="w-4 h-4 mr-2" />
-                      <span>{hackathon.dates}</span>
-                    </div>
-                    <p className="text-muted-foreground">{hackathon.description}</p>
-                  </CardContent>
-                  <CardFooter className="p-6 bg-secondary/30 rounded-b-lg">
-                    <Button 
-                      className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
-                      onClick={() => handleRegisterClick(hackathon)}
-                    >
-                      Register Now <ArrowRight className="ml-2 h-4 w-4" />
-                    </Button>
-                  </CardFooter>
-                </Card>
-              ))}
+              {filteredHackathons.map((hackathon) => {
+                const isRegistered = userRegistrations.has(hackathon.id);
+                return (
+                  <Card key={hackathon.id} className="flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-2 hover:border-[#222222] hover:shadow-[#02006c]/40 dark:hover:border-[#00e97b] dark:hover:shadow-[#00e97b]/30">
+                    <CardHeader className="p-0">
+                      <Image
+                        src={hackathon.imageUrl}
+                        alt={hackathon.title}
+                        width={400}
+                        height={225}
+                        className="w-full h-48 object-cover rounded-t-lg"
+                        data-ai-hint="hackathon code"
+                      />
+                    </CardHeader>
+                    <CardContent className="p-6 flex-grow">
+                      <CardTitle className="text-2xl mb-2">{hackathon.title}</CardTitle>
+                      <div className="flex items-center text-muted-foreground mb-4">
+                        <Calendar className="w-4 h-4 mr-2" />
+                        <span>{hackathon.dates}</span>
+                      </div>
+                      <p className="text-muted-foreground">{hackathon.description}</p>
+                    </CardContent>
+                    <CardFooter className="p-6 bg-secondary/30 rounded-b-lg">
+                      <Button 
+                        className="w-full"
+                        variant={isRegistered ? "secondary" : "default"}
+                        onClick={() => !isRegistered && handleRegisterClick(hackathon)}
+                        disabled={isRegistered}
+                      >
+                         {isRegistered ? (
+                          <>
+                            <CheckCircle className="mr-2 h-4 w-4" />
+                            Registered
+                          </>
+                        ) : (
+                          <>
+                            Register Now <ArrowRight className="ml-2 h-4 w-4" />
+                          </>
+                        )}
+                      </Button>
+                    </CardFooter>
+                  </Card>
+                )
+              })}
             </div>
           ) : (
             <div className="flex flex-col items-center justify-center text-center py-16 px-4 border-2 border-dashed rounded-lg">
@@ -140,6 +166,16 @@ export default function HackathonsPage() {
         onOpenChange={(isOpen) => {
           if (!isOpen) {
             setSelectedHackathon(null);
+            // Refetch registrations when dialog closes to update status
+            if (user) {
+              setRegistrationsLoading(true);
+              getUserHackathonRegistrations(user.uid).then((regs) => {
+                  const hackathonIds = new Set(regs.map(r => r.hackathonId));
+                  setUserRegistrations(hackathonIds);
+              }).finally(() => {
+                  setRegistrationsLoading(false);
+              });
+            }
           }
         }}
       />

@@ -214,7 +214,7 @@ export default function ManageEventsPage() {
                 {events.map((event) => (
                    <AccordionItem value={event.id} key={event.id} className="border-b-0">
                      <Card className="overflow-hidden">
-                       <AccordionTrigger className="p-0 hover:no-underline">
+                       <AccordionTrigger className="p-0 hover:no-underline w-full text-left">
                         <div className="flex flex-col md:flex-row w-full">
                           <div className="md:w-1/3">
                             <Image src={event.imageUrl} alt={event.title} width={600} height={400} className="w-full h-48 md:h-full object-cover" data-ai-hint="event community" />
@@ -234,7 +234,10 @@ export default function ManageEventsPage() {
                                 </div>
                             </CardHeader>
                             <CardFooter className="p-4 bg-secondary/30 flex items-center justify-between">
-                                <p className="text-xs text-muted-foreground">Click to view registrations</p>
+                                <div className="flex items-center text-sm font-medium text-primary">
+                                    <Users className="w-4 h-4 mr-2" />
+                                    <span>View Registrations</span>
+                                </div>
                                 <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:bg-destructive/10" onClick={(e) => { e.stopPropagation(); setEventToDelete(event); }}>
                                     <Trash2 className="h-4 w-4" />
                                     <span className="sr-only">Delete event</span>

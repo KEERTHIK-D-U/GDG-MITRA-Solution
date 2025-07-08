@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import Image from "next/image";
-import { PlusCircle, Inbox, Calendar, Trash2, Upload, UserCheck } from "lucide-react";
+import { PlusCircle, Inbox, Calendar, Trash2, Upload, UserCheck, Users } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -207,25 +207,30 @@ export default function ManageHackathonsPage() {
                 {hackathons.map((hackathon) => (
                     <AccordionItem value={hackathon.id} key={hackathon.id} className="border-b-0">
                         <Card className="overflow-hidden flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-2 hover:border-[#222222] hover:shadow-[#02006c]/40 dark:hover:border-[#00e97b] dark:hover:shadow-[#00e97b]/30">
-                            <AccordionTrigger className="hover:no-underline p-0 text-left">
+                            <AccordionTrigger className="hover:no-underline p-0 text-left w-full">
+                               <div className="w-full">
                                 <CardHeader className="p-0">
                                     <Image src={hackathon.imageUrl} alt={hackathon.title} width={600} height={400} className="w-full h-40 object-cover" data-ai-hint="hackathon code" />
                                 </CardHeader>
-                                <CardContent className="p-4 flex-grow w-full">
+                                <CardContent className="p-4 flex-grow">
                                     <CardTitle className="text-xl mb-2 font-headline">{hackathon.title}</CardTitle>
                                     <div className="flex items-center text-muted-foreground mb-4">
                                         <Calendar className="w-4 h-4 mr-2" />
                                         <span>{hackathon.dates}</span>
                                     </div>
-                                    <p className="text-sm text-muted-foreground">{hackathon.description}</p>
+                                    <p className="text-sm text-muted-foreground line-clamp-3">{hackathon.description}</p>
                                 </CardContent>
                                 <CardFooter className="p-4 bg-secondary/30 flex items-center justify-between">
-                                    <p className="text-xs text-muted-foreground">Hosted by: {hackathon.hostName}</p>
+                                     <div className="flex items-center text-sm font-medium text-primary">
+                                        <Users className="w-4 h-4 mr-2" />
+                                        <span>View Registrations</span>
+                                    </div>
                                     <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:bg-destructive/10" onClick={(e) => { e.stopPropagation(); setHackathonToDelete(hackathon);}}>
                                         <Trash2 className="h-4 w-4" />
                                         <span className="sr-only">Delete hackathon</span>
                                     </Button>
                                 </CardFooter>
+                               </div>
                             </AccordionTrigger>
                              <AccordionContent>
                                 <div className="p-6 border-t">

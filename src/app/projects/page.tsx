@@ -6,8 +6,8 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import Image from "next/image";
-import { getProjects, type Project, contributeToProject } from "@/lib/firebase";
-import { GitBranch, Inbox, Search } from "lucide-react";
+import { getProjects, type Project, contributeToProject, getUserProjectContributions } from "@/lib/firebase";
+import { GitBranch, Inbox, Search, CheckCircle } from "lucide-react";
 import { useAuth, useRequireAuth } from "@/context/auth-context";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -22,22 +22,34 @@ export default function ProjectsPage() {
   const [loading, setLoading] = useState(true);
   const [contributing, setContributing] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [userContributions, setUserContributions] = useState<Set<string>>(new Set());
+  const [contributionsLoading, setContributionsLoading] = useState(true);
 
   useEffect(() => {
-    if (authLoading) {
-      return;
-    }
+    if (authLoading) return;
+    
     if (!user) {
       setLoading(false);
+      setContributionsLoading(false);
       return;
     }
     setLoading(true);
-    const unsubscribe = getProjects((fetchedProjects) => {
+    const unsubscribeProjects = getProjects((fetchedProjects) => {
       setProjects(fetchedProjects);
       setFilteredProjects(fetchedProjects);
       setLoading(false);
     });
-    return () => unsubscribe();
+
+    setContributionsLoading(true);
+    getUserProjectContributions(user.uid).then((contribs) => {
+        const projectIds = new Set(contribs.map(c => c.projectId));
+        setUserContributions(projectIds);
+    }).catch(console.error)
+      .finally(() => {
+        setContributionsLoading(false);
+    });
+
+    return () => unsubscribeProjects();
   }, [user, authLoading]);
 
   useEffect(() => {
@@ -65,18 +77,12 @@ export default function ProjectsPage() {
     
     setContributing(project.id);
     try {
-      const result = await contributeToProject(user.uid, user.name, user.email, project.id, project.title);
-       if (result.message === "Already contributed.") {
-         toast({
-            title: "Contribution Already Recorded",
-            description: `Your interest in "${project.title}" is already noted.`,
-        });
-      } else {
-        toast({
-            title: "Contribution Recorded!",
-            description: `Thank you for your interest in "${project.title}".`,
-        });
-      }
+      await contributeToProject(user.uid, user.name, user.email, project.id, project.title);
+      setUserContributions(prev => new Set(prev).add(project.id));
+      toast({
+          title: "Contribution Recorded!",
+          description: `Thank you for your interest in "${project.title}".`,
+      });
     } catch (error: any) {
        toast({
         variant: "destructive",
@@ -88,7 +94,7 @@ export default function ProjectsPage() {
     }
   }
 
-  const isLoading = authLoading || loading;
+  const isLoading = authLoading || loading || contributionsLoading;
 
   return (
     <div className="bg-background">
@@ -121,40 +127,54 @@ export default function ProjectsPage() {
            </div>
         ) : filteredProjects.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {filteredProjects.map((project) => (
-              <Card key={project.id} className="flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-2 hover:border-[#222222] hover:shadow-[#02006c]/40 dark:hover:border-[#00e97b] dark:hover:shadow-[#00e97b]/30">
-                <CardHeader className="p-0">
-                  <Image
-                    src={project.imageUrl}
-                    alt={project.title}
-                    width={400}
-                    height={225}
-                    className="w-full h-48 object-cover rounded-t-lg"
-                    data-ai-hint="project code computer"
-                  />
-                </CardHeader>
-                <CardContent className="p-6 flex-grow">
-                  <CardTitle className="text-2xl mb-2">{project.title}</CardTitle>
-                  <p className="text-muted-foreground mb-4">{project.description}</p>
-                  <div className="flex flex-wrap gap-2">
-                    {project.tags.map((tag) => (
-                      <Badge key={tag} variant="secondary">{tag}</Badge>
-                    ))}
-                  </div>
-                </CardContent>
-                <CardFooter className="p-6 bg-secondary/30">
-                   <Button 
-                      className="w-full" 
-                      variant="outline"
-                      onClick={() => handleContribute(project)}
-                      disabled={contributing === project.id}
-                    >
-                      <GitBranch className="mr-2 h-4 w-4" />
-                      {contributing === project.id ? "Recording..." : "I'm Interested"}
-                    </Button>
-                </CardFooter>
-              </Card>
-            ))}
+            {filteredProjects.map((project) => {
+              const hasContributed = userContributions.has(project.id);
+              return (
+                <Card key={project.id} className="flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-2 hover:border-[#222222] hover:shadow-[#02006c]/40 dark:hover:border-[#00e97b] dark:hover:shadow-[#00e97b]/30">
+                  <CardHeader className="p-0">
+                    <Image
+                      src={project.imageUrl}
+                      alt={project.title}
+                      width={400}
+                      height={225}
+                      className="w-full h-48 object-cover rounded-t-lg"
+                      data-ai-hint="project code computer"
+                    />
+                  </CardHeader>
+                  <CardContent className="p-6 flex-grow">
+                    <CardTitle className="text-2xl mb-2">{project.title}</CardTitle>
+                    <p className="text-muted-foreground mb-4">{project.description}</p>
+                    <div className="flex flex-wrap gap-2">
+                      {project.tags.map((tag) => (
+                        <Badge key={tag} variant="secondary">{tag}</Badge>
+                      ))}
+                    </div>
+                  </CardContent>
+                  <CardFooter className="p-6 bg-secondary/30">
+                    <Button 
+                        className="w-full" 
+                        variant={hasContributed ? "secondary" : "outline"}
+                        onClick={() => !hasContributed && handleContribute(project)}
+                        disabled={hasContributed || contributing === project.id}
+                      >
+                        {contributing === project.id ? (
+                           "Recording..."
+                        ) : hasContributed ? (
+                          <>
+                            <CheckCircle className="mr-2 h-4 w-4" />
+                            Interest Shown
+                          </>
+                        ) : (
+                          <>
+                            <GitBranch className="mr-2 h-4 w-4" />
+                            I'm Interested
+                          </>
+                        )}
+                      </Button>
+                  </CardFooter>
+                </Card>
+              )
+            })}
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center text-center py-16 px-4 border-2 border-dashed rounded-lg">

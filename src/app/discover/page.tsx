@@ -6,8 +6,8 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
-import { Search, MapPin, Calendar, Inbox } from "lucide-react";
-import { getEvents, type Event } from "@/lib/firebase";
+import { Search, MapPin, Calendar, Inbox, CheckCircle } from "lucide-react";
+import { getEvents, type Event, getUserRegistrations } from "@/lib/firebase";
 import { useAuth, useRequireAuth } from "@/context/auth-context";
 import { EventRegistrationDialog } from "@/components/event-registration-dialog";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -21,14 +21,16 @@ export default function DiscoverPage() {
   const [loading, setLoading] = useState(true);
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [userRegistrations, setUserRegistrations] = useState<Set<string>>(new Set());
+  const [registrationsLoading, setRegistrationsLoading] = useState(true);
 
   useEffect(() => {
     // Wait for authentication to complete before fetching data
-    if (authLoading) {
-      return;
-    }
+    if (authLoading) return;
+    
     if (!user) {
       setLoading(false);
+      setRegistrationsLoading(false);
       return;
     }
     
@@ -38,6 +40,16 @@ export default function DiscoverPage() {
       setFilteredEvents(fetchedEvents);
       setLoading(false);
     });
+
+    setRegistrationsLoading(true);
+    getUserRegistrations(user.uid).then((regs) => {
+        const eventIds = new Set(regs.map(r => r.eventId));
+        setUserRegistrations(eventIds);
+    }).catch(console.error)
+      .finally(() => {
+        setRegistrationsLoading(false);
+    });
+
     // Cleanup subscription on unmount
     return () => unsubscribe();
   }, [user, authLoading]);
@@ -59,7 +71,7 @@ export default function DiscoverPage() {
     setSelectedEvent(event);
   };
 
-  const isLoading = authLoading || loading;
+  const isLoading = authLoading || loading || registrationsLoading;
 
   return (
     <>
@@ -93,42 +105,53 @@ export default function DiscoverPage() {
              </div>
           ) : filteredEvents.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {filteredEvents.map((event) => (
-                <Card key={event.id} className="overflow-hidden flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-2 hover:border-[#222222] hover:shadow-[#02006c]/40 dark:hover:border-[#00e97b] dark:hover:shadow-[#00e97b]/30">
-                  <CardHeader className="p-0">
-                    <Image
-                      src={event.imageUrl}
-                      alt={event.title}
-                      width={400}
-                      height={250}
-                      className="w-full h-48 object-cover"
-                      data-ai-hint="event community"
-                    />
-                  </CardHeader>
-                  <CardContent className="p-4 flex-grow">
-                    <CardTitle className="text-xl mb-2">{event.title}</CardTitle>
-                    <div className="text-muted-foreground space-y-2">
-                      <div className="flex items-center">
-                        <Calendar className="w-4 h-4 mr-2" />
-                        <span>{new Date(event.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
+              {filteredEvents.map((event) => {
+                const isRegistered = userRegistrations.has(event.id);
+                return (
+                  <Card key={event.id} className="overflow-hidden flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-2 hover:border-[#222222] hover:shadow-[#02006c]/40 dark:hover:border-[#00e97b] dark:hover:shadow-[#00e97b]/30">
+                    <CardHeader className="p-0">
+                      <Image
+                        src={event.imageUrl}
+                        alt={event.title}
+                        width={400}
+                        height={250}
+                        className="w-full h-48 object-cover"
+                        data-ai-hint="event community"
+                      />
+                    </CardHeader>
+                    <CardContent className="p-4 flex-grow">
+                      <CardTitle className="text-xl mb-2">{event.title}</CardTitle>
+                      <div className="text-muted-foreground space-y-2">
+                        <div className="flex items-center">
+                          <Calendar className="w-4 h-4 mr-2" />
+                          <span>{new Date(event.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
+                        </div>
+                        <div className="flex items-center">
+                          <MapPin className="w-4 h-4 mr-2" />
+                          <span>{event.location}</span>
+                        </div>
                       </div>
-                      <div className="flex items-center">
-                        <MapPin className="w-4 h-4 mr-2" />
-                        <span>{event.location}</span>
-                      </div>
-                    </div>
-                  </CardContent>
-                  <CardFooter className="p-4 bg-secondary/30">
-                    <Button 
-                      className="w-full" 
-                      variant="outline"
-                      onClick={() => handleRegisterClick(event)}
-                    >
-                      View & Register
-                    </Button>
-                  </CardFooter>
-                </Card>
-              ))}
+                    </CardContent>
+                    <CardFooter className="p-4 bg-secondary/30">
+                      <Button 
+                        className="w-full" 
+                        variant={isRegistered ? "secondary" : "outline"}
+                        onClick={() => !isRegistered && handleRegisterClick(event)}
+                        disabled={isRegistered}
+                      >
+                        {isRegistered ? (
+                          <>
+                            <CheckCircle className="mr-2 h-4 w-4" />
+                            Registered
+                          </>
+                        ) : (
+                          "View & Register"
+                        )}
+                      </Button>
+                    </CardFooter>
+                  </Card>
+                )
+              })}
             </div>
           ) : (
             <div className="flex flex-col items-center justify-center text-center py-16 px-4 border-2 border-dashed rounded-lg">
@@ -151,6 +174,16 @@ export default function DiscoverPage() {
         onOpenChange={(isOpen) => {
           if (!isOpen) {
             setSelectedEvent(null);
+             // Refetch registrations when dialog closes to update status
+            if (user) {
+              setRegistrationsLoading(true);
+              getUserRegistrations(user.uid).then((regs) => {
+                  const eventIds = new Set(regs.map(r => r.eventId));
+                  setUserRegistrations(eventIds);
+              }).finally(() => {
+                  setRegistrationsLoading(false);
+              });
+            }
           }
         }}
       />
