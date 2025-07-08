@@ -96,9 +96,11 @@ service cloud.firestore {
 }
 ```
 
-## 🚀 Pushing to GitHub
+## 🚀 Version Control with Git & GitHub
 
-To push this project to your own GitHub repository, follow these steps.
+### Initial Push to a New Repository
+
+If you haven't pushed this project to GitHub yet, follow these steps to set it up.
 
 1.  **Create a new repository on GitHub**: Go to [GitHub](https://github.com/new) and create a new, empty repository. Do **not** initialize it with a README, .gitignore, or license file.
 
@@ -122,4 +124,24 @@ To push this project to your own GitHub repository, follow these steps.
     git push -u origin main
     ```
 
-3.  **Done!** Your code is now safely stored on GitHub.
+### Pushing Updates to an Existing Repository
+
+Once your repository is set up on GitHub, follow these simple steps to save your changes.
+
+1.  **Stage your changes**: This prepares all modified files for your next save point (commit).
+
+    ```bash
+    git add .
+    ```
+
+2.  **Commit your changes**: This saves a snapshot of your staged files. Replace `"Your commit message"` with a brief description of the changes you made (e.g., `"Updated landing page headline"`).
+
+    ```bash
+    git commit -m "Your commit message"
+    ```
+
+3.  **Push your changes to GitHub**: This uploads your new commit to the repository.
+
+    ```bash
+    git push
+    ```
