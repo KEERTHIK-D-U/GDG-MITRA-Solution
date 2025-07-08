@@ -14,7 +14,7 @@ const MessageSchema = z.object({
   text: z.string(),
 });
 
-export const MentorChatInputSchema = z.object({
+const MentorChatInputSchema = z.object({
   history: z
     .array(MessageSchema)
     .describe('The conversation history so far.'),
@@ -22,7 +22,7 @@ export const MentorChatInputSchema = z.object({
 });
 export type MentorChatInput = z.infer<typeof MentorChatInputSchema>;
 
-export const MentorChatOutputSchema = z.object({
+const MentorChatOutputSchema = z.object({
   response: z.string().describe('The AI mentor response.'),
 });
 export type MentorChatOutput = z.infer<typeof MentorChatOutputSchema>;
