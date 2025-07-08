@@ -14,6 +14,7 @@ export default {
         body: ['"Roboto Slab"', 'serif'],
         headline: ['"Playfair Display"', 'serif'],
         subheading: ['"Libre Baskerville"', 'serif'],
+        logo: ['"Orbitron"', 'sans-serif'],
         code: ['monospace'],
       },
       colors: {
