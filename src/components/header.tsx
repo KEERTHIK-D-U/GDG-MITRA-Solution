@@ -104,7 +104,7 @@ export function Header() {
                 <span className="sr-only">Toggle Menu</span>
               </Button>
             </SheetTrigger>
-            <SheetContent side="left">
+            <SheetContent side="left" className="flex flex-col">
                <SheetHeader>
                 <SheetTitle asChild>
                   <Link href="/" className="flex items-center space-x-2" onClick={() => setIsMobileMenuOpen(false)}>
@@ -124,6 +124,23 @@ export function Header() {
                   );
                 })}
               </div>
+              
+              {!loading && !user && (
+                <div className="mt-auto flex flex-col gap-2">
+                  <Button asChild>
+                    <Link href="/signup" onClick={() => setIsMobileMenuOpen(false)}>
+                      <UserPlus className="mr-2 h-4 w-4" />
+                      Create Account
+                    </Link>
+                  </Button>
+                  <Button variant="outline" asChild>
+                    <Link href="/login" onClick={() => setIsMobileMenuOpen(false)}>
+                      <LogInIcon className="mr-2 h-4 w-4" />
+                      Log In
+                    </Link>
+                  </Button>
+                </div>
+              )}
             </SheetContent>
           </Sheet>
         </div>
@@ -190,7 +207,7 @@ export function Header() {
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-                <div className="hidden sm:flex items-center gap-2">
+                <div className="hidden md:flex items-center gap-2">
                     <Button variant="ghost" asChild>
                         <Link href="/login">
                           <LogInIcon className="mr-2 h-4 w-4" />
