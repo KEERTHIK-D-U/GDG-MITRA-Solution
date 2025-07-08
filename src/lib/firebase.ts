@@ -223,16 +223,18 @@ export const getUserProjectContributions = async (userId: string): Promise<Proje
 }
 
 
-// Function to get all users from Firestore, excluding admins and the current user
+// Function to get all users from Firestore, excluding the current user
 export const getAllUsers = async (currentUserId: string): Promise<UserProfile[]> => {
     const usersRef = collection(db, "users");
-    // Exclude the current user from the list
-    const q = query(usersRef, where("uid", "!=", currentUserId), where("role", "!=", "admin"));
     try {
-        const querySnapshot = await getDocs(q);
+        const querySnapshot = await getDocs(usersRef);
         const users: UserProfile[] = [];
         querySnapshot.forEach((doc) => {
-            users.push(doc.data() as UserProfile);
+            const user = doc.data() as UserProfile;
+            // Return all users except the currently logged-in admin
+            if (user.uid !== currentUserId) {
+                users.push(user);
+            }
         });
         return users;
     } catch (error: any) {

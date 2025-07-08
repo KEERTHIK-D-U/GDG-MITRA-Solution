@@ -59,8 +59,8 @@ service cloud.firestore {
       // Only 'host' role can create.
       allow create: if request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'host';
       
-      // Only the original host can update or delete their own document.
-      allow update, delete: if request.auth != null && request.auth.uid == resource.data.hostId;
+      // The original host or an admin can update or delete a document.
+      allow update, delete: if request.auth != null && (request.auth.uid == resource.data.hostId || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin');
     }
     
     // Registrations for Events

@@ -5,12 +5,23 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search, MapPin, Calendar, Inbox, CheckCircle, AlertTriangle } from "lucide-react";
-import { getEvents, type Event, getUserRegistrations } from "@/lib/firebase";
+import { Search, MapPin, Calendar, Inbox, CheckCircle, AlertTriangle, Trash2 } from "lucide-react";
+import { getEvents, type Event, getUserRegistrations, deleteEvent } from "@/lib/firebase";
 import { useAuth, useRequireAuth } from "@/context/auth-context";
 import { EventRegistrationDialog } from "@/components/event-registration-dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+
 
 declare const anime: any;
 
@@ -27,6 +38,9 @@ export default function DiscoverPage() {
   const [userRegistrations, setUserRegistrations] = useState<Set<string>>(new Set());
   const [registrationsLoading, setRegistrationsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [eventToDelete, setEventToDelete] = useState<Event | null>(null);
+
+  const isAdmin = user?.role === 'admin';
 
   useEffect(() => {
     // Wait for authentication to complete before fetching data
@@ -87,6 +101,26 @@ export default function DiscoverPage() {
   const handleRegisterClick = (event: Event) => {
     setSelectedEvent(event);
   };
+  
+  const handleDelete = async () => {
+    if (!eventToDelete) return;
+    try {
+        await deleteEvent(eventToDelete.id);
+        toast({
+            title: "Event Removed",
+            description: `"${eventToDelete.title}" has been successfully removed.`
+        });
+    } catch (error: any) {
+        toast({
+            variant: "destructive",
+            title: "Deletion Failed",
+            description: error.message
+        });
+    } finally {
+        setEventToDelete(null);
+    }
+  };
+
 
   const isLoading = authLoading || loading || registrationsLoading;
 
@@ -147,7 +181,17 @@ export default function DiscoverPage() {
                 const isRegistered = userRegistrations.has(event.id);
                 const isHost = user?.uid === event.hostId;
                 return (
-                  <Card key={event.id} className="event-card opacity-0 overflow-hidden flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-primary/50 hover:shadow-primary/20 dark:hover:shadow-primary/20">
+                  <Card key={event.id} className="event-card opacity-0 overflow-hidden flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-primary/50 hover:shadow-primary/20 dark:hover:shadow-primary/20 relative group">
+                    {isAdmin && (
+                        <Button 
+                            variant="destructive" 
+                            size="icon" 
+                            className="absolute top-2 right-2 z-10 h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
+                            onClick={() => setEventToDelete(event)}>
+                            <Trash2 className="h-4 w-4" />
+                            <span className="sr-only">Delete event</span>
+                        </Button>
+                    )}
                     <CardHeader className="p-4 flex-grow">
                       <h3 className="text-xl mb-2 font-semibold">{event.title}</h3>
                       <div className="text-muted-foreground space-y-2">
@@ -202,6 +246,25 @@ export default function DiscoverPage() {
           )}
         </section>
       </div>
+
+      <AlertDialog open={!!eventToDelete} onOpenChange={(open) => !open && setEventToDelete(null)}>
+        <AlertDialogContent>
+            <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+                This action cannot be undone. This will permanently delete the event "{eventToDelete?.title}".
+            </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setEventToDelete(null)}>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} className="bg-destructive hover:bg-destructive/90">
+                Yes, delete event
+            </AlertDialogAction>
+            </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+
       <EventRegistrationDialog 
         event={selectedEvent}
         isOpen={!!selectedEvent}

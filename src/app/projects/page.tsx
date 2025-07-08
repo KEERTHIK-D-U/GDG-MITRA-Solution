@@ -5,12 +5,22 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { getProjects, type Project, contributeToProject, getUserProjectContributions } from "@/lib/firebase";
-import { GitBranch, Inbox, Search, CheckCircle, AlertTriangle } from "lucide-react";
+import { getProjects, type Project, contributeToProject, getUserProjectContributions, deleteProject } from "@/lib/firebase";
+import { GitBranch, Inbox, Search, CheckCircle, AlertTriangle, Trash2 } from "lucide-react";
 import { useAuth, useRequireAuth } from "@/context/auth-context";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 declare const anime: any;
 
@@ -26,6 +36,9 @@ export default function ProjectsPage() {
   const [userContributions, setUserContributions] = useState<Set<string>>(new Set());
   const [contributionsLoading, setContributionsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [projectToDelete, setProjectToDelete] = useState<Project | null>(null);
+
+  const isAdmin = user?.role === 'admin';
 
   useEffect(() => {
     if (authLoading) return;
@@ -109,6 +122,25 @@ export default function ProjectsPage() {
     }
   }
 
+  const handleDelete = async () => {
+    if (!projectToDelete) return;
+    try {
+        await deleteProject(projectToDelete.id);
+        toast({
+            title: "Project Removed",
+            description: `"${projectToDelete.title}" has been successfully removed.`
+        });
+    } catch (error: any) {
+        toast({
+            variant: "destructive",
+            title: "Deletion Failed",
+            description: error.message
+        });
+    } finally {
+        setProjectToDelete(null);
+    }
+  };
+
   const isLoading = authLoading || loading || contributionsLoading;
   
   useEffect(() => {
@@ -127,6 +159,7 @@ export default function ProjectsPage() {
 
 
   return (
+    <>
     <div className="bg-background">
       <div className="container mx-auto px-4 md:px-6 py-12">
         <div className="flex flex-col items-start space-y-4 mb-8">
@@ -167,7 +200,17 @@ export default function ProjectsPage() {
               const hasContributed = userContributions.has(project.id);
               const isHost = user?.uid === project.hostId;
               return (
-                <Card key={project.id} className="project-card opacity-0 flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-primary/50 hover:shadow-primary/20 dark:hover:shadow-primary/20">
+                <Card key={project.id} className="project-card opacity-0 flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-primary/50 hover:shadow-primary/20 dark:hover:shadow-primary/20 relative group">
+                  {isAdmin && (
+                    <Button 
+                        variant="destructive" 
+                        size="icon" 
+                        className="absolute top-2 right-2 z-10 h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
+                        onClick={() => setProjectToDelete(project)}>
+                        <Trash2 className="h-4 w-4" />
+                        <span className="sr-only">Delete project</span>
+                    </Button>
+                  )}
                   <CardHeader className="p-6">
                     <h3 className="text-2xl mb-2 font-semibold">{project.title}</h3>
                     <p className="text-muted-foreground mb-4 line-clamp-3">{project.description}</p>
@@ -222,5 +265,22 @@ export default function ProjectsPage() {
         )}
       </div>
     </div>
+     <AlertDialog open={!!projectToDelete} onOpenChange={(open) => !open && setProjectToDelete(null)}>
+        <AlertDialogContent>
+            <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+                This action cannot be undone. This will permanently delete the project "{projectToDelete?.title}".
+            </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setProjectToDelete(null)}>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} className="bg-destructive hover:bg-destructive/90">
+                Yes, delete project
+            </AlertDialogAction>
+            </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 }

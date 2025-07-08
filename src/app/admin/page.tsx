@@ -79,7 +79,7 @@ export default function AdminPage() {
     }
   };
   
-  const totalUsers = users.length;
+  const totalUsers = users.filter(u => u.role !== 'admin').length;
 
   return (
     <>
@@ -139,7 +139,7 @@ export default function AdminPage() {
                                 <TableRow key={user.uid}>
                                     <TableCell className="font-medium">{user.name}</TableCell>
                                     <TableCell>{user.email}</TableCell>
-                                    <TableCell><Badge variant="secondary" className="capitalize">{user.role}</Badge></TableCell>
+                                    <TableCell><Badge variant={user.role === 'admin' ? 'default' : 'secondary'} className="capitalize">{user.role}</Badge></TableCell>
                                     <TableCell className="text-right">
                                         <Button variant="destructive" size="sm" onClick={() => handleRemoveClick(user)}>
                                             <Trash2 className="mr-2 h-4 w-4"/> Remove
