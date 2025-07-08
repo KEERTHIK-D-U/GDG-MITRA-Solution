@@ -507,29 +507,26 @@ export const getHackathons = (callback: (hackathons: Hackathon[]) => void, onErr
 
 // Functions to get host-specific items (for dashboard)
 export const getEventsByHost = (hostId: string, callback: (events: Event[]) => void, onError: (error: Error) => void) => {
-    const q = query(collection(db, "events"), where("hostId", "==", hostId));
+    const q = query(collection(db, "events"), where("hostId", "==", hostId), orderBy("createdAt", "desc"));
     return onSnapshot(q, (snapshot) => {
         const events = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Event));
-        const sortedEvents = events.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
-        callback(sortedEvents);
+        callback(events);
     }, (error) => handleSnapshotError(error, "events", onError));
 };
 
 export const getProjectsByHost = (hostId: string, callback: (projects: Project[]) => void, onError: (error: Error) => void) => {
-    const q = query(collection(db, "projects"), where("hostId", "==", hostId));
+    const q = query(collection(db, "projects"), where("hostId", "==", hostId), orderBy("createdAt", "desc"));
     return onSnapshot(q, (snapshot) => {
         const projects = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Project));
-        const sortedProjects = projects.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
-        callback(sortedProjects);
+        callback(projects);
     }, (error) => handleSnapshotError(error, "projects", onError));
 };
 
 export const getHackathonsByHost = (hostId: string, callback: (hackathons: Hackathon[]) => void, onError: (error: Error) => void) => {
-    const q = query(collection(db, "hackathons"), where("hostId", "==", hostId));
+    const q = query(collection(db, "hackathons"), where("hostId", "==", hostId), orderBy("createdAt", "desc"));
     return onSnapshot(q, (snapshot) => {
         const hackathons = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Hackathon));
-        const sortedHackathons = hackathons.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
-        callback(sortedHackathons);
+        callback(hackathons);
     }, (error) => handleSnapshotError(error, "hackathons", onError));
 };
 

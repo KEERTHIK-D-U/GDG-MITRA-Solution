@@ -212,6 +212,7 @@ export default function ManageProjectsPage() {
                 <AlertTriangle className="w-16 h-16 text-destructive" />
                 <h3 className="mt-4 text-xl font-semibold text-destructive">An Error Occurred</h3>
                 <p className="mt-2 text-muted-foreground">{error}</p>
+                <p className="mt-2 text-sm text-muted-foreground">This is often caused by Firestore security rules or missing database indexes. Check your browser's developer console for more details.</p>
             </div>
         ) : loading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
