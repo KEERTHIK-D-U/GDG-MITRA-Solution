@@ -10,10 +10,10 @@ export default function Home() {
         <div className="container mx-auto px-4 md:px-6">
           <div className="flex flex-col items-center space-y-6">
             <h1 className="text-4xl md:text-6xl font-bold tracking-tighter !leading-tight font-headline text-primary-foreground dark:text-slate-900">
-              Connect, Collaborate, Contribute.
+              From Classroom Theory to Real-World Impact.
             </h1>
             <p className="max-w-3xl text-lg md:text-xl text-primary-foreground/90 dark:text-slate-900 font-subheading">
-              Mitra is the bridge between passionate community members and impactful opportunities. Discover local events, contribute to open-source projects, and be the change your community needs.
+              Mitra is where your technical skills meet opportunity. Contribute to open-source, join hackathons, find mentors, and turn your knowledge into a powerful portfolio.
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
               <Button asChild size="lg">
@@ -43,12 +43,12 @@ export default function Home() {
                 <div className="p-6 rounded-lg flex flex-col items-center">
                     <h3 className="text-5xl font-bold text-primary font-headline mb-4">M</h3>
                     <h4 className="text-xl font-semibold mb-2 font-headline">Meet & Mentor</h4>
-                    <p className="text-muted-foreground">Connect with peers and experienced professionals in the community.</p>
+                    <p className="text-muted-foreground">Connect with peers, alumni, and experienced professionals.</p>
                 </div>
                 <div className="p-6 rounded-lg flex flex-col items-center">
                     <h3 className="text-5xl font-bold text-primary font-headline mb-4">I</h3>
                     <h4 className="text-xl font-semibold mb-2 font-headline">Ignite Innovation</h4>
-                    <p className="text-muted-foreground">Participate in hackathons and build groundbreaking projects.</p>
+                    <p className="text-muted-foreground">Participate in hackathons to build groundbreaking projects.</p>
                 </div>
                 <div className="p-6 rounded-lg flex flex-col items-center">
                     <h3 className="text-5xl font-bold text-primary font-headline mb-4">T</h3>
@@ -62,8 +62,8 @@ export default function Home() {
                 </div>
                 <div className="p-6 rounded-lg flex flex-col items-center">
                     <h3 className="text-5xl font-bold text-primary font-headline mb-4">A</h3>
-                    <h4 className="text-xl font-semibold mb-2 font-headline">Activate Community</h4>
-                    <p className="text-muted-foreground">Be an active part of the tech and social impact scene.</p>
+                    <h4 className="text-xl font-semibold mb-2 font-headline">Activate Your Portfolio</h4>
+                    <p className="text-muted-foreground">Be an active part of the tech scene and build your resume.</p>
                 </div>
             </div>
         </div>
