@@ -102,7 +102,7 @@ export default function HackathonsPage() {
                 <Input
                   type="search"
                   placeholder="Search for hackathons..."
-                  className="w-full pl-10 pr-4 py-3 text-base rounded-full"
+                  className="w-full pl-10 pr-4 py-3 rounded-full"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />

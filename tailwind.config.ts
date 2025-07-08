@@ -11,9 +11,9 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        body: ['"Roboto Slab"', 'serif'],
-        headline: ['"Playfair Display"', 'serif'],
-        subheading: ['"Libre Baskerville"', 'serif'],
+        body: ['"Inter"', 'sans-serif'],
+        headline: ['"Inter"', 'sans-serif'],
+        subheading: ['"Inter"', 'sans-serif'],
         logo: ['"Orbitron"', 'sans-serif'],
         code: ['monospace'],
       },

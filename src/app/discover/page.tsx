@@ -105,7 +105,7 @@ export default function DiscoverPage() {
                 <Input
                   type="search"
                   placeholder="Search for events by title, location, or keyword..."
-                  className="w-full pl-10 pr-4 py-3 text-base rounded-full"
+                  className="w-full pl-10 pr-4 py-3 rounded-full"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
