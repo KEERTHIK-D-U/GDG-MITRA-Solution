@@ -1,22 +1,12 @@
 
 import { Button } from "@/components/ui/button";
-import Image from "next/image";
 import Link from "next/link";
 
 export default function Home() {
   return (
     <div className="w-full bg-background text-foreground">
-      <section className="relative h-[60vh] md:h-[80vh] flex items-center justify-center text-center text-white">
-        <Image
-          src="https://placehold.co/1920x1080.png"
-          alt="Community members volunteering"
-          layout="fill"
-          objectFit="cover"
-          className="absolute inset-0 z-0 opacity-40"
-          data-ai-hint="community volunteering"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent z-10"></div>
-        <div className="relative z-20 container mx-auto px-4 md:px-6">
+      <section className="h-[60vh] md:h-[80vh] flex items-center justify-center text-center text-primary-foreground bg-gradient-to-br from-primary via-blue-700 to-indigo-900">
+        <div className="container mx-auto px-4 md:px-6">
           <div className="flex flex-col items-center space-y-6">
             <h1 className="text-4xl md:text-6xl font-bold tracking-tighter !leading-tight font-headline">
               Connect, Collaborate, Contribute.
