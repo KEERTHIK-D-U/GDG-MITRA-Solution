@@ -1,11 +1,12 @@
 
 import { Button } from "@/components/ui/button";
+import { Logo } from "@/components/logo";
 import Link from "next/link";
 
 export default function Home() {
   return (
     <div className="w-full bg-background text-foreground">
-      <section className="h-[60vh] md:h-[80vh] flex items-center justify-center text-center text-primary-foreground bg-gradient-to-br from-primary to-slate-900 dark:from-primary dark:to-slate-300">
+      <section className="h-[60vh] md:h-[80vh] flex items-center justify-center text-center text-primary-foreground bg-gradient-to-br from-primary to-slate-900 dark:from-slate-300 dark:to-slate-900">
         <div className="container mx-auto px-4 md:px-6">
           <div className="flex flex-col items-center space-y-6">
             <h1 className="text-4xl md:text-6xl font-bold tracking-tighter !leading-tight font-headline">
@@ -33,7 +34,9 @@ export default function Home() {
       <section className="py-16 md:py-24 bg-secondary/50">
         <div className="container mx-auto px-4 md:px-6">
             <div className="text-center mb-12">
-                <h2 className="text-3xl md:text-4xl font-bold font-headline">What MITRA Stands For</h2>
+                <h2 className="text-3xl md:text-4xl font-bold font-headline flex items-center justify-center gap-x-2">
+                    What <Logo width={120} height={40}/> Stands For
+                </h2>
                 <p className="text-muted-foreground mt-2 font-subheading">Our name reflects our mission to build a thriving community.</p>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8 text-center">

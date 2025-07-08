@@ -12,13 +12,14 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { HandHeart, Menu, User, LogOut, LayoutDashboard, Compass, ShieldCheck, UserPlus, LogInIcon, Users, GraduationCap, Code, Trophy } from "lucide-react";
+import { Menu, User, LogOut, LayoutDashboard, Compass, ShieldCheck, UserPlus, LogInIcon, Users, GraduationCap, Code, Trophy } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "./ui/sheet";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/context/auth-context";
 import { auth } from "@/lib/firebase";
 import { useState } from "react";
+import { Logo } from "./logo";
 
 const loggedOutLinks = [
   { href: "/", label: "Home" },
@@ -89,9 +90,8 @@ export function Header() {
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-sm">
       <div className="container flex h-16 items-center">
         <div className="mr-6 hidden md:flex">
-          <Link href="/" className="flex items-center space-x-2">
-            <HandHeart className="h-6 w-6 text-primary" />
-            <span className="font-bold font-headline text-xl">Mitra</span>
+          <Link href="/" className="flex items-center">
+            <Logo width={90} height={30} />
           </Link>
         </div>
 
@@ -107,9 +107,8 @@ export function Header() {
             <SheetContent side="left" className="flex flex-col">
                <SheetHeader>
                 <SheetTitle asChild>
-                  <Link href="/" className="flex items-center space-x-2" onClick={() => setIsMobileMenuOpen(false)}>
-                    <HandHeart className="h-6 w-6 text-primary" />
-                    <span className="font-bold font-headline text-lg">Mitra</span>
+                  <Link href="/" className="flex items-center" onClick={() => setIsMobileMenuOpen(false)}>
+                    <Logo width={90} height={30} />
                   </Link>
                 </SheetTitle>
               </SheetHeader>
