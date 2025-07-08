@@ -13,7 +13,7 @@ import { useAuth, useRequireAuth } from "@/context/auth-context";
 import { useToast } from "@/hooks/use-toast";
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { updateUserProfile, getUserRegistrations, getUserHackathonRegistrations, getUserProjectContributions } from "@/lib/firebase";
+import { updateUserProfile, getUserRegistrations, getUserHackathonRegistrations, getUserProjectContributions, testFirestoreConnection } from "@/lib/firebase";
 import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -39,6 +39,7 @@ export default function ProfilePage() {
     const [techStacks, setTechStacks] = useState('');
     const [bio, setBio] = useState('');
     const [isSaving, setIsSaving] = useState(false);
+    const [isTesting, setIsTesting] = useState(false);
 
     // History state
     const [combinedHistory, setCombinedHistory] = useState<HistoryItem[]>([]);
@@ -133,6 +134,26 @@ export default function ProfilePage() {
         }
     };
     
+    const handleTestConnection = async () => {
+        if (!user) return;
+        setIsTesting(true);
+        try {
+            await testFirestoreConnection(user.uid);
+            toast({
+                title: "Firestore Test Successful!",
+                description: "Your app can successfully write to your user profile."
+            });
+        } catch (error: any) {
+            toast({
+                variant: "destructive",
+                title: "Firestore Test Failed",
+                description: error.message,
+            });
+        } finally {
+            setIsTesting(false);
+        }
+    };
+
     if (loading || !user) {
         // You can add a more sophisticated skeleton loader here
         return <div>Loading...</div>; 
@@ -278,6 +299,15 @@ export default function ProfilePage() {
                             <Button onClick={handleSaveChanges} disabled={isSaving}>
                                 {isSaving ? "Saving..." : "Save Changes"}
                             </Button>
+                            <div className="border-t pt-6 mt-6">
+                                <h4 className="text-lg font-medium mb-2">Connection Diagnostics</h4>
+                                <p className="text-sm text-muted-foreground mb-4">
+                                    If you're experiencing errors (e.g., permission denied), use this button to test if your app can write to your user profile in Firestore.
+                                </p>
+                                <Button variant="outline" onClick={handleTestConnection} disabled={isTesting}>
+                                    {isTesting ? "Testing..." : "Test Firestore Connection"}
+                                </Button>
+                            </div>
                         </CardContent>
                     </Card>
                 </TabsContent>
