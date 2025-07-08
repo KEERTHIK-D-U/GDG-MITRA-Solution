@@ -57,15 +57,15 @@ export default function Home() {
     <div className="w-full bg-background text-foreground">
       <section className={cn(
         "h-[60vh] md:h-[80vh] flex items-center justify-center text-center overflow-hidden",
-        "bg-gradient-to-br from-primary via-slate-800 to-slate-900 dark:from-slate-300 dark:via-slate-900 dark:to-black",
+        "bg-gradient-to-br from-primary via-slate-800 to-slate-900 dark:from-slate-800 dark:via-slate-900 dark:to-black",
         "bg-animated-gradient"
       )}>
         <div className="container mx-auto px-4 md:px-6">
           <div className="flex flex-col items-center space-y-6">
-            <h1 id="hero-title" className="text-4xl md:text-6xl font-bold tracking-tighter !leading-tight font-headline text-primary-foreground dark:text-slate-50 opacity-0">
+            <h1 id="hero-title" className="text-4xl md:text-6xl font-bold tracking-tighter !leading-tight font-headline text-primary-foreground opacity-0">
               Your Campus Community, Reimagined.
             </h1>
-            <p id="hero-p" className="max-w-3xl text-lg md:text-xl text-primary-foreground/90 dark:text-slate-200 font-subheading opacity-0">
+            <p id="hero-p" className="max-w-3xl text-lg md:text-xl text-primary-foreground/90 font-subheading opacity-0">
               Mitra bridges the gap between your skills and real-world impact. Join events, contribute to open-source projects, and find mentors—all in one place.
             </p>
             <div id="hero-buttons" className="flex flex-col sm:flex-row gap-4">
