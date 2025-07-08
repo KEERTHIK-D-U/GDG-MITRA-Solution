@@ -181,8 +181,9 @@ export default function ManageProjectsPage() {
                 {projects.map((project) => (
                      <AccordionItem value={project.id} key={project.id} className="border-b-0">
                         <Card className="overflow-hidden flex flex-col">
-                            <AccordionTrigger className="hover:no-underline p-0 text-left w-full">
-                                <div className="w-full">
+                           <div className="flex items-stretch">
+                             <AccordionTrigger className="hover:no-underline p-0 text-left w-full flex-grow">
+                                <div className="w-full h-full flex flex-col">
                                     <CardHeader className="p-0">
                                         <Image src={project.imageUrl} alt={project.title} width={600} height={400} className="w-full h-40 object-cover" data-ai-hint="code project" />
                                     </CardHeader>
@@ -195,18 +196,21 @@ export default function ManageProjectsPage() {
                                             ))}
                                         </div>
                                     </CardContent>
-                                    <CardFooter className="p-4 bg-secondary/30 flex items-center justify-between">
+                                    <CardFooter className="p-4 bg-secondary/30 mt-auto">
                                         <div className="flex items-center text-sm font-medium text-primary">
                                             <Users className="w-4 h-4 mr-2" />
                                             <span>View Contributors</span>
                                         </div>
-                                        <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:bg-destructive/10" onClick={(e) => {e.stopPropagation(); setProjectToDelete(project);}}>
-                                            <Trash2 className="h-4 w-4" />
-                                            <span className="sr-only">Delete project</span>
-                                        </Button>
                                     </CardFooter>
                                 </div>
                             </AccordionTrigger>
+                            <div className="flex items-center p-4 border-l bg-secondary/30">
+                                <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:bg-destructive/10" onClick={() => setProjectToDelete(project)}>
+                                    <Trash2 className="h-4 w-4" />
+                                    <span className="sr-only">Delete project</span>
+                                </Button>
+                            </div>
+                           </div>
                             <AccordionContent>
                                 <div className="p-6 border-t">
                                     <h3 className="text-lg font-semibold mb-4">Interested Contributors</h3>
