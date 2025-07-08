@@ -25,16 +25,19 @@ export default function Home() {
       delay: anime.stagger(100)
     });
     
-    // Animate "What Mitra Stands For" section on scroll
+    // Animate sections on scroll
+    const sectionsToAnimate = document.querySelectorAll('.animate-on-scroll');
+
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
+                const targets = entry.target.querySelectorAll('.scroll-anim-item');
                 anime({
-                    targets: '.mitra-acronym-card',
+                    targets: targets,
                     translateY: [20, 0],
                     opacity: [0, 1],
-                    duration: 500,
-                    delay: anime.stagger(100, {start: 200}),
+                    duration: 600,
+                    delay: anime.stagger(100, {start: 100}),
                     easing: 'easeOutQuad'
                 });
                 observer.unobserve(entry.target);
@@ -42,15 +45,15 @@ export default function Home() {
         });
     }, { threshold: 0.1 });
 
-    const target = document.querySelector('#mitra-stands-for-section');
-    if (target) {
-        observer.observe(target);
-    }
+    sectionsToAnimate.forEach(section => {
+      observer.observe(section);
+    });
 
     return () => {
-        if(target) observer.unobserve(target);
+      sectionsToAnimate.forEach(section => {
+        observer.unobserve(section);
+      });
     };
-
   }, []);
 
   return (
@@ -84,41 +87,64 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="mitra-stands-for-section" className="py-16 md:py-24 bg-secondary/50">
+      <section id="mitra-stands-for-section" className="py-16 md:py-24 bg-secondary/50 animate-on-scroll">
         <div className="container mx-auto px-4 md:px-6">
-            <div className="text-center mb-12">
+            <div className="text-center mb-12 scroll-anim-item opacity-0">
                 <h2 className="text-3xl md:text-4xl font-bold font-headline flex items-center justify-center gap-x-2">
                     What <Logo /> Stands For
                 </h2>
                 <p className="text-muted-foreground mt-2 font-subheading">Our name reflects our mission to build a thriving community.</p>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8 text-center">
-                <div className="p-6 rounded-lg flex flex-col items-center mitra-acronym-card opacity-0">
+                <div className="p-6 rounded-lg flex flex-col items-center scroll-anim-item opacity-0">
                     <h3 className="text-5xl font-bold text-primary font-headline mb-4">M</h3>
                     <h4 className="text-xl font-semibold mb-2 font-headline">Meet & Mentor</h4>
                     <p className="text-muted-foreground">Connect with peers, alumni, and experienced professionals.</p>
                 </div>
-                <div className="p-6 rounded-lg flex flex-col items-center mitra-acronym-card opacity-0">
+                <div className="p-6 rounded-lg flex flex-col items-center scroll-anim-item opacity-0">
                     <h3 className="text-5xl font-bold text-primary font-headline mb-4">I</h3>
                     <h4 className="text-xl font-semibold mb-2 font-headline">Ignite Innovation</h4>
                     <p className="text-muted-foreground">Participate in hackathons to build groundbreaking projects.</p>
                 </div>
-                <div className="p-6 rounded-lg flex flex-col items-center mitra-acronym-card opacity-0">
+                <div className="p-6 rounded-lg flex flex-col items-center scroll-anim-item opacity-0">
                     <h3 className="text-5xl font-bold text-primary font-headline mb-4">T</h3>
                     <h4 className="text-xl font-semibold mb-2 font-headline">Tackle Challenges</h4>
                     <p className="text-muted-foreground">Join forces with others to solve real-world problems through volunteering.</p>
                 </div>
-                <div className="p-6 rounded-lg flex flex-col items-center mitra-acronym-card opacity-0">
+                <div className="p-6 rounded-lg flex flex-col items-center scroll-anim-item opacity-0">
                     <h3 className="text-5xl font-bold text-primary font-headline mb-4">R</h3>
                     <h4 className="text-xl font-semibold mb-2 font-headline">Reinforce Skills</h4>
                     <p className="text-muted-foreground">Gain practical experience by contributing to open-source projects.</p>
                 </div>
-                <div className="p-6 rounded-lg flex flex-col items-center mitra-acronym-card opacity-0">
+                <div className="p-6 rounded-lg flex flex-col items-center scroll-anim-item opacity-0">
                     <h3 className="text-5xl font-bold text-primary font-headline mb-4">A</h3>
                     <h4 className="text-xl font-semibold mb-2 font-headline">Activate Your Portfolio</h4>
                     <p className="text-muted-foreground">Be an active part of the tech scene and build your resume.</p>
                 </div>
             </div>
+        </div>
+      </section>
+
+      <section id="contact-section" className="py-16 md:py-24 bg-background animate-on-scroll">
+        <div className="container mx-auto px-4 md:px-6">
+          <div className="text-center max-w-2xl mx-auto">
+            <h2 className="text-3xl md:text-4xl font-bold font-headline scroll-anim-item opacity-0">
+              Have Questions? Reach Out!
+            </h2>
+            <p className="text-muted-foreground mt-4 font-subheading text-lg scroll-anim-item opacity-0">
+              Whether you're a student with an idea, a professional looking to mentor, or a company interested in partnership, we'd love to hear from you.
+            </p>
+            <div className="mt-8 scroll-anim-item opacity-0">
+              <Button asChild size="lg">
+                <a href="mailto:keerthikcoorgdu@gmail.com">
+                  Contact Admin
+                </a>
+              </Button>
+              <p className="text-sm text-muted-foreground mt-4">
+                  Or email us directly at <a href="mailto:keerthikcoorgdu@gmail.com" className="underline hover:text-primary">keerthikcoorgdu@gmail.com</a>
+              </p>
+            </div>
+          </div>
         </div>
       </section>
     </div>
