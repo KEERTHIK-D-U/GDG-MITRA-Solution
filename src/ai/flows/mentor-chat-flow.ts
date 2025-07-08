@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview An AI mentor chatbot flow.
@@ -58,7 +59,7 @@ The Mitra platform is a community hub designed to help students bridge the gap b
 - Connections: A place to find and network with other community members.
 - Mentors: A directory to connect with experienced mentors.
 
-Be encouraging, supportive, and break down complex topics into easy-to-understand explanations. Keep your responses concise and helpful. Use markdown for formatting when appropriate.`,
+Be encouraging, supportive, and break down complex topics into easy-to-understand explanations. Keep your responses concise and helpful. Use markdown for formatting when appropriate, such as using standard bullet points ('-' or '*') for lists. Avoid using unconventional formatting like '** --- **' between points.`,
     });
 
     return {response: response.text};

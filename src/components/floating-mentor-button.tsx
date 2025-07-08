@@ -20,7 +20,7 @@ export function FloatingMentorButton() {
             <Button
                 variant="outline"
                 size="icon"
-                className="rounded-full h-14 w-14 bg-background/80 backdrop-blur-sm hover:scale-105 transition-all duration-300 shadow-xl shadow-primary/20 hover:shadow-primary/30 dark:shadow-primary/30 dark:hover:shadow-primary/40"
+                className="rounded-full h-14 w-14 bg-background/80 backdrop-blur-sm hover:scale-105 transition-all duration-300 shadow-lg shadow-primary/30 hover:shadow-primary/40"
                 onClick={() => setIsOpen(true)}
             >
                 <Bot className="h-7 w-7 text-primary" />
