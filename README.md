@@ -4,7 +4,7 @@ This is the repository for the Mitra community platform. Your digital ecosystem 
 
 ## ❗️ Important: Environment Variables Setup
 
-This project uses both Firebase and Google AI (for Genkit) services. You **must** provide your own API keys for the app to function correctly.
+This project uses both Firebase and Google AI (for Genkit) services. You **must** provide your own API keys for the app to function correctly. Your `.env.local` file contains secret keys and must **NEVER** be committed to GitHub. The `.gitignore` file included in this project is already configured to prevent this from happening.
 
 1.  **Create an environment file**: In the root of the project, create a new file named `.env.local` by copying the example file `env.local.example`.
 
