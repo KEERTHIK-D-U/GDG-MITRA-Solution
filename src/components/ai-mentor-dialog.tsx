@@ -26,7 +26,7 @@ interface AiMentorDialogProps {
 export function AiMentorDialog({ isOpen, onOpenChange }: AiMentorDialogProps) {
     const { user } = useAuth();
     const { toast } = useToast();
-    const scrollAreaRef = useRef<HTMLDivElement>(null);
+    const messagesEndRef = useRef<HTMLDivElement>(null);
 
     const [messages, setMessages] = useState<Message[]>([]);
     const [input, setInput] = useState("");
@@ -49,13 +49,8 @@ export function AiMentorDialog({ isOpen, onOpenChange }: AiMentorDialogProps) {
 
 
     useEffect(() => {
-        if (scrollAreaRef.current) {
-            scrollAreaRef.current.scrollTo({
-                top: scrollAreaRef.current.scrollHeight,
-                behavior: 'smooth'
-            });
-        }
-    }, [messages]);
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, [messages, isLoading]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -98,7 +93,7 @@ export function AiMentorDialog({ isOpen, onOpenChange }: AiMentorDialogProps) {
                     <DialogDescription>Your personal guide for career and skill development.</DialogDescription>
                 </DialogHeader>
                 <div className="flex-1 flex flex-col gap-4 overflow-hidden p-6">
-                     <ScrollArea className="flex-1 pr-4 -mr-6" ref={scrollAreaRef}>
+                     <ScrollArea className="flex-1 pr-4 -mr-6">
                         <div className="space-y-6">
                             {messages.map((message, index) => (
                                 <div key={index} className={cn("flex items-start gap-3", message.role === 'user' ? 'justify-end' : 'justify-start')}>
@@ -135,6 +130,7 @@ export function AiMentorDialog({ isOpen, onOpenChange }: AiMentorDialogProps) {
                                     </div>
                                 </div>
                             )}
+                             <div ref={messagesEndRef} />
                         </div>
                     </ScrollArea>
                 </div>
