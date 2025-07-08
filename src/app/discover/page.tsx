@@ -2,10 +2,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import Image from "next/image";
 import { Search, MapPin, Calendar, Inbox, CheckCircle, AlertTriangle } from "lucide-react";
 import { getEvents, type Event, getUserRegistrations } from "@/lib/firebase";
 import { useAuth, useRequireAuth } from "@/context/auth-context";
@@ -132,17 +131,7 @@ export default function DiscoverPage() {
                 const isHost = user?.uid === event.hostId;
                 return (
                   <Card key={event.id} className="overflow-hidden flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-2 hover:border-[#222222] hover:shadow-[#02006c]/40 dark:hover:border-[#00e97b] dark:hover:shadow-[#00e97b]/30">
-                    <CardHeader className="p-0">
-                      <Image
-                        src={event.imageUrl}
-                        alt={event.title}
-                        width={400}
-                        height={250}
-                        className="w-full h-48 object-cover"
-                        data-ai-hint="event community"
-                      />
-                    </CardHeader>
-                    <CardContent className="p-4 flex-grow">
+                    <CardHeader className="p-4 flex-grow">
                       <h3 className="text-xl mb-2 font-semibold">{event.title}</h3>
                       <div className="text-muted-foreground space-y-2">
                         <div className="flex items-center">
@@ -154,6 +143,9 @@ export default function DiscoverPage() {
                           <span>{event.location}</span>
                         </div>
                       </div>
+                    </CardHeader>
+                     <CardContent className="p-4 pt-0">
+                        <p className="text-sm text-muted-foreground line-clamp-3">{event.description}</p>
                     </CardContent>
                     <CardFooter className="p-4 bg-secondary/30">
                       <Button 

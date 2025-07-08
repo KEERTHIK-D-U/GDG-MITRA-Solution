@@ -13,7 +13,6 @@ const firebaseConfig = {
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore, doc, setDoc, getDoc, collection, addDoc, serverTimestamp, getDocs, query, where, deleteDoc, onSnapshot, orderBy, limit } from "firebase/firestore";
-import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import type { User as FirebaseUser } from 'firebase/auth';
 
 // For debugging: This will print the Project ID to your browser's developer console.
@@ -23,8 +22,8 @@ import type { User as FirebaseUser } from 'firebase/auth';
 // Initialize Firebase
 let app;
 if (!getApps().length) {
-    if (!firebaseConfig.apiKey || !firebaseConfig.projectId || !firebaseConfig.storageBucket) {
-        console.error("Firebase config is not fully set. Please ensure NEXT_PUBLIC_FIREBASE_API_KEY, NEXT_PUBLIC_FIREBASE_PROJECT_ID, and NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET are all present in .env.local and restart your server.");
+    if (!firebaseConfig.apiKey || !firebaseConfig.projectId) {
+        console.error("Firebase config is not fully set. Please ensure NEXT_PUBLIC_FIREBASE_API_KEY and NEXT_PUBLIC_FIREBASE_PROJECT_ID are present in .env.local and restart your server.");
     }
     app = initializeApp(firebaseConfig);
 } else {
@@ -33,7 +32,6 @@ if (!getApps().length) {
 
 const auth = getAuth(app);
 const db = getFirestore(app);
-const storage = getStorage(app);
 
 export type UserRole = "user" | "admin" | "mentor" | "host";
 
@@ -89,7 +87,6 @@ export interface Event {
     date: string;
     location: string;
     description: string;
-    imageUrl: string;
     hostId: string;
     hostName: string;
     hostEmail: string;
@@ -100,7 +97,6 @@ export interface Project {
     id: string; // Firestore document ID
     title: string;
     description: string;
-    imageUrl: string;
     tags: string[];
     hostId: string;
     hostName: string;
@@ -113,7 +109,6 @@ export interface Hackathon {
     title: string;
     dates: string;
     description: string;
-    imageUrl: string;
     hostId: string;
     hostName: string;
     hostEmail: string;
@@ -364,20 +359,6 @@ export const contributeToProject = async (userId: string, userName: string | nul
     }
 };
 
-// --- Storage Functions ---
-export const uploadImage = async (file: File): Promise<string> => {
-    const filePath = `images/${Date.now()}-${file.name}`;
-    const storageRef = ref(storage, filePath);
-    try {
-        await uploadBytes(storageRef, file);
-        const downloadURL = await getDownloadURL(storageRef);
-        return downloadURL;
-    } catch (error) {
-        console.error("Error uploading image:", error);
-        throw new Error("Failed to upload image.");
-    }
-};
-
 
 // Functions to create items
 export const createEvent = async (eventData: Omit<Event, 'id' | 'createdAt'>) => {
@@ -596,4 +577,4 @@ export const getMentors = (currentUserId: string, callback: (users: UserProfile[
     }, (error) => handleSnapshotError(error, "users", onError));
 };
 
-export { app, auth, db, storage };
+export { app, auth, db };

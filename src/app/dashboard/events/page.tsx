@@ -8,7 +8,7 @@ import * as z from "zod";
 import Image from "next/image";
 import { PlusCircle, Inbox, Calendar, MapPin, Trash2, Users, Mail, UserCheck, AlertTriangle } from "lucide-react";
 
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -17,9 +17,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { useToast } from "@/hooks/use-toast";
 import { createEvent, getEventsByHost, type Event, deleteEvent, getRegistrationsForEvent, type EventRegistration } from "@/lib/firebase";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -179,14 +177,11 @@ export default function ManageEventsPage() {
         }
         setIsSubmitting(true);
         try {
-            const imageUrl = `https://placehold.co/600x400.png`;
-            
             await createEvent({
                 title: data.title,
                 description: data.description,
                 location: data.location,
                 date: data.date,
-                imageUrl: imageUrl,
                 hostId: user.uid,
                 hostName: user.name || "Anonymous Host",
                 hostEmail: user.email,
@@ -236,20 +231,14 @@ export default function ManageEventsPage() {
                 {Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-48 w-full" />)}
             </div>
         ) : events.length > 0 ? (
-            <Accordion type="single" collapsible className="w-full space-y-4">
+            <div className="space-y-6">
                 {events.map((event) => (
-                   <AccordionItem value={event.id} key={event.id} className="border-b-0">
-                     <Card className="overflow-hidden">
-                        <div className="flex w-full items-stretch">
-                          <AccordionTrigger className="p-0 hover:no-underline w-full text-left flex-grow">
-                            <div className="flex flex-col md:flex-row w-full h-full">
-                              <div className="md:w-1/3">
-                                <Image src={event.imageUrl} alt={event.title} width={600} height={400} className="w-full h-48 md:h-full object-cover" data-ai-hint="event community" />
-                              </div>
-                              <div className="md:w-2/3 flex flex-col">
-                                <CardHeader className="flex-grow">
+                   <Card key={event.id} className="overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-2 hover:border-[#222222] hover:shadow-[#02006c]/40 dark:hover:border-[#00e97b] dark:hover:shadow-[#00e97b]/30">
+                        <div className="p-6">
+                            <div className="flex justify-between items-start gap-4">
+                                <div>
                                     <h3 className="text-xl font-headline font-semibold">{event.title}</h3>
-                                    <div className="text-muted-foreground space-y-2 text-sm pt-2">
+                                    <div className="text-muted-foreground space-y-1 text-sm pt-2">
                                         <div className="flex items-center">
                                             <Calendar className="w-4 h-4 mr-2" />
                                             <span>{new Date(event.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
@@ -259,33 +248,21 @@ export default function ManageEventsPage() {
                                             <span>{event.location}</span>
                                         </div>
                                     </div>
-                                </CardHeader>
-                                <CardFooter className="p-4 bg-secondary/30 mt-auto">
-                                    <div className="flex items-center text-sm font-medium text-primary">
-                                        <Users className="w-4 h-4 mr-2" />
-                                        <span>View Registrations</span>
-                                    </div>
-                                </CardFooter>
-                              </div>
+                                </div>
+                                <Button variant="ghost" size="icon" className="h-8 w-8 flex-shrink-0 text-destructive hover:bg-destructive/10" onClick={() => setEventToDelete(event)}>
+                                    <Trash2 className="h-4 w-4" />
+                                    <span className="sr-only">Delete event</span>
+                                </Button>
                             </div>
-                          </AccordionTrigger>
-                          <div className="flex items-center p-4 border-l bg-secondary/30">
-                            <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:bg-destructive/10" onClick={() => setEventToDelete(event)}>
-                                <Trash2 className="h-4 w-4" />
-                                <span className="sr-only">Delete event</span>
-                            </Button>
-                          </div>
+                            <p className="mt-4 text-sm text-muted-foreground">{event.description}</p>
                         </div>
-                       <AccordionContent>
-                         <div className="p-6 border-t">
+                        <div className="border-t bg-secondary/30 p-6">
                             <h3 className="text-lg font-semibold mb-4">Registrations</h3>
                             <RegistrationsList eventId={event.id} />
-                         </div>
-                       </AccordionContent>
-                      </Card>
-                   </AccordionItem>
+                        </div>
+                    </Card>
                 ))}
-            </Accordion>
+            </div>
         ) : (
             <div className="flex flex-col items-center justify-center text-center py-16 px-4 border-2 border-dashed rounded-lg">
                 <Inbox className="w-16 h-16 text-muted-foreground" />

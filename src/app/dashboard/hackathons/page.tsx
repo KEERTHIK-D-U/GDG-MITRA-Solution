@@ -8,7 +8,7 @@ import * as z from "zod";
 import Image from "next/image";
 import { PlusCircle, Inbox, Calendar, Trash2, UserCheck, Users, AlertTriangle } from "lucide-react";
 
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -27,7 +27,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { format } from "date-fns";
 
@@ -178,13 +177,10 @@ export default function ManageHackathonsPage() {
         }
         setIsSubmitting(true);
         try {
-            const imageUrl = `https://placehold.co/600x400.png`;
-
             await createHackathon({
                 title: data.title,
                 description: data.description,
                 dates: data.dates,
-                imageUrl: imageUrl,
                 hostId: user.uid,
                 hostName: user.name || "Anonymous Host",
                 hostEmail: user.email,
@@ -230,53 +226,40 @@ export default function ManageHackathonsPage() {
                 <p className="mt-2 text-sm text-muted-foreground">This is often caused by Firestore security rules or missing database indexes. Check your browser's developer console for more details.</p>
             </div>
         ) : loading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="space-y-6">
                 {Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-80 w-full" />)}
             </div>
         ) : hackathons.length > 0 ? (
-            <Accordion type="single" collapsible className="w-full space-y-4">
+            <div className="space-y-6">
                 {hackathons.map((hackathon) => (
-                    <AccordionItem value={hackathon.id} key={hackathon.id} className="border-b-0">
-                        <Card className="overflow-hidden flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-2 hover:border-[#222222] hover:shadow-[#02006c]/40 dark:hover:border-[#00e97b] dark:hover:shadow-[#00e97b]/30">
-                            <div className="flex w-full items-stretch">
-                                <AccordionTrigger className="hover:no-underline p-0 text-left w-full flex-grow">
-                                   <div className="w-full h-full flex flex-col">
-                                    <CardHeader className="p-0">
-                                        <Image src={hackathon.imageUrl} alt={hackathon.title} width={600} height={400} className="w-full h-40 object-cover" data-ai-hint="hackathon code" />
-                                    </CardHeader>
-                                    <CardContent className="p-4 flex-grow">
-                                        <h3 className="text-xl mb-2 font-headline font-semibold">{hackathon.title}</h3>
-                                        <div className="flex items-center text-muted-foreground mb-4">
+                    <Card key={hackathon.id} className="overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-2 hover:border-[#222222] hover:shadow-[#02006c]/40 dark:hover:border-[#00e97b] dark:hover:shadow-[#00e97b]/30">
+                        <CardHeader className="p-6">
+                             <div className="flex justify-between items-start gap-4">
+                                <div>
+                                    <h3 className="text-xl font-headline font-semibold">{hackathon.title}</h3>
+                                    <div className="text-muted-foreground space-y-1 text-sm pt-2">
+                                        <div className="flex items-center">
                                             <Calendar className="w-4 h-4 mr-2" />
                                             <span>{hackathon.dates}</span>
                                         </div>
-                                        <p className="text-sm text-muted-foreground line-clamp-3">{hackathon.description}</p>
-                                    </CardContent>
-                                    <CardFooter className="p-4 bg-secondary/30 mt-auto">
-                                         <div className="flex items-center text-sm font-medium text-primary">
-                                            <Users className="w-4 h-4 mr-2" />
-                                            <span>View Registrations</span>
-                                        </div>
-                                    </CardFooter>
-                                   </div>
-                                </AccordionTrigger>
-                                <div className="flex items-center p-4 border-l bg-secondary/30">
-                                    <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:bg-destructive/10" onClick={() => setHackathonToDelete(hackathon)}>
-                                        <Trash2 className="h-4 w-4" />
-                                        <span className="sr-only">Delete hackathon</span>
-                                    </Button>
+                                    </div>
                                 </div>
+                                <Button variant="ghost" size="icon" className="h-8 w-8 flex-shrink-0 text-destructive hover:bg-destructive/10" onClick={() => setHackathonToDelete(hackathon)}>
+                                    <Trash2 className="h-4 w-4" />
+                                    <span className="sr-only">Delete hackathon</span>
+                                </Button>
                             </div>
-                             <AccordionContent>
-                                <div className="p-6 border-t">
-                                    <h3 className="text-lg font-semibold mb-4">Registrations</h3>
-                                    <RegistrationsList hackathonId={hackathon.id} />
-                                </div>
-                            </AccordionContent>
-                        </Card>
-                    </AccordionItem>
+                        </CardHeader>
+                        <CardContent className="p-6 pt-0">
+                           <p className="text-sm text-muted-foreground">{hackathon.description}</p>
+                        </CardContent>
+                        <div className="border-t bg-secondary/30 p-6">
+                            <h3 className="text-lg font-semibold mb-4">Registrations</h3>
+                            <RegistrationsList hackathonId={hackathon.id} />
+                        </div>
+                    </Card>
                 ))}
-            </Accordion>
+            </div>
         ) : (
             <div className="flex flex-col items-center justify-center text-center py-16 px-4 border-2 border-dashed rounded-lg">
                 <Inbox className="w-16 h-16 text-muted-foreground" />

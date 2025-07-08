@@ -2,10 +2,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import Image from "next/image";
 import { getProjects, type Project, contributeToProject, getUserProjectContributions } from "@/lib/firebase";
 import { GitBranch, Inbox, Search, CheckCircle, AlertTriangle } from "lucide-react";
 import { useAuth, useRequireAuth } from "@/context/auth-context";
@@ -152,26 +151,18 @@ export default function ProjectsPage() {
               const isHost = user?.uid === project.hostId;
               return (
                 <Card key={project.id} className="flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-2 hover:border-[#222222] hover:shadow-[#02006c]/40 dark:hover:border-[#00e97b] dark:hover:shadow-[#00e97b]/30">
-                  <CardHeader className="p-0">
-                    <Image
-                      src={project.imageUrl}
-                      alt={project.title}
-                      width={400}
-                      height={225}
-                      className="w-full h-48 object-cover rounded-t-lg"
-                      data-ai-hint="project code computer"
-                    />
-                  </CardHeader>
-                  <CardContent className="p-6 flex-grow">
+                  <CardHeader className="p-6">
                     <h3 className="text-2xl mb-2 font-semibold">{project.title}</h3>
-                    <p className="text-muted-foreground mb-4">{project.description}</p>
+                    <p className="text-muted-foreground mb-4 line-clamp-3">{project.description}</p>
+                  </CardHeader>
+                  <CardContent className="p-6 pt-0 flex-grow">
                     <div className="flex flex-wrap gap-2">
                       {project.tags.map((tag) => (
                         <Badge key={tag} variant="secondary">{tag}</Badge>
                       ))}
                     </div>
                   </CardContent>
-                  <CardFooter className="p-6 bg-secondary/30">
+                  <CardFooter className="p-6 bg-secondary/30 mt-auto">
                     <Button 
                         className="w-full" 
                         variant={hasContributed ? "secondary" : "outline"}

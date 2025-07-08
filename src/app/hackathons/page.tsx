@@ -2,9 +2,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import Image from "next/image";
 import { getHackathons, type Hackathon, getUserHackathonRegistrations } from "@/lib/firebase";
 import { ArrowRight, Calendar, Inbox, Search, CheckCircle, AlertTriangle } from "lucide-react";
 import { useAuth, useRequireAuth } from "@/context/auth-context";
@@ -127,25 +126,15 @@ export default function HackathonsPage() {
                 const isHost = user?.uid === hackathon.hostId;
                 return (
                   <Card key={hackathon.id} className="flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-2 hover:border-[#222222] hover:shadow-[#02006c]/40 dark:hover:border-[#00e97b] dark:hover:shadow-[#00e97b]/30">
-                    <CardHeader className="p-0">
-                      <Image
-                        src={hackathon.imageUrl}
-                        alt={hackathon.title}
-                        width={400}
-                        height={225}
-                        className="w-full h-48 object-cover rounded-t-lg"
-                        data-ai-hint="hackathon code"
-                      />
-                    </CardHeader>
-                    <CardContent className="p-6 flex-grow">
+                    <CardHeader className="p-6 flex-grow">
                       <h3 className="text-2xl mb-2 font-semibold">{hackathon.title}</h3>
                       <div className="flex items-center text-muted-foreground mb-4">
                         <Calendar className="w-4 h-4 mr-2" />
                         <span>{hackathon.dates}</span>
                       </div>
                       <p className="text-muted-foreground">{hackathon.description}</p>
-                    </CardContent>
-                    <CardFooter className="p-6 bg-secondary/30 rounded-b-lg">
+                    </CardHeader>
+                    <CardFooter className="p-6 bg-secondary/30 rounded-b-lg mt-auto">
                       <Button 
                         className="w-full"
                         variant={isRegistered ? "secondary" : "default"}
