@@ -2,16 +2,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth, useRequireAuth } from "@/context/auth-context";
-import { type UserProfile, db } from "@/lib/firebase";
-import { Linkedin, Users, User as UserIcon, School, Mail, GraduationCap } from "lucide-react";
+import { type UserProfile, getUsers } from "@/lib/firebase";
+import { School, Mail, GraduationCap, Users, User as UserIcon, AlertTriangle } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
-import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
-import { collection, onSnapshot, query, where } from "firebase/firestore";
+import { useToast } from "@/hooks/use-toast";
 
 const UserCardSkeleton = () => (
     <Card className="flex flex-col">
@@ -32,36 +31,37 @@ const UserCardSkeleton = () => (
 export default function ConnectionsPage() {
     useRequireAuth();
     const { user: currentUser } = useAuth();
+    const { toast } = useToast();
     const [users, setUsers] = useState<UserProfile[]>([]);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         if (!currentUser) {
-            setUsers([]);
             setLoading(false);
             return;
         }
 
-        const usersRef = collection(db, "users");
-        // Query for user roles, excluding admins and mentors.
-        const q = query(usersRef, where("role", "==", "user"));
+        const unsubscribe = getUsers(currentUser.uid, 
+            (fetchedUsers) => {
+                setError(null);
+                setUsers(fetchedUsers);
+                setLoading(false);
+            },
+            (err) => {
+                console.error(err);
+                setError(err.message);
+                toast({
+                    variant: "destructive",
+                    title: "Failed to load connections",
+                    description: err.message,
+                });
+                setLoading(false);
+            }
+        );
 
-        const unsubscribe = onSnapshot(q, (snapshot) => {
-            const usersData = snapshot.docs
-                .map(doc => doc.data() as UserProfile)
-                // Also filter out the current user from the list
-                .filter(user => user.uid !== currentUser.uid);
-
-            setUsers(usersData);
-            setLoading(false);
-        }, (error) => {
-            console.error("Failed to subscribe to user updates:", error);
-            setLoading(false);
-        });
-
-        // Cleanup subscription on unmount or when currentUser changes
         return () => unsubscribe();
-    }, [currentUser]);
+    }, [currentUser, toast]);
 
     return (
         <div className="container mx-auto px-4 md:px-6 py-12">
@@ -73,8 +73,13 @@ export default function ConnectionsPage() {
                     Discover and connect with other users in the Mitra community.
                 </p>
             </div>
-
-            {loading ? (
+            {error ? (
+                <div className="flex flex-col items-center justify-center text-center py-16 px-4 border-2 border-dashed rounded-lg border-destructive/50">
+                    <AlertTriangle className="w-16 h-16 text-destructive" />
+                    <h3 className="mt-4 text-xl font-semibold text-destructive">An Error Occurred</h3>
+                    <p className="mt-2 text-muted-foreground">{error}</p>
+                </div>
+            ) : loading ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                    {Array.from({ length: 8 }).map((_, i) => <UserCardSkeleton key={i} />)}
                 </div>
@@ -87,7 +92,7 @@ export default function ConnectionsPage() {
                                     <AvatarFallback>{user.name ? user.name.charAt(0).toUpperCase() : <UserIcon />}</AvatarFallback>
                                 </Avatar>
                                 <div>
-                                    <CardTitle className="text-lg">{user.name || 'Community Member'}</CardTitle>
+                                    <h3 className="text-lg font-semibold">{user.name || 'Community Member'}</h3>
                                     <div className="flex flex-wrap gap-1 mt-1">
                                         <Badge variant="secondary" className="capitalize">{user.role}</Badge>
                                         {currentUser?.college && user.college && currentUser.college.trim().toLowerCase() === user.college.trim().toLowerCase() && (

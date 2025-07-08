@@ -389,6 +389,9 @@ export const createEvent = async (eventData: Omit<Event, 'id' | 'createdAt'>) =>
         return { success: true, id: docRef.id };
     } catch (error: any) {
         console.error("Error creating event:", error);
+        if (error.code === 'permission-denied') {
+            throw new Error("Firestore permission denied. Check your security rules to allow creating documents in the 'events' collection.");
+        }
         throw new Error("Failed to create event.");
     }
 };
@@ -402,6 +405,9 @@ export const createProject = async (projectData: Omit<Project, 'id' | 'createdAt
         return { success: true, id: docRef.id };
     } catch (error: any) {
         console.error("Error creating project:", error);
+        if (error.code === 'permission-denied') {
+            throw new Error("Firestore permission denied. Check your security rules to allow creating documents in the 'projects' collection.");
+        }
         throw new Error("Failed to create project.");
     }
 };
@@ -415,6 +421,9 @@ export const createHackathon = async (hackathonData: Omit<Hackathon, 'id' | 'cre
         return { success: true, id: docRef.id };
     } catch (error: any) {
         console.error("Error creating hackathon:", error);
+        if (error.code === 'permission-denied') {
+            throw new Error("Firestore permission denied. Check your security rules to allow creating documents in the 'hackathons' collection.");
+        }
         throw new Error("Failed to create hackathon.");
     }
 };
@@ -426,6 +435,9 @@ export const deleteEvent = async (eventId: string) => {
         return { success: true };
     } catch (error: any) {
         console.error("Error deleting event:", error);
+        if (error.code === 'permission-denied') {
+            throw new Error("Firestore permission denied. Check your security rules to allow deleting from the 'events' collection.");
+        }
         throw new Error("Failed to delete event.");
     }
 };
@@ -436,6 +448,9 @@ export const deleteProject = async (projectId: string) => {
         return { success: true };
     } catch (error: any) {
         console.error("Error deleting project:", error);
+        if (error.code === 'permission-denied') {
+            throw new Error("Firestore permission denied. Check your security rules to allow deleting from the 'projects' collection.");
+        }
         throw new Error("Failed to delete project.");
     }
 };
@@ -446,103 +461,124 @@ export const deleteHackathon = async (hackathonId: string) => {
         return { success: true };
     } catch (error: any) {
         console.error("Error deleting hackathon:", error);
+        if (error.code === 'permission-denied') {
+            throw new Error("Firestore permission denied. Check your security rules to allow deleting from the 'hackathons' collection.");
+        }
         throw new Error("Failed to delete hackathon.");
     }
 };
 
+// Generic error handler for snapshot listeners
+const handleSnapshotError = (error: Error, collectionName: string, onError: (error: Error) => void) => {
+    console.error(`Error fetching ${collectionName}:`, error);
+    const anyError = error as any;
+    if (anyError.code === 'permission-denied') {
+        onError(new Error(`Firestore permission denied. Please check your security rules to allow reading from the '${collectionName}' collection.`));
+    } else {
+        onError(new Error(`Failed to fetch ${collectionName} due to a database error.`));
+    }
+};
+
+
 // Functions to get all items (for public pages)
-export const getEvents = (callback: (events: Event[]) => void) => {
+export const getEvents = (callback: (events: Event[]) => void, onError: (error: Error) => void) => {
     const q = query(collection(db, "events"), orderBy("date", "desc"));
     return onSnapshot(q, (snapshot) => {
         const events = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Event));
         callback(events);
-    });
+    }, (error) => handleSnapshotError(error, "events", onError));
 };
 
-export const getProjects = (callback: (projects: Project[]) => void) => {
+export const getProjects = (callback: (projects: Project[]) => void, onError: (error: Error) => void) => {
     const q = query(collection(db, "projects"), orderBy("createdAt", "desc"));
     return onSnapshot(q, (snapshot) => {
         const projects = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Project));
         callback(projects);
-    });
+    }, (error) => handleSnapshotError(error, "projects", onError));
 };
 
-export const getHackathons = (callback: (hackathons: Hackathon[]) => void) => {
+export const getHackathons = (callback: (hackathons: Hackathon[]) => void, onError: (error: Error) => void) => {
     const q = query(collection(db, "hackathons"), orderBy("createdAt", "desc"));
     return onSnapshot(q, (snapshot) => {
         const hackathons = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Hackathon));
         callback(hackathons);
-    });
+    }, (error) => handleSnapshotError(error, "hackathons", onError));
 };
 
 // Functions to get host-specific items (for dashboard)
-export const getEventsByHost = (hostId: string, callback: (events: Event[]) => void) => {
+export const getEventsByHost = (hostId: string, callback: (events: Event[]) => void, onError: (error: Error) => void) => {
     const q = query(collection(db, "events"), where("hostId", "==", hostId));
     return onSnapshot(q, (snapshot) => {
         const events = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Event));
         const sortedEvents = events.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
         callback(sortedEvents);
-    });
+    }, (error) => handleSnapshotError(error, "events", onError));
 };
 
-export const getProjectsByHost = (hostId: string, callback: (projects: Project[]) => void) => {
+export const getProjectsByHost = (hostId: string, callback: (projects: Project[]) => void, onError: (error: Error) => void) => {
     const q = query(collection(db, "projects"), where("hostId", "==", hostId));
     return onSnapshot(q, (snapshot) => {
         const projects = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Project));
         const sortedProjects = projects.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
         callback(sortedProjects);
-    });
+    }, (error) => handleSnapshotError(error, "projects", onError));
 };
 
-export const getHackathonsByHost = (hostId: string, callback: (hackathons: Hackathon[]) => void) => {
+export const getHackathonsByHost = (hostId: string, callback: (hackathons: Hackathon[]) => void, onError: (error: Error) => void) => {
     const q = query(collection(db, "hackathons"), where("hostId", "==", hostId));
     return onSnapshot(q, (snapshot) => {
         const hackathons = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Hackathon));
         const sortedHackathons = hackathons.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
         callback(sortedHackathons);
-    });
+    }, (error) => handleSnapshotError(error, "hackathons", onError));
 };
 
 // Functions to get registrations for the host dashboard
-export const getRegistrationsForEvent = (eventId: string, callback: (registrations: EventRegistration[]) => void) => {
+export const getRegistrationsForEvent = (eventId: string, callback: (registrations: EventRegistration[]) => void, onError: (error: Error) => void) => {
     const q = query(collection(db, "registrations"), where("eventId", "==", eventId), orderBy("registeredAt", "desc"));
     return onSnapshot(q, (snapshot) => {
         const registrations = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as EventRegistration));
         callback(registrations);
-    });
+    }, (error) => handleSnapshotError(error, "registrations", onError));
 };
 
-export const getRegistrationsForHackathon = (hackathonId: string, callback: (registrations: HackathonRegistration[]) => void) => {
+export const getRegistrationsForHackathon = (hackathonId: string, callback: (registrations: HackathonRegistration[]) => void, onError: (error: Error) => void) => {
     const q = query(collection(db, "hackathonRegistrations"), where("hackathonId", "==", hackathonId), orderBy("registeredAt", "desc"));
     return onSnapshot(q, (snapshot) => {
         const registrations = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as HackathonRegistration));
         callback(registrations);
-    });
+    }, (error) => handleSnapshotError(error, "hackathonRegistrations", onError));
 };
 
-export const getContributionsForProject = (projectId: string, callback: (contributions: ProjectContribution[]) => void) => {
+export const getContributionsForProject = (projectId: string, callback: (contributions: ProjectContribution[]) => void, onError: (error: Error) => void) => {
     const q = query(collection(db, "projectContributions"), where("projectId", "==", projectId), orderBy("contributedAt", "desc"));
     return onSnapshot(q, (snapshot) => {
         const contributions = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as ProjectContribution));
         callback(contributions);
-    });
+    }, (error) => handleSnapshotError(error, "projectContributions", onError));
 };
 
-
-export const getMentors = (currentUserId: string, callback: (users: UserProfile[]) => void) => {
+export const getUsers = (currentUserId: string, callback: (users: UserProfile[]) => void, onError: (error: Error) => void) => {
     const usersRef = collection(db, "users");
-    // Query for mentors
+    const q = query(usersRef, where("role", "==", "user"));
+    return onSnapshot(q, (snapshot) => {
+        const usersData = snapshot.docs
+            .map(doc => doc.data() as UserProfile)
+            .filter(user => user.uid !== currentUserId);
+        callback(usersData);
+    }, (error) => handleSnapshotError(error, "users", onError));
+}
+
+export const getMentors = (currentUserId: string, callback: (users: UserProfile[]) => void, onError: (error: Error) => void) => {
+    const usersRef = collection(db, "users");
     const q = query(usersRef, where("role", "==", "mentor"));
     
     return onSnapshot(q, (snapshot) => {
-        // Filter out the current user on the client side to avoid composite indexes
         const mentors = snapshot.docs
             .map(doc => doc.data() as UserProfile)
             .filter(mentor => mentor.uid !== currentUserId);
         callback(mentors);
-    }, (error) => {
-        console.error("Failed to subscribe to mentor updates:", error);
-    });
+    }, (error) => handleSnapshotError(error, "users", onError));
 };
 
 export { app, auth, db, storage };

@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import Image from "next/image";
-import { PlusCircle, Inbox, GitBranch, Trash2, Upload, Users } from "lucide-react";
+import { PlusCircle, Inbox, GitBranch, Trash2, Upload, Users, AlertTriangle } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -54,17 +54,37 @@ type FormValues = z.infer<typeof formSchema>;
 const ContributionsList = ({ projectId }: { projectId: string }) => {
     const [contributions, setContributions] = useState<ProjectContribution[]>([]);
     const [loading, setLoading] = useState(true);
+    const { toast } = useToast();
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        const unsubscribe = getContributionsForProject(projectId, (data) => {
-            setContributions(data);
-            setLoading(false);
-        });
+        const unsubscribe = getContributionsForProject(
+            projectId,
+            (data) => {
+                setError(null);
+                setContributions(data);
+                setLoading(false);
+            },
+            (err) => {
+                console.error(err);
+                setError(err.message);
+                toast({
+                    variant: "destructive",
+                    title: "Failed to load contributors",
+                    description: err.message,
+                });
+                setLoading(false);
+            }
+        );
         return () => unsubscribe();
-    }, [projectId]);
+    }, [projectId, toast]);
 
     if (loading) {
         return <Skeleton className="h-24 w-full" />;
+    }
+
+    if (error) {
+        return <p className="text-sm text-destructive text-center py-4">{error}</p>;
     }
 
     if (contributions.length === 0) {
@@ -101,6 +121,7 @@ export default function ManageProjectsPage() {
     const [loading, setLoading] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [projectToDelete, setProjectToDelete] = useState<Project | null>(null);
+    const [error, setError] = useState<string | null>(null);
 
     const form = useForm<FormValues>({
         resolver: zodResolver(formSchema),
@@ -111,12 +132,26 @@ export default function ManageProjectsPage() {
     useEffect(() => {
         if (!user) return;
         setLoading(true);
-        const unsubscribe = getProjectsByHost(user.uid, (hostedProjects) => {
-            setProjects(hostedProjects);
-            setLoading(false);
-        });
+        const unsubscribe = getProjectsByHost(
+            user.uid,
+            (hostedProjects) => {
+                setError(null);
+                setProjects(hostedProjects);
+                setLoading(false);
+            },
+            (err) => {
+                console.error(err);
+                setError(err.message);
+                toast({
+                    variant: "destructive",
+                    title: "Failed to load projects",
+                    description: err.message,
+                });
+                setLoading(false);
+            }
+        );
         return () => unsubscribe();
-    }, [user]);
+    }, [user, toast]);
 
     const onSubmit = async (data: FormValues) => {
         if (!user || !user.email) {
@@ -172,7 +207,13 @@ export default function ManageProjectsPage() {
             </Button>
         </div>
 
-        {loading ? (
+        {error ? (
+             <div className="flex flex-col items-center justify-center text-center py-16 px-4 border-2 border-dashed rounded-lg border-destructive/50">
+                <AlertTriangle className="w-16 h-16 text-destructive" />
+                <h3 className="mt-4 text-xl font-semibold text-destructive">An Error Occurred</h3>
+                <p className="mt-2 text-muted-foreground">{error}</p>
+            </div>
+        ) : loading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-80 w-full" />)}
             </div>
@@ -188,7 +229,7 @@ export default function ManageProjectsPage() {
                                         <Image src={project.imageUrl} alt={project.title} width={600} height={400} className="w-full h-40 object-cover" data-ai-hint="code project" />
                                     </CardHeader>
                                     <CardContent className="p-4 flex-grow">
-                                        <CardTitle className="text-xl mb-2 font-headline">{project.title}</CardTitle>
+                                        <h3 className="text-xl mb-2 font-headline font-semibold">{project.title}</h3>
                                         <p className="text-sm text-muted-foreground mb-4 line-clamp-3">{project.description}</p>
                                         <div className="flex flex-wrap gap-2">
                                             {project.tags.map((tag) => (

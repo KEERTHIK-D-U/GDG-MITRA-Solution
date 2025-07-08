@@ -6,15 +6,17 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { getHackathons, type Hackathon, getUserHackathonRegistrations } from "@/lib/firebase";
-import { ArrowRight, Calendar, Inbox, Search, CheckCircle } from "lucide-react";
+import { ArrowRight, Calendar, Inbox, Search, CheckCircle, AlertTriangle } from "lucide-react";
 import { useAuth, useRequireAuth } from "@/context/auth-context";
 import { HackathonRegistrationDialog } from "@/components/hackathon-registration-dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
+import { useToast } from "@/hooks/use-toast";
 
 export default function HackathonsPage() {
   useRequireAuth();
   const { user, loading: authLoading } = useAuth();
+  const { toast } = useToast();
   
   const [hackathons, setHackathons] = useState<Hackathon[]>([]);
   const [filteredHackathons, setFilteredHackathons] = useState<Hackathon[]>([]);
@@ -23,6 +25,7 @@ export default function HackathonsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [userRegistrations, setUserRegistrations] = useState<Set<string>>(new Set());
   const [registrationsLoading, setRegistrationsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (authLoading) return;
@@ -33,11 +36,24 @@ export default function HackathonsPage() {
       return;
     }
     setLoading(true);
-    const unsubscribeHackathons = getHackathons((fetchedHackathons) => {
-      setHackathons(fetchedHackathons);
-      setFilteredHackathons(fetchedHackathons);
-      setLoading(false);
-    });
+    const unsubscribeHackathons = getHackathons(
+      (fetchedHackathons) => {
+        setError(null);
+        setHackathons(fetchedHackathons);
+        setFilteredHackathons(fetchedHackathons);
+        setLoading(false);
+      },
+      (err) => {
+        console.error(err);
+        setError(err.message);
+        toast({
+          variant: "destructive",
+          title: "Failed to load hackathons",
+          description: err.message,
+        });
+        setLoading(false);
+      }
+    );
 
     setRegistrationsLoading(true);
     getUserHackathonRegistrations(user.uid).then((regs) => {
@@ -49,7 +65,7 @@ export default function HackathonsPage() {
     });
 
     return () => unsubscribeHackathons();
-  }, [user, authLoading]);
+  }, [user, authLoading, toast]);
 
   useEffect(() => {
     const lowercasedFilter = searchTerm.toLowerCase();
@@ -93,8 +109,14 @@ export default function HackathonsPage() {
                 />
               </div>
             </div>
-
-          {isLoading ? (
+            
+          {error ? (
+              <div className="flex flex-col items-center justify-center text-center py-16 px-4 border-2 border-dashed rounded-lg border-destructive/50">
+                <AlertTriangle className="w-16 h-16 text-destructive" />
+                <h3 className="mt-4 text-xl font-semibold text-destructive">An Error Occurred</h3>
+                <p className="mt-2 text-muted-foreground">{error}</p>
+              </div>
+          ) : isLoading ? (
              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                {Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-96 w-full" />)}
             </div>
@@ -116,7 +138,7 @@ export default function HackathonsPage() {
                       />
                     </CardHeader>
                     <CardContent className="p-6 flex-grow">
-                      <CardTitle className="text-2xl mb-2">{hackathon.title}</CardTitle>
+                      <h3 className="text-2xl mb-2 font-semibold">{hackathon.title}</h3>
                       <div className="flex items-center text-muted-foreground mb-4">
                         <Calendar className="w-4 h-4 mr-2" />
                         <span>{hackathon.dates}</span>

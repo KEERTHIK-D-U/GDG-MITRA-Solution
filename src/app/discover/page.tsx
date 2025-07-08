@@ -6,15 +6,17 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
-import { Search, MapPin, Calendar, Inbox, CheckCircle } from "lucide-react";
+import { Search, MapPin, Calendar, Inbox, CheckCircle, AlertTriangle } from "lucide-react";
 import { getEvents, type Event, getUserRegistrations } from "@/lib/firebase";
 import { useAuth, useRequireAuth } from "@/context/auth-context";
 import { EventRegistrationDialog } from "@/components/event-registration-dialog";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useToast } from "@/hooks/use-toast";
 
 export default function DiscoverPage() {
   useRequireAuth(); // Protect this route for any logged-in user
   const { user, loading: authLoading } = useAuth();
+  const { toast } = useToast();
 
   const [events, setEvents] = useState<Event[]>([]);
   const [filteredEvents, setFilteredEvents] = useState<Event[]>([]);
@@ -23,6 +25,7 @@ export default function DiscoverPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [userRegistrations, setUserRegistrations] = useState<Set<string>>(new Set());
   const [registrationsLoading, setRegistrationsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     // Wait for authentication to complete before fetching data
@@ -35,11 +38,24 @@ export default function DiscoverPage() {
     }
     
     setLoading(true);
-    const unsubscribe = getEvents((fetchedEvents) => {
-      setEvents(fetchedEvents);
-      setFilteredEvents(fetchedEvents);
-      setLoading(false);
-    });
+    const unsubscribe = getEvents(
+      (fetchedEvents) => {
+        setError(null);
+        setEvents(fetchedEvents);
+        setFilteredEvents(fetchedEvents);
+        setLoading(false);
+      },
+      (err) => {
+        console.error(err);
+        setError(err.message);
+        toast({
+          variant: "destructive",
+          title: "Failed to load events",
+          description: err.message,
+        });
+        setLoading(false);
+      }
+    );
 
     setRegistrationsLoading(true);
     getUserRegistrations(user.uid).then((regs) => {
@@ -52,7 +68,7 @@ export default function DiscoverPage() {
 
     // Cleanup subscription on unmount
     return () => unsubscribe();
-  }, [user, authLoading]);
+  }, [user, authLoading, toast]);
 
   useEffect(() => {
     const lowercasedFilter = searchTerm.toLowerCase();
@@ -99,7 +115,13 @@ export default function DiscoverPage() {
           </div>
 
           <h2 className="text-3xl font-bold tracking-tight mb-8 font-headline">Upcoming Events</h2>
-          {isLoading ? (
+          {error ? (
+              <div className="flex flex-col items-center justify-center text-center py-16 px-4 border-2 border-dashed rounded-lg border-destructive/50">
+                <AlertTriangle className="w-16 h-16 text-destructive" />
+                <h3 className="mt-4 text-xl font-semibold text-destructive">An Error Occurred</h3>
+                <p className="mt-2 text-muted-foreground">{error}</p>
+              </div>
+          ) : isLoading ? (
              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-80 w-full" />)}
              </div>
@@ -121,7 +143,7 @@ export default function DiscoverPage() {
                       />
                     </CardHeader>
                     <CardContent className="p-4 flex-grow">
-                      <CardTitle className="text-xl mb-2">{event.title}</CardTitle>
+                      <h3 className="text-xl mb-2 font-semibold">{event.title}</h3>
                       <div className="text-muted-foreground space-y-2">
                         <div className="flex items-center">
                           <Calendar className="w-4 h-4 mr-2" />

@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import Image from "next/image";
 import { getProjects, type Project, contributeToProject, getUserProjectContributions } from "@/lib/firebase";
-import { GitBranch, Inbox, Search, CheckCircle } from "lucide-react";
+import { GitBranch, Inbox, Search, CheckCircle, AlertTriangle } from "lucide-react";
 import { useAuth, useRequireAuth } from "@/context/auth-context";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -24,6 +24,7 @@ export default function ProjectsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [userContributions, setUserContributions] = useState<Set<string>>(new Set());
   const [contributionsLoading, setContributionsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (authLoading) return;
@@ -34,11 +35,24 @@ export default function ProjectsPage() {
       return;
     }
     setLoading(true);
-    const unsubscribeProjects = getProjects((fetchedProjects) => {
-      setProjects(fetchedProjects);
-      setFilteredProjects(fetchedProjects);
-      setLoading(false);
-    });
+    const unsubscribeProjects = getProjects(
+      (fetchedProjects) => {
+        setError(null);
+        setProjects(fetchedProjects);
+        setFilteredProjects(fetchedProjects);
+        setLoading(false);
+      },
+      (err) => {
+        console.error(err);
+        setError(err.message);
+        toast({
+          variant: "destructive",
+          title: "Failed to load projects",
+          description: err.message,
+        });
+        setLoading(false);
+      }
+    );
 
     setContributionsLoading(true);
     getUserProjectContributions(user.uid).then((contribs) => {
@@ -50,7 +64,7 @@ export default function ProjectsPage() {
     });
 
     return () => unsubscribeProjects();
-  }, [user, authLoading]);
+  }, [user, authLoading, toast]);
 
   useEffect(() => {
     const lowercasedFilter = searchTerm.toLowerCase();
@@ -121,7 +135,13 @@ export default function ProjectsPage() {
               </div>
         </div>
 
-        {isLoading ? (
+        {error ? (
+          <div className="flex flex-col items-center justify-center text-center py-16 px-4 border-2 border-dashed rounded-lg border-destructive/50">
+            <AlertTriangle className="w-16 h-16 text-destructive" />
+            <h3 className="mt-4 text-xl font-semibold text-destructive">An Error Occurred</h3>
+            <p className="mt-2 text-muted-foreground">{error}</p>
+          </div>
+        ) : isLoading ? (
            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-96 w-full" />)}
            </div>
@@ -143,7 +163,7 @@ export default function ProjectsPage() {
                     />
                   </CardHeader>
                   <CardContent className="p-6 flex-grow">
-                    <CardTitle className="text-2xl mb-2">{project.title}</CardTitle>
+                    <h3 className="text-2xl mb-2 font-semibold">{project.title}</h3>
                     <p className="text-muted-foreground mb-4">{project.description}</p>
                     <div className="flex flex-wrap gap-2">
                       {project.tags.map((tag) => (

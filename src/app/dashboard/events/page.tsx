@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import Image from "next/image";
-import { PlusCircle, Inbox, Calendar, MapPin, Trash2, Upload, Users, Mail, UserCheck } from "lucide-react";
+import { PlusCircle, Inbox, Calendar, MapPin, Trash2, Upload, Users, Mail, UserCheck, AlertTriangle } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -56,17 +56,37 @@ type FormValues = z.infer<typeof formSchema>;
 const RegistrationsList = ({ eventId }: { eventId: string }) => {
     const [registrations, setRegistrations] = useState<EventRegistration[]>([]);
     const [loading, setLoading] = useState(true);
+    const { toast } = useToast();
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        const unsubscribe = getRegistrationsForEvent(eventId, (data) => {
-            setRegistrations(data);
-            setLoading(false);
-        });
+        const unsubscribe = getRegistrationsForEvent(
+            eventId, 
+            (data) => {
+                setError(null);
+                setRegistrations(data);
+                setLoading(false);
+            },
+            (err) => {
+                console.error(err);
+                setError(err.message);
+                toast({
+                    variant: "destructive",
+                    title: "Failed to load registrations",
+                    description: err.message,
+                });
+                setLoading(false);
+            }
+        );
         return () => unsubscribe();
-    }, [eventId]);
+    }, [eventId, toast]);
 
     if (loading) {
         return <Skeleton className="h-24 w-full" />;
+    }
+
+    if (error) {
+        return <p className="text-sm text-destructive text-center py-4">{error}</p>
     }
 
     if (registrations.length === 0) {
@@ -133,6 +153,7 @@ export default function ManageEventsPage() {
     const [loading, setLoading] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [eventToDelete, setEventToDelete] = useState<Event | null>(null);
+    const [error, setError] = useState<string | null>(null);
 
     const form = useForm<FormValues>({
         resolver: zodResolver(formSchema),
@@ -143,12 +164,26 @@ export default function ManageEventsPage() {
     useEffect(() => {
         if (!user) return;
         setLoading(true);
-        const unsubscribe = getEventsByHost(user.uid, (hostedEvents) => {
-            setEvents(hostedEvents);
-            setLoading(false);
-        });
+        const unsubscribe = getEventsByHost(
+            user.uid, 
+            (hostedEvents) => {
+                setError(null);
+                setEvents(hostedEvents);
+                setLoading(false);
+            },
+            (err) => {
+                console.error(err);
+                setError(err.message);
+                toast({
+                    variant: "destructive",
+                    title: "Failed to load events",
+                    description: err.message,
+                });
+                setLoading(false);
+            }
+        );
         return () => unsubscribe();
-    }, [user]);
+    }, [user, toast]);
 
     const onSubmit = async (data: FormValues) => {
         if (!user || !user.email) {
@@ -205,7 +240,13 @@ export default function ManageEventsPage() {
             </Button>
         </div>
 
-        {loading ? (
+        {error ? (
+            <div className="flex flex-col items-center justify-center text-center py-16 px-4 border-2 border-dashed rounded-lg border-destructive/50">
+                <AlertTriangle className="w-16 h-16 text-destructive" />
+                <h3 className="mt-4 text-xl font-semibold text-destructive">An Error Occurred</h3>
+                <p className="mt-2 text-muted-foreground">{error}</p>
+            </div>
+        ) : loading ? (
             <div className="space-y-4">
                 {Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-48 w-full" />)}
             </div>
@@ -222,7 +263,7 @@ export default function ManageEventsPage() {
                               </div>
                               <div className="md:w-2/3 flex flex-col">
                                 <CardHeader className="flex-grow">
-                                    <CardTitle className="text-xl font-headline">{event.title}</CardTitle>
+                                    <h3 className="text-xl font-headline font-semibold">{event.title}</h3>
                                     <div className="text-muted-foreground space-y-2 text-sm pt-2">
                                         <div className="flex items-center">
                                             <Calendar className="w-4 h-4 mr-2" />

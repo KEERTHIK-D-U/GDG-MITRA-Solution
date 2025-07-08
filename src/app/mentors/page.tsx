@@ -2,15 +2,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth, useRequireAuth } from "@/context/auth-context";
 import { type UserProfile, getMentors } from "@/lib/firebase";
-import { Linkedin, Users, User as UserIcon, School, Mail, GraduationCap } from "lucide-react";
+import { Users, User as UserIcon, School, Mail, GraduationCap, AlertTriangle } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
-import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
+import { useToast } from "@/hooks/use-toast";
 
 const UserCardSkeleton = () => (
     <Card className="flex flex-col">
@@ -31,24 +31,39 @@ const UserCardSkeleton = () => (
 export default function MentorsPage() {
     useRequireAuth();
     const { user: currentUser } = useAuth();
+    const { toast } = useToast();
     const [mentors, setMentors] = useState<UserProfile[]>([]);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         if (!currentUser) {
-            setMentors([]);
             setLoading(false);
             return;
         }
 
-        const unsubscribe = getMentors(currentUser.uid, (fetchedMentors) => {
-            setMentors(fetchedMentors);
-            setLoading(false);
-        });
+        const unsubscribe = getMentors(
+            currentUser.uid, 
+            (fetchedMentors) => {
+                setError(null);
+                setMentors(fetchedMentors);
+                setLoading(false);
+            },
+            (err) => {
+                console.error(err);
+                setError(err.message);
+                toast({
+                    variant: "destructive",
+                    title: "Failed to load mentors",
+                    description: err.message,
+                });
+                setLoading(false);
+            }
+        );
 
         // Cleanup subscription on unmount or when currentUser changes
         return () => unsubscribe();
-    }, [currentUser]);
+    }, [currentUser, toast]);
 
     return (
         <div className="container mx-auto px-4 md:px-6 py-12">
@@ -60,8 +75,13 @@ export default function MentorsPage() {
                     Connect with experienced professionals and alumni from the community.
                 </p>
             </div>
-
-            {loading ? (
+            {error ? (
+                <div className="flex flex-col items-center justify-center text-center py-16 px-4 border-2 border-dashed rounded-lg border-destructive/50">
+                    <AlertTriangle className="w-16 h-16 text-destructive" />
+                    <h3 className="mt-4 text-xl font-semibold text-destructive">An Error Occurred</h3>
+                    <p className="mt-2 text-muted-foreground">{error}</p>
+                </div>
+            ) : loading ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                    {Array.from({ length: 8 }).map((_, i) => <UserCardSkeleton key={i} />)}
                 </div>
@@ -74,7 +94,7 @@ export default function MentorsPage() {
                                     <AvatarFallback>{user.name ? user.name.charAt(0).toUpperCase() : <UserIcon />}</AvatarFallback>
                                 </Avatar>
                                 <div>
-                                    <CardTitle className="text-lg">{user.name || 'Community Mentor'}</CardTitle>
+                                    <h3 className="text-lg font-semibold">{user.name || 'Community Mentor'}</h3>
                                     <div className="flex flex-wrap gap-1 mt-1">
                                         <Badge variant="default" className="capitalize"><GraduationCap className="w-3 h-3 mr-1"/>Mentor</Badge>
                                         {currentUser?.college && user.college && currentUser.college.trim().toLowerCase() === user.college.trim().toLowerCase() && (
