@@ -5,7 +5,6 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import Image from "next/image";
 import { PlusCircle, Inbox, GitBranch, Trash2, Users, AlertTriangle } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -16,7 +15,7 @@ import { Badge } from "@/components/ui/badge";
 import { useAuth, useRequireAuth } from "@/context/auth-context";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
-import { createProject, getProjectsByHost, type Project, deleteProject, getContributionsForProject, type ProjectContribution } from "@/lib/firebase";
+import { createProject, getProjectsByHost, type Project, deleteProject, getContributionsForProject } from "@/lib/firebase";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   AlertDialog,
@@ -28,8 +27,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { format } from "date-fns";
 
 const formSchema = z.object({
   title: z.string().min(5, "Title must be at least 5 characters long."),
@@ -39,23 +36,20 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-const ContributionsList = ({ projectId }: { projectId: string }) => {
-    const [contributions, setContributions] = useState<ProjectContribution[]>([]);
+const ContributionCount = ({ projectId }: { projectId: string }) => {
+    const [count, setCount] = useState(0);
     const [loading, setLoading] = useState(true);
     const { toast } = useToast();
-    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         const unsubscribe = getContributionsForProject(
             projectId,
             (data) => {
-                setError(null);
-                setContributions(data);
+                setCount(data.length);
                 setLoading(false);
             },
             (err) => {
                 console.error(err);
-                setError(err.message);
                 toast({
                     variant: "destructive",
                     title: "Failed to load contributors",
@@ -67,37 +61,11 @@ const ContributionsList = ({ projectId }: { projectId: string }) => {
         return () => unsubscribe();
     }, [projectId, toast]);
 
-    if (loading) {
-        return <Skeleton className="h-24 w-full" />;
-    }
-
-    if (error) {
-        return <p className="text-sm text-destructive text-center py-4">{error}</p>;
-    }
-
-    if (contributions.length === 0) {
-        return <p className="text-sm text-muted-foreground text-center py-4">No interested contributors yet.</p>;
-    }
-    
     return (
-        <Table>
-            <TableHeader>
-                <TableRow>
-                    <TableHead>Name</TableHead>
-                    <TableHead>Email</TableHead>
-                    <TableHead className="text-right">Date</TableHead>
-                </TableRow>
-            </TableHeader>
-            <TableBody>
-                {contributions.map(reg => (
-                    <TableRow key={reg.id}>
-                        <TableCell>{reg.userName}</TableCell>
-                        <TableCell>{reg.userEmail}</TableCell>
-                        <TableCell className="text-right">{format(reg.contributedAt.toDate(), "PPP")}</TableCell>
-                    </TableRow>
-                ))}
-            </TableBody>
-        </Table>
+         <div className="flex items-center justify-between">
+            <h4 className="font-semibold flex items-center text-lg"><Users className="w-5 h-5 mr-2 text-primary" /> Interested Contributors</h4>
+            {loading ? <Skeleton className="h-8 w-12" /> : <p className="text-2xl font-bold">{count}</p>}
+        </div>
     );
 };
 
@@ -220,9 +188,8 @@ export default function ManageProjectsPage() {
                                 ))}
                             </div>
                         </CardContent>
-                        <div className="border-t bg-secondary/30 p-6">
-                            <h3 className="text-lg font-semibold mb-4">Interested Contributors</h3>
-                            <ContributionsList projectId={project.id} />
+                        <div className="border-t bg-secondary/30 p-4">
+                           <ContributionCount projectId={project.id} />
                         </div>
                     </Card>
                 ))}

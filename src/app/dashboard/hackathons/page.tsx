@@ -5,8 +5,7 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import Image from "next/image";
-import { PlusCircle, Inbox, Calendar, Trash2, UserCheck, Users, AlertTriangle } from "lucide-react";
+import { PlusCircle, Inbox, Calendar, Trash2, Users, AlertTriangle } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -15,7 +14,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useAuth, useRequireAuth } from "@/context/auth-context";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
-import { createHackathon, getHackathonsByHost, type Hackathon, deleteHackathon, getRegistrationsForHackathon, type HackathonRegistration } from "@/lib/firebase";
+import { createHackathon, getHackathonsByHost, type Hackathon, deleteHackathon, getRegistrationsForHackathon } from "@/lib/firebase";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   AlertDialog,
@@ -27,8 +26,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { format } from "date-fns";
 
 const formSchema = z.object({
   title: z.string().min(5, "Title must be at least 5 characters long."),
@@ -38,24 +35,20 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-
-const RegistrationsList = ({ hackathonId }: { hackathonId: string }) => {
-    const [registrations, setRegistrations] = useState<HackathonRegistration[]>([]);
+const RegistrationCount = ({ hackathonId }: { hackathonId: string }) => {
+    const [count, setCount] = useState(0);
     const [loading, setLoading] = useState(true);
     const { toast } = useToast();
-    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         const unsubscribe = getRegistrationsForHackathon(
             hackathonId,
             (data) => {
-                setError(null);
-                setRegistrations(data);
+                setCount(data.length);
                 setLoading(false);
             },
             (err) => {
                 console.error(err);
-                setError(err.message);
                 toast({
                     variant: "destructive",
                     title: "Failed to load registrations",
@@ -67,65 +60,10 @@ const RegistrationsList = ({ hackathonId }: { hackathonId: string }) => {
         return () => unsubscribe();
     }, [hackathonId, toast]);
 
-    if (loading) {
-        return <Skeleton className="h-24 w-full" />;
-    }
-
-    if (error) {
-        return <p className="text-sm text-destructive text-center py-4">{error}</p>
-    }
-    
-    if (registrations.length === 0) {
-        return <p className="text-sm text-muted-foreground text-center py-4">No registrations yet.</p>;
-    }
-    
-    const participants = registrations.filter(r => r.registrationType === 'participant');
-    const volunteers = registrations.filter(r => r.registrationType === 'volunteer');
-
     return (
-        <div className="space-y-6">
-            <div>
-                <h4 className="font-semibold mb-2 flex items-center"><UserCheck className="w-5 h-5 mr-2 text-primary" /> Participants ({participants.length})</h4>
-                 <Table>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead>Name</TableHead>
-                            <TableHead>Email</TableHead>
-                            <TableHead className="text-right">Registered On</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {participants.length > 0 ? participants.map(reg => (
-                            <TableRow key={reg.id}>
-                                <TableCell>{reg.userName}</TableCell>
-                                <TableCell>{reg.userEmail}</TableCell>
-                                <TableCell className="text-right">{format(reg.registeredAt.toDate(), "PPP")}</TableCell>
-                            </TableRow>
-                        )) : <TableRow><TableCell colSpan={3} className="text-center">No participants.</TableCell></TableRow>}
-                    </TableBody>
-                </Table>
-            </div>
-             <div>
-                <h4 className="font-semibold mb-2 flex items-center"><UserCheck className="w-5 h-5 mr-2 text-secondary-foreground" /> Volunteers ({volunteers.length})</h4>
-                 <Table>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead>Name</TableHead>
-                            <TableHead>Email</TableHead>
-                            <TableHead className="text-right">Registered On</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                       {volunteers.length > 0 ? volunteers.map(reg => (
-                            <TableRow key={reg.id}>
-                                <TableCell>{reg.userName}</TableCell>
-                                <TableCell>{reg.userEmail}</TableCell>
-                                <TableCell className="text-right">{format(reg.registeredAt.toDate(), "PPP")}</TableCell>
-                            </TableRow>
-                        )) : <TableRow><TableCell colSpan={3} className="text-center">No volunteers.</TableCell></TableRow>}
-                    </TableBody>
-                </Table>
-            </div>
+        <div className="flex items-center justify-between">
+            <h4 className="font-semibold flex items-center text-lg"><Users className="w-5 h-5 mr-2 text-primary" /> Total Registrations</h4>
+            {loading ? <Skeleton className="h-8 w-12" /> : <p className="text-2xl font-bold">{count}</p>}
         </div>
     );
 };
@@ -253,9 +191,8 @@ export default function ManageHackathonsPage() {
                         <CardContent className="p-6 pt-0">
                            <p className="text-sm text-muted-foreground">{hackathon.description}</p>
                         </CardContent>
-                        <div className="border-t bg-secondary/30 p-6">
-                            <h3 className="text-lg font-semibold mb-4">Registrations</h3>
-                            <RegistrationsList hackathonId={hackathon.id} />
+                        <div className="border-t bg-secondary/30 p-4">
+                           <RegistrationCount hackathonId={hackathon.id} />
                         </div>
                     </Card>
                 ))}
