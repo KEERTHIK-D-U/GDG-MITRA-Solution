@@ -35,7 +35,7 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 const storage = getStorage(app);
 
-export type UserRole = "user" | "host" | "admin" | "mentor";
+export type UserRole = "user" | "admin" | "mentor";
 
 export interface UserProfile {
     uid: string;

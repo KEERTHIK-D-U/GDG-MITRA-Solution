@@ -25,7 +25,7 @@ const formSchema = z.object({
     .regex(/[a-z]/, { message: "Password must contain at least one lowercase letter." })
     .regex(/[0-9]/, { message: "Password must contain at least one number." })
     .regex(/[^A-Za-z0-9]/, { message: "Password must contain at least one special character." }),
-  role: z.enum(["user", "host", "mentor"], { required_error: "You must select a role." }),
+  role: z.enum(["user", "mentor"], { required_error: "You must select a role." }),
   college: z.string().min(1, { message: "College name is required." }),
   linkedinUrl: z.string().url({ message: "Please enter a valid URL." }).optional().or(z.literal('')),
 });
@@ -36,12 +36,7 @@ const roleInfo = {
     user: {
         icon: User,
         title: "Community Member",
-        description: "Join events, contribute to projects, and make a difference in the community.",
-    },
-    host: {
-        icon: Trophy,
-        title: "Organizer",
-        description: "Organize events, create projects, and host hackathons for the community.",
+        description: "Join events, host your own, contribute to projects, and make a difference.",
     },
     mentor: {
         icon: GraduationCap,
@@ -69,8 +64,11 @@ export default function SignupPage() {
   });
 
   const handleRoleSelect = (role: UserRole) => {
-    setSelectedRole(role);
-    form.setValue("role", role);
+    // This function only handles 'user' and 'mentor' now
+    if (role === 'user' || role === 'mentor') {
+      setSelectedRole(role);
+      form.setValue("role", role);
+    }
   };
 
   const onSubmit: SubmitHandler<FormValues> = async (data) => {
@@ -85,14 +83,8 @@ export default function SignupPage() {
         title: "Account Created!",
         description: "You have been successfully signed up.",
       });
-
-      if (data.role === 'host') {
-        router.push("/dashboard");
-      } else if (data.role === 'mentor') {
-        router.push("/connections");
-      } else {
-        router.push("/discover");
-      }
+      
+      router.push("/discover");
 
     } catch (error: any) {
       toast({
@@ -111,18 +103,18 @@ export default function SignupPage() {
         <CardHeader className="text-center">
           <CardTitle className="text-2xl font-headline">Join Mitra</CardTitle>
           <CardDescription>
-            {selectedRole ? `You've selected the ${roleInfo[selectedRole].title} role. Fill out the details to join.` : "First, choose your role in our community."}
+            {selectedRole ? `You've selected the ${roleInfo[selectedRole as keyof typeof roleInfo].title} role. Fill out the details to join.` : "First, choose your role in our community."}
           </CardDescription>
         </CardHeader>
         <CardContent>
           {!selectedRole ? (
-             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                {(Object.keys(roleInfo) as UserRole[]).filter(r => r !== 'admin').map((role) => {
+             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {(Object.keys(roleInfo) as (keyof typeof roleInfo)[]).map((role) => {
                     const RoleIcon = roleInfo[role].icon;
                     return (
                         <Card 
                             key={role} 
-                            onClick={() => handleRoleSelect(role)}
+                            onClick={() => handleRoleSelect(role as UserRole)}
                             className="text-center p-6 cursor-pointer border-2 border-transparent hover:bg-accent hover:border-primary transition-all"
                         >
                             <div className="flex justify-center mb-4">

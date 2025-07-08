@@ -55,8 +55,6 @@ export default function LoginPage() {
   const handleRedirect = useCallback((role?: UserRole) => {
     if (role === 'admin') {
       router.push('/admin');
-    } else if (role === 'host') {
-      router.push('/dashboard');
     } else {
       router.push('/discover');
     }

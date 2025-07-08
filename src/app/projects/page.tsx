@@ -129,6 +129,7 @@ export default function ProjectsPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {filteredProjects.map((project) => {
               const hasContributed = userContributions.has(project.id);
+              const isHost = user?.uid === project.hostId;
               return (
                 <Card key={project.id} className="flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-2 hover:border-[#222222] hover:shadow-[#02006c]/40 dark:hover:border-[#00e97b] dark:hover:shadow-[#00e97b]/30">
                   <CardHeader className="p-0">
@@ -155,9 +156,11 @@ export default function ProjectsPage() {
                         className="w-full" 
                         variant={hasContributed ? "secondary" : "outline"}
                         onClick={() => !hasContributed && handleContribute(project)}
-                        disabled={hasContributed || contributing === project.id}
+                        disabled={hasContributed || contributing === project.id || isHost}
                       >
-                        {contributing === project.id ? (
+                        {isHost ? (
+                          "You are the host"
+                        ) : contributing === project.id ? (
                            "Recording..."
                         ) : hasContributed ? (
                           <>

@@ -13,7 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 
 
 export default function DashboardPage() {
-  useRequireAuth('host'); // Protect this route for hosts
+  useRequireAuth(); // Protect this route for any logged-in user
   const { user, setUser } = useAuth();
   const { toast } = useToast();
   
@@ -23,7 +23,7 @@ export default function DashboardPage() {
   const [isTutorialOpen, setIsTutorialOpen] = useState(false);
 
   useEffect(() => {
-    if (user && user.hasCompletedTutorial === false) {
+    if (user && user.hasCompletedTutorial === false && user.role !== 'host') {
       setIsTutorialOpen(true);
     }
   }, [user]);
@@ -71,7 +71,7 @@ export default function DashboardPage() {
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center space-y-4 md:space-y-0 mb-12">
             <div>
               <h1 className="text-4xl md:text-5xl font-bold tracking-tight font-headline">
-                Host Dashboard
+                My Dashboard
               </h1>
               <p className="max-w-2xl text-lg text-muted-foreground font-subheading">
                 Manage your events, projects, and hackathons.

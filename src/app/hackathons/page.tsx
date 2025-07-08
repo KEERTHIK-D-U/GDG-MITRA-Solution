@@ -102,6 +102,7 @@ export default function HackathonsPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {filteredHackathons.map((hackathon) => {
                 const isRegistered = userRegistrations.has(hackathon.id);
+                const isHost = user?.uid === hackathon.hostId;
                 return (
                   <Card key={hackathon.id} className="flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-2 hover:border-[#222222] hover:shadow-[#02006c]/40 dark:hover:border-[#00e97b] dark:hover:shadow-[#00e97b]/30">
                     <CardHeader className="p-0">
@@ -127,9 +128,11 @@ export default function HackathonsPage() {
                         className="w-full"
                         variant={isRegistered ? "secondary" : "default"}
                         onClick={() => !isRegistered && handleRegisterClick(hackathon)}
-                        disabled={isRegistered}
+                        disabled={isRegistered || isHost}
                       >
-                         {isRegistered ? (
+                         {isHost ? (
+                          "You are the host"
+                         ) : isRegistered ? (
                           <>
                             <CheckCircle className="mr-2 h-4 w-4" />
                             Registered

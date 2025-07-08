@@ -120,7 +120,7 @@ const RegistrationsList = ({ hackathonId }: { hackathonId: string }) => {
 
 
 export default function ManageHackathonsPage() {
-    useRequireAuth('host');
+    useRequireAuth();
     const { user } = useAuth();
     const { toast } = useToast();
     const [hackathons, setHackathons] = useState<Hackathon[]>([]);

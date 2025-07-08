@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Code, GitBranch, Hand, Linkedin, User as UserIcon, School, GraduationCap, HandHeart } from "lucide-react";
+import { Code, GitBranch, Hand, Linkedin, User as UserIcon, School, GraduationCap, HandHeart, LayoutDashboard } from "lucide-react";
 import * as React from "react";
 import { useAuth, useRequireAuth } from "@/context/auth-context";
 import { useToast } from "@/hooks/use-toast";
@@ -186,6 +186,13 @@ export default function ProfilePage() {
                             </div>
                         </div>
                     )}
+                </div>
+                 <div className="flex-shrink-0 self-center md:self-start">
+                    <Button asChild size="lg">
+                        <Link href="/dashboard">
+                            <LayoutDashboard className="mr-2 h-4 w-4" /> Go to Dashboard
+                        </Link>
+                    </Button>
                 </div>
             </div>
 

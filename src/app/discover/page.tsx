@@ -107,6 +107,7 @@ export default function DiscoverPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {filteredEvents.map((event) => {
                 const isRegistered = userRegistrations.has(event.id);
+                const isHost = user?.uid === event.hostId;
                 return (
                   <Card key={event.id} className="overflow-hidden flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-2 hover:border-[#222222] hover:shadow-[#02006c]/40 dark:hover:border-[#00e97b] dark:hover:shadow-[#00e97b]/30">
                     <CardHeader className="p-0">
@@ -137,9 +138,11 @@ export default function DiscoverPage() {
                         className="w-full" 
                         variant={isRegistered ? "secondary" : "outline"}
                         onClick={() => !isRegistered && handleRegisterClick(event)}
-                        disabled={isRegistered}
+                        disabled={isRegistered || isHost}
                       >
-                        {isRegistered ? (
+                        {isHost ? (
+                          "You are the host"
+                        ) : isRegistered ? (
                           <>
                             <CheckCircle className="mr-2 h-4 w-4" />
                             Registered

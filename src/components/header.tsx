@@ -166,11 +166,11 @@ export function Header() {
                       <span>Profile</span>
                     </Link>
                   </DropdownMenuItem>
-                  {user.role === 'host' && (
+                  {user.role !== 'admin' && (
                       <DropdownMenuItem asChild>
                           <Link href="/dashboard">
                               <LayoutDashboard className="mr-2 h-4 w-4" />
-                              <span>Dashboard</span>
+                              <span>My Dashboard</span>
                           </Link>
                       </DropdownMenuItem>
                   )}
