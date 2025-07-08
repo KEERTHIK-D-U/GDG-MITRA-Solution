@@ -9,7 +9,7 @@ import { WelcomeTutorial } from "@/components/welcome-tutorial";
 import { usePathname } from "next/navigation";
 
 export function TutorialProvider() {
-    const { user, setUser } = useAuth();
+    const { user, firebaseUser, setUser } = useAuth();
     const { toast } = useToast();
     const pathname = usePathname();
 
@@ -22,13 +22,22 @@ export function TutorialProvider() {
             return;
         }
 
-        // Show the tutorial if the user exists and hasn't completed it
-        if (user && !user.hasCompletedTutorial) {
-            setIsTutorialOpen(true);
+        // Show the tutorial only if the user is newly created and hasn't completed it.
+        // We determine "newly created" by checking if their creation and last sign-in times are very close.
+        if (user && firebaseUser && !user.hasCompletedTutorial) {
+            const creationTime = new Date(firebaseUser.metadata.creationTime!).getTime();
+            const lastSignInTime = new Date(firebaseUser.metadata.lastSignInTime!).getTime();
+            
+            // Show tutorial only if this is the very first sign-in (within a 5-second tolerance).
+            if (Math.abs(lastSignInTime - creationTime) < 5000) {
+                 setIsTutorialOpen(true);
+            } else {
+                setIsTutorialOpen(false);
+            }
         } else {
             setIsTutorialOpen(false);
         }
-    }, [user, pathname]);
+    }, [user, firebaseUser, pathname]);
 
     const handleFinishTutorial = async () => {
         setIsTutorialOpen(false);
