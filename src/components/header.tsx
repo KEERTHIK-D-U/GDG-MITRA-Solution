@@ -91,7 +91,7 @@ export function Header() {
       <div className="container flex h-16 items-center">
         <div className="mr-6 hidden md:flex">
           <Link href="/" className="flex items-center">
-            <Logo width={90} height={30} />
+            <Logo className="text-2xl" />
           </Link>
         </div>
 
@@ -108,7 +108,7 @@ export function Header() {
                <SheetHeader>
                 <SheetTitle asChild>
                   <Link href="/" className="flex items-center" onClick={() => setIsMobileMenuOpen(false)}>
-                    <Logo width={90} height={30} />
+                    <Logo className="text-2xl" />
                   </Link>
                 </SheetTitle>
               </SheetHeader>

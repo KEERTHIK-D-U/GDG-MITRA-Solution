@@ -35,7 +35,7 @@ export default function Home() {
         <div className="container mx-auto px-4 md:px-6">
             <div className="text-center mb-12">
                 <h2 className="text-3xl md:text-4xl font-bold font-headline flex items-center justify-center gap-x-2">
-                    What <Logo width={120} height={40}/> Stands For
+                    What <Logo /> Stands For
                 </h2>
                 <p className="text-muted-foreground mt-2 font-subheading">Our name reflects our mission to build a thriving community.</p>
             </div>
