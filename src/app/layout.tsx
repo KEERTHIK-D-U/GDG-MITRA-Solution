@@ -8,6 +8,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Footer } from "@/components/footer";
 import Script from "next/script";
+import { FloatingMentorButton } from "@/components/floating-mentor-button";
 
 export const metadata: Metadata = {
   title: "Mitra",
@@ -40,7 +41,8 @@ export default function RootLayout({
             </main>
             <Footer />
             <Toaster />
-            <div className="fixed bottom-4 right-4 z-50">
+            <div className="fixed bottom-4 right-4 z-50 flex flex-col items-center gap-4">
+              <FloatingMentorButton />
               <ThemeToggle />
             </div>
           </AuthProvider>
