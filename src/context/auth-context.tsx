@@ -73,6 +73,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 export function useRequireAuth(role: UserRole | null = null, redirectUrl = '/login') {
     const { user, loading } = useAuth();
     const router = useRouter();
+    const { toast } = useToast();
 
     useEffect(() => {
         if (loading) return; // Don't do anything while loading
@@ -83,17 +84,22 @@ export function useRequireAuth(role: UserRole | null = null, redirectUrl = '/log
         }
         
         if (role && user.role !== role) {
+            // Let the user know why they are being redirected
+            toast({
+                variant: "destructive",
+                title: "Access Denied",
+                description: "You do not have the required role to view this page.",
+            });
+
             // If a specific role is required and the user doesn't have it, redirect.
             // A simple redirect to a default page based on their actual role.
             if (user.role === 'admin') {
               router.push('/admin');
-            } else if (user.role === 'host') {
-              router.push('/dashboard');
             } else {
-              router.push('/discover');
+              router.push('/discover'); // Default redirect for all other roles
             }
         }
-    }, [user, loading, router, redirectUrl, role]);
+    }, [user, loading, router, redirectUrl, role, toast]);
 
     return { user, loading };
 }
