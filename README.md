@@ -141,6 +141,3 @@ Mitra solves this by:
 | **Gemini API (Google AI)** | AI model used to assess content originality |
 | **Next.js / TypeScript** | Frontend and routing |
 | **Tailwind CSS** | Responsive UI styling |
-
----
-
