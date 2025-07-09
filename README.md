@@ -125,11 +125,12 @@ Mitra solves this by:
 ## 🌐 Live Prototype
 
 **Firebase Public View**  
-[Click to View](https://9000-firebase-studio-1751647921366.cluster-bg6uurscprhn6qxr6xwtrhvkf6.cloudworkstations.dev/?monospaceUid=393784)
+[Click to View](https://studio--mitra-29fln.us-central1.hosted.app/)
 
 ## 🔗 GitHub Repository
 
 [GitHub Link](https://github.com/KEERTHIK-D-U/GDG-MITRA-Solution)
+
 
 ## 🛠️ Tech Stack / Google Technologies Used
 
