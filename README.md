@@ -99,52 +99,47 @@ service cloud.firestore {
 }
 ```
 
-## 🚀 Version Control with Git & GitHub
 
-### Initial Push to a New Repository
+## 💡 Problem Statement
 
-If you haven't pushed this project to GitHub yet, follow these steps to set it up.
+Many students in our college have technical skills but lack awareness about open-source communities, real-world project contribution, and collaborative peer learning. There is also difficulty in bringing diverse student interests under one unified ecosystem.
 
-1.  **Create a new repository on GitHub**: Go to [GitHub](https://github.com/new) and create a new, empty repository. Do **not** initialize it with a README, .gitignore, or license file.
+## ✅ Solution Overview
 
-2.  **Run the following commands in your terminal**:
+Mitra solves this by:
 
-    ```bash
-    # Initialize a new Git repository and switch to the 'main' branch
-    git init -b main
+- Providing orientation on open-source communities and GDG
+- Hosting hackathons and real-world project listings
+- Creating sub-groups (Android, Web, Cloud) under GDG
+- Enabling peer-to-peer mentorship and guidance
+- Integrating Google AI to educate about copyright & plagiarism
 
-    # Add all files to the staging area
-    git add .
+## 🚀 Features Implemented
 
-    # Commit your changes
-    git commit -m "Initial commit"
+- **Orientation Page** to educate about OSS and GDG
+- **AI Copyright Checker** using Gemini API
+- **Hackathon & Project Section** for experience building
+- **Subgroup Cards** for Android, Web, Cloud learning tracks
+- **Mentor Listings** (sample) to encourage peer learning
 
-    # Add your new GitHub repository as the remote origin
-    # Replace YOUR_USERNAME and YOUR_REPOSITORY with your actual GitHub details
-    git remote add origin https://github.com/YOUR_USERNAME/YOUR_REPOSITORY.git
+## 🌐 Live Prototype
 
-    # Push your code to GitHub
-    git push -u origin main
-    ```
+**Firebase Public View**  
+[Click to View](https://9000-firebase-studio-1751647921366.cluster-bg6uurscprhn6qxr6xwtrhvkf6.cloudworkstations.dev/?monospaceUid=393784)
 
-### Pushing Updates to an Existing Repository
+## 🔗 GitHub Repository
 
-Once your repository is set up on GitHub, follow these simple steps to save your changes.
+[GitHub Link](https://github.com/KEERTHIK-D-U/GDG-MITRA-Solution)
 
-1.  **Stage your changes**: This prepares all modified files for your next save point (commit).
+## 🛠️ Tech Stack / Google Technologies Used
 
-    ```bash
-    git add .
-    ```
+| Technology | Usage |
+|------------|-------|
+| **Google IDX** | Cloud IDE for collaborative coding |
+| **Firebase Studio** | Hosting, Firestore DB, and app backend |
+| **Gemini API (Google AI)** | AI model used to assess content originality |
+| **Next.js / TypeScript** | Frontend and routing |
+| **Tailwind CSS** | Responsive UI styling |
 
-2.  **Commit your changes**: This saves a snapshot of your staged files. Replace `"Your commit message"` with a brief description of the changes you made (e.g., `"Updated landing page headline"`).
+---
 
-    ```bash
-    git commit -m "Your commit message"
-    ```
-
-3.  **Push your changes to GitHub**: This uploads your new commit to the repository.
-
-    ```bash
-    git push
-    ```
